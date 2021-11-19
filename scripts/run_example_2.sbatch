@@ -2,7 +2,7 @@
 #SBATCH -J Example_2
 #SBATCH --output=Example_2-%j.out
 #SBATCH --nodes=1
-#SBATCH --tasks-per-node=20
+#SBATCH --tasks-per-node=36
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:10:00
 #SBATCH --mem=12020
