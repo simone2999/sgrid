@@ -38,16 +38,25 @@ public:
     using MDRange = Kokkos::MDRangePolicy<Kokkos::Rank<Dim>, ExecutionSpace>;
     using Range = Kokkos::RangePolicy<ExecutionSpace>;
 
-    template <typename ToMemSpace, typename ToExecutionSpace,
-              typename FromMemSpace, typename FromExecutionSpace>
-    friend void
-    deep_copy(LocalGrid<ToMemSpace, ToExecutionSpace> &to,
-              const LocalGrid<FromMemSpace, FromExecutionSpace> &from) {
-      Kokkos::deep_copy(to.global_dim, from.global_dim);
-      Kokkos::deep_copy(to.start, from.start);
-      Kokkos::deep_copy(to.margin, from.margin);
-      Kokkos::deep_copy(to.dim, from.dim);
-      Kokkos::deep_copy(to.dim_with_margin, from.dim_with_margin);
+    // template <typename ToMemSpace, typename ToExecutionSpace,
+    //           typename FromMemSpace, typename FromExecutionSpace>
+    // friend void
+    // deep_copy(LocalGrid<ToMemSpace, ToExecutionSpace> &to,
+    //           const LocalGrid<FromMemSpace, FromExecutionSpace> &from) {
+    //   Kokkos::deep_copy(to.global_dim, from.global_dim);
+    //   Kokkos::deep_copy(to.start, from.start);
+    //   Kokkos::deep_copy(to.margin, from.margin);
+    //   Kokkos::deep_copy(to.dim, from.dim);
+    //   Kokkos::deep_copy(to.dim_with_margin, from.dim_with_margin);
+    // }
+
+    template <typename FromMemSpace, typename FromExecutionSpace>
+    void deep_copy(const LocalGrid<FromMemSpace, FromExecutionSpace> &from) {
+      Kokkos::deep_copy(global_dim, from.global_dim);
+      Kokkos::deep_copy(start, from.start);
+      Kokkos::deep_copy(margin, from.margin);
+      Kokkos::deep_copy(dim, from.dim);
+      Kokkos::deep_copy(dim_with_margin, from.dim_with_margin);
     }
 
     MDRange md_range_with_ghosts() {
@@ -181,7 +190,7 @@ public:
           grid_host_.dim[d] + 2 * grid_host_.margin[d];
     }
 
-    deep_copy(grid_device_, grid_host_);
+    grid_device_.deep_copy(grid_host_);
 
     for (int d = 0; d < Dim; ++d) {
       proc_dims_[d] = proc_dims[d];
