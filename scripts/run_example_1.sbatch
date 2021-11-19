@@ -11,7 +11,7 @@
 #SBATCH --account=u2
 
 
-module load openmpi python
+source /apps/daint/UES/anfink/cpu/environment
 
 nx=300
 ny=300

@@ -10,7 +10,7 @@
 #SBATCH -C mc
 #SBATCH --account=u2
 
-module load openmpi python
+source /apps/daint/UES/anfink/cpu/environment
 
 n=100
 nx=$n
