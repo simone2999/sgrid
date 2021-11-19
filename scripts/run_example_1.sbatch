@@ -7,7 +7,9 @@
 #SBATCH --time=00:10:00
 #SBATCH --mem=12020
 #SBATCH --exclusive
-#SBATCH --partition=slim
+#SBATCH -C mc
+#SBATCH --account=u2
+
 
 module load openmpi python
 
@@ -21,6 +23,6 @@ export OMP_NUM_THREADS=1
 export OMP_PROC_BIND=false
 
 echo './example_1 '$nx' '$ny
-mpirun ./example_1 $nx $ny
+srun ./example_1 $nx $ny
 
 python3  ../scripts/plot.py --path=data.raw --nx=$nx --ny=$ny --output=out.pdf
