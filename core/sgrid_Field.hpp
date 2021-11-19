@@ -9,7 +9,7 @@
 
 namespace sgrid {
 
-enum StencilType { CROSS_STENCIL = 0, STAR_STENCIL = 1 };
+enum StencilType { STAR_STENCIL = 0, BOX_STENCIL = 1 };
 
 template <class Grid_> class Field {
 public:
@@ -28,7 +28,7 @@ public:
 
   explicit Field(const std::string &name, const std::shared_ptr<Grid> &grid,
                  int block_size = 1,
-                 const StencilType stencil_type = CROSS_STENCIL)
+                 const StencilType stencil_type = STAR_STENCIL)
       : name_(name), grid_(grid), block_size_(block_size),
         stencil_type_(stencil_type) {}
 
@@ -152,7 +152,7 @@ private:
   std::string name_;
   std::shared_ptr<Grid> grid_;
   int block_size_{1};
-  StencilType stencil_type_{CROSS_STENCIL};
+  StencilType stencil_type_{STAR_STENCIL};
 
   LocalFieldDevice field_device_;
   LocalFieldHost field_host_;
@@ -169,7 +169,7 @@ private:
       }
     }
 
-    if (stencil_type_ == STAR_STENCIL) {
+    if (stencil_type_ == BOX_STENCIL) {
       if (Grid::Dim == 3) {
         for (int d = 0; d < Grid::Dim; ++d) {
           auto side = std::make_unique<EdgeHalo>(*this);

@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
     // Memory allocation
     ////////////////////////////////////////////////////////////
 
-    Field_t x("x", g, block_size, sgrid::STAR_STENCIL);
-    // Field_t x("x", g, block_size, sgrid::CROSS_STENCIL);
+    Field_t x("x", g, block_size, sgrid::BOX_STENCIL);
+    // Field_t x("x", g, block_size, sgrid::STAR_STENCIL);
     x.allocate_on_device(); // Only allocates device
 
     auto x_dev = x.view_device();
