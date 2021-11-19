@@ -38,18 +38,6 @@ public:
     using MDRange = Kokkos::MDRangePolicy<Kokkos::Rank<Dim>, ExecutionSpace>;
     using Range = Kokkos::RangePolicy<ExecutionSpace>;
 
-    // template <typename ToMemSpace, typename ToExecutionSpace,
-    //           typename FromMemSpace, typename FromExecutionSpace>
-    // friend void
-    // deep_copy(LocalGrid<ToMemSpace, ToExecutionSpace> &to,
-    //           const LocalGrid<FromMemSpace, FromExecutionSpace> &from) {
-    //   Kokkos::deep_copy(to.global_dim, from.global_dim);
-    //   Kokkos::deep_copy(to.start, from.start);
-    //   Kokkos::deep_copy(to.margin, from.margin);
-    //   Kokkos::deep_copy(to.dim, from.dim);
-    //   Kokkos::deep_copy(to.dim_with_margin, from.dim_with_margin);
-    // }
-
     template <typename FromMemSpace, typename FromExecutionSpace>
     void deep_copy(const LocalGrid<FromMemSpace, FromExecutionSpace> &from) {
       Kokkos::deep_copy(global_dim, from.global_dim);
@@ -278,12 +266,6 @@ public:
         for (int d = 0; d < Dim; ++d) {
           printf("(%ld, %d)\t", grid_host_.start[d], grid_host_.dim[d]);
         }
-
-        // int left = neigh(-1, 0);
-        // int right = neigh(1, 0);
-        // int diag = neigh(1, 1);
-
-        // printf("\nleft=%d, right=%d, diag=%d\n", left, right, diag);
 
         printf("\n");
         printf("=============================\n");

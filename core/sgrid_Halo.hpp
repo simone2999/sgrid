@@ -98,20 +98,6 @@ public:
 
           int tag = 0;
 
-          // for (int r = 0; r < grid->comm_size(); ++r) {
-
-          //   if (r == grid->comm_rank()) {
-          //     printf("[%d] -> (%d, %d, %d) : neigh=%d -> (%d, %d, %d), "
-          //            "disp=(%d, %d, %d)\n",
-          //            grid->comm_rank(), grid->comm_coord(0),
-          //            grid->comm_coord(1), grid->comm_coord(2), neigh_rank,
-          //            proc_coord_disp[0], proc_coord_disp[1],
-          //            proc_coord_disp[2], disp[0][i], disp[1][j], disp[2][k]);
-          //   }
-
-          //   // MPI_Barrier(grid->raw_comm());
-          // }
-
           CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr, block_size, real_type,
                                        neigh_rank, tag, recv_ptr, block_size,
                                        real_type, neigh_rank, tag,
@@ -178,8 +164,6 @@ public:
 
     int count = g_host.dim[dim];
     int block_size = field_.block_size();
-
-    // printf("dim=%d, count=%d stride=%d\n", dim, count, stride);
 
     CATCH_MPI_ERROR(
         MPI_Type_vector(count, block_size, stride, real_type, &recv_type_));
@@ -263,23 +247,6 @@ public:
           auto recv_ptr = field_host.p_block(recv_idx);
 
           int tag = 0;
-
-          // for (int r = 0; r < grid->comm_size(); ++r) {
-
-          //   if (r == grid->comm_rank()) {
-
-          //     printf("[%d] -> (%d, %d, %d) : neigh=%d -> (%d, %d, %d), d0=%d,
-          //     "
-          //            "d1=%d, disp=(%d, %d)\n",
-          //            grid->comm_rank(), grid->comm_coord(0),
-          //            grid->comm_coord(1), grid->comm_coord(2), neigh_rank,
-          //            proc_coord_disp[0], proc_coord_disp[1],
-          //            proc_coord_disp[2], d0, d1, disp[d0][disp_num_0],
-          //            disp[d1][disp_num_1]);
-          //   }
-
-          //   MPI_Barrier(grid->raw_comm());
-          // }
 
           CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr, 1, send_type_, neigh_rank, tag,
                                        recv_ptr, 1, recv_type_, neigh_rank, tag,
