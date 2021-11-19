@@ -25,4 +25,4 @@ export OMP_PROC_BIND=false
 echo './example_1 '$nx' '$ny
 srun ./example_1 $nx $ny
 
-python3  ../scripts/plot.py --path=data.raw --nx=$nx --ny=$ny --output=out.pdf
+# python3  ../scripts/plot.py --path=data.raw --nx=$nx --ny=$ny --output=out.pdf
