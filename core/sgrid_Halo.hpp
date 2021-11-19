@@ -142,8 +142,6 @@ public:
   bool init(int dim) {
     destroy();
 
-    type_ = MPI_DATATYPE_NULL;
-
     if (Grid::Dim < 3)
       return false;
 
@@ -184,9 +182,14 @@ public:
     // printf("dim=%d, count=%d stride=%d\n", dim, count, stride);
 
     CATCH_MPI_ERROR(
-        MPI_Type_vector(count, block_size, stride, real_type, &type_));
+        MPI_Type_vector(count, block_size, stride, real_type, &recv_type_));
 
-    MPI_Type_commit(&type_);
+    MPI_Type_commit(&recv_type_);
+
+    CATCH_MPI_ERROR(
+        MPI_Type_vector(count, block_size, stride, real_type, &send_type_));
+
+    MPI_Type_commit(&send_type_);
 
     return true;
   }
@@ -278,8 +281,8 @@ public:
           //   MPI_Barrier(grid->raw_comm());
           // }
 
-          CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr, 1, type_, neigh_rank, tag,
-                                       recv_ptr, 1, type_, neigh_rank, tag,
+          CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr, 1, send_type_, neigh_rank, tag,
+                                       recv_ptr, 1, recv_type_, neigh_rank, tag,
                                        grid->raw_comm(), MPI_STATUS_IGNORE));
         }
       }
@@ -297,12 +300,20 @@ private:
 
   int dim_;
   int dims_[Grid::Dim - 1];
-  MPI_Datatype type_{MPI_DATATYPE_NULL};
+  MPI_Datatype recv_type_{MPI_DATATYPE_NULL};
+  MPI_Datatype send_type_{MPI_DATATYPE_NULL};
 
   void destroy() {
-    if (type_ != MPI_DATATYPE_NULL) {
-      MPI_Type_free(&type_);
+    if (recv_type_ != MPI_DATATYPE_NULL) {
+      MPI_Type_free(&recv_type_);
     }
+
+    if (send_type_ != MPI_DATATYPE_NULL) {
+      MPI_Type_free(&send_type_);
+    }
+
+    recv_type_ = MPI_DATATYPE_NULL;
+    send_type_ = MPI_DATATYPE_NULL;
   }
 };
 
