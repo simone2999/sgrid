@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     auto g = std::make_shared<Grid_t>();
     g->init(MPI_COMM_WORLD, {nx, ny}, {0, 0});
-    g->describe();
+    // g->describe();
 
     auto g_dev = g->view_device();
 
