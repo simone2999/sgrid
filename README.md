@@ -22,6 +22,7 @@ export LD_LIBRARY_PATH=$TRILINOS_DIR/lib:$LD_LIBRARY_PATH
 cd sgrid
 mkdir build
 cmake .. -DKokkosKernels_DIR=$TRILINOS_DIR/lib/cmake/KokkosKernels -DCMAKE_CXX_FLAGS=-fopenmp \
+-DCMAKE_INSTALL_PREFIX=$HOME/sgrid_installation \
 && make && make install
 
 ```
