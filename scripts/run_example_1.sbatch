@@ -5,7 +5,6 @@
 #SBATCH --tasks-per-node=36
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:10:00
-#SBATCH --mem=12020
 #SBATCH --exclusive
 #SBATCH -C mc
 #SBATCH --account=u2
