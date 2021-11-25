@@ -35,7 +35,7 @@ inline void unpack_to_array(A *array, int offset, T1 first, T2 second) {
 template <typename T> MPI_Datatype MPIType() { return MPI_DATATYPE_NULL; }
 
 #define SGRID_DEFINE_MPI_TYPE(_type, _mpi_type)                                \
-  template <> MPI_Datatype MPIType<_type>() { return _mpi_type; }
+  template <> inline MPI_Datatype MPIType<_type>() { return _mpi_type; }
 
 SGRID_DEFINE_MPI_TYPE(double, MPI_DOUBLE)
 SGRID_DEFINE_MPI_TYPE(float, MPI_FLOAT)
