@@ -28,10 +28,10 @@ foreach(MODULE ${SGRID_MODULES})
     add_subdirectory("${MODULE}")
 endforeach(MODULE)
 
-message(STATUS "HERE:\n
-              SGRID_DEP_INCLUDES=${SGRID_DEP_INCLUDES}\n
-              SGRID_DEP_LIBRARIES=${SGRID_DEP_LIBRARIES}
-              ")
+# message(STATUS "HERE:\n
+#               SGRID_DEP_INCLUDES=${SGRID_DEP_INCLUDES}\n
+#               SGRID_DEP_LIBRARIES=${SGRID_DEP_LIBRARIES}
+#               ")
 
 add_library(sgrid ${SGRID_SOURCES} ${SGRID_HEADERS})
 
