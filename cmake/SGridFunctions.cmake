@@ -81,3 +81,8 @@ function(scan_directories in_root_dir in_dirs_to_be_scanned out_includes
 endfunction()
 
 # ##############################################################################
+
+macro (sgrid_set_compiler_features target_)
+target_compile_features(${target_} PUBLIC cxx_std_14)
+endmacro(sgrid_set_compiler_features)
+
