@@ -1,0 +1,7 @@
+#ifndef SGRID_CONFIG_HPP
+#define SGRID_CONFIG_HPP
+
+#cmakedefine SGRID_WITH_KOKKOS
+#cmakedefine SGRID_WITH_KOKKOS_KERNELS
+
+#endif //SGRID_CONFIG_HPP

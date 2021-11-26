@@ -26,12 +26,49 @@ if(MPI_CXX_LIBRARIES)
         "${SGRID_DEP_LIBRARIES};${MPI_CXX_LIBRARIES}")
 endif()
 
-# Kokkos
-find_package(KokkosKernels REQUIRED)
 
-if(KokkosKernels_FOUND)
+########################################################################################################################
+
+if(SGRID_ENABLE_KOKKOS)
+    find_package(Kokkos REQUIRED)
+
+    if (TARGET Kokkos::kokkos)
+        set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkos")
+
+        # get_target_property(Kokkos_INCLUDE_DIRS Kokkos::kokkos INTERFACE_INCLUDE_DIRECTORIES)
+        # get_target_property(Kokkos_LIBRARIES Kokkos::kokkos INTERFACE_LINK_LIBRARIES)
+        # get_target_property(Kokkos_LIBRARY_DIRS Kokkos::kokkos INTERFACE_LINK_DIRECTORIES)
+
+    else()
+        set(SGRID_DEP_LIBRARIES
+            "${SGRID_DEP_LIBRARIES};${Kokkos_LIBRARIES};${Kokkos_TPL_LIBRARIES}")
+
+        set(SGRID_DEP_INCLUDES
+            "${SGRID_DEP_INCLUDES};${Kokkos_INCLUDE_DIRS}")
+    endif()
+
+    # message("\nFound Kokkos!  Here are the details: ")
+    # message(" Kokkos_CXX_COMPILER = ${Kokkos_CXX_COMPILER}")
+    # message(" Kokkos_INCLUDE_DIRS = ${Kokkos_INCLUDE_DIRS}")
+    # message(" Kokkos_LIBRARIES = ${Kokkos_LIBRARIES}")
+    # message(" Kokkos_TPL_LIBRARIES = ${Kokkos_TPL_LIBRARIES}")
+    # message(" Kokkos_LIBRARY_DIRS = ${Kokkos_LIBRARY_DIRS}")
+
+    if(Kokkos_CXX_COMPILER)
+        set(CMAKE_C_COMPILER ${Kokkos_C_COMPILER})
+        set(CMAKE_CXX_COMPILER ${Kokkos_CXX_COMPILER})
+    endif()
+
+    set(SGRID_WITH_KOKKOS TRUE)
+endif()
+
+########################################################################################################################
+
+if(SGRID_ENABLE_KOKKOS_KERNELS)
+    find_package(KokkosKernels REQUIRED)
+
     if (TARGET Kokkos::kokkoskernels)
-        set(SGRID_DEP_LIBRARIES "${SGRID_DEP_LIBRARIES};Kokkos::kokkoskernels")
+        set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkoskernels")
     else()
         set(SGRID_DEP_INCLUDES
             "${SGRID_DEP_INCLUDES};${KokkosKernels_TPL_INCLUDE_DIRS};${KokkosKernels_INCLUDE_DIRS}")
@@ -44,14 +81,17 @@ if(KokkosKernels_FOUND)
                 "${SGRID_DEP_LIBRARIES};${KokkosKernels_LIBRARIES};${KokkosKernels_TPL_LIBRARIES};-L${KokkosKernels_LIBRARY_DIRS}")
         endif()
     endif()
-endif()
 
-if(KokkosKernels_C_COMPILER)
-    set(CMAKE_C_COMPILER "${KokkosKernels_C_COMPILER}")
-endif()
+    if(KokkosKernels_C_COMPILER)
+        set(CMAKE_C_COMPILER "${KokkosKernels_C_COMPILER}")
+    endif()
 
-if(KokkosKernels_CXX_COMPILER)
-    set(CMAKE_CXX_COMPILER "${KokkosKernels_CXX_COMPILER}")
+    if(KokkosKernels_CXX_COMPILER)
+        set(CMAKE_CXX_COMPILER "${KokkosKernels_CXX_COMPILER}")
+    endif()
+
+    set(SGRID_WITH_KOKKOS_KERNELS TRUE)
+    set(SGRID_WITH_KOKKOS TRUE)
 endif()
 
 

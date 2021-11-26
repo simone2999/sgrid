@@ -42,6 +42,7 @@ endforeach()
 
 target_include_directories(sgrid SYSTEM PUBLIC ${SGRID_DEP_INCLUDES})
 target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
+target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
 sgrid_set_compiler_features(sgrid)
 
 target_include_directories(
@@ -51,11 +52,11 @@ target_include_directories(
 
 # ##############################################################################
 
-add_executable(example_1 drivers/example_1.cpp)
-target_link_libraries(example_1 PUBLIC sgrid)
+add_executable(sgrid_example_1 drivers/example_1.cpp)
+target_link_libraries(sgrid_example_1 PUBLIC sgrid)
 
-add_executable(example_2 drivers/example_2.cpp)
-target_link_libraries(example_2 PUBLIC sgrid)
+add_executable(sgrid_example_2 drivers/example_2.cpp)
+target_link_libraries(sgrid_example_2 PUBLIC sgrid)
 
 
 # ##############################################################################

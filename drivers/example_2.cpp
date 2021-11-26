@@ -3,9 +3,6 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
 
-#include "KokkosBlas1_axpby.hpp"
-#include "KokkosBlas1_nrm2.hpp"
-
 #include <fstream>
 #include <mpi.h>
 
@@ -27,7 +24,7 @@ using Field_t = sgrid::Field<Grid_t>;
 int main(int argc, char *argv[]) {
 
   MPI_Init(&argc, &argv);
-  Kokkos::initialize(argc, argv);
+  sgrid::initialize(argc, argv);
   ////////////////////////////////////////////////////////////////////////
 
   {
@@ -80,8 +77,8 @@ int main(int argc, char *argv[]) {
 
     auto x_dev = x.view_device();
 
-    Kokkos::parallel_for(
-        "RHS", g->md_range(), KOKKOS_LAMBDA(int i, int j, int k) {
+    sgrid::parallel_for(
+        "RHS", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
           const Real x = (g_dev.start[0] + i) * hx;
           const Real y = (g_dev.start[1] + j) * hy;
           const Real z = (g_dev.start[2] + k) * hz;
@@ -99,7 +96,7 @@ int main(int argc, char *argv[]) {
     Real user_time = end - start;
 
     if (rank == 0) {
-      printf("Device: \"%s\"\n", typeid(DeviceExecutionSpace).name());
+      printf("Device: \"%s\"\n", typeid(sgrid::DeviceExecutionSpace).name());
       printf("Setup and kernel call:\t%g (seconds)\n", user_time);
     }
 
@@ -142,6 +139,6 @@ int main(int argc, char *argv[]) {
   }
 
   ////////////////////////////////////////////////////////////////////////
-  Kokkos::finalize();
+  sgrid::finalize();
   return MPI_Finalize();
 }

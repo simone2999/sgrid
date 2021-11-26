@@ -4,6 +4,8 @@
 #include "sgrid_Base.hpp"
 
 #include <cassert>
+#include <utility>
+
 #include <mpi.h>
 
 #define CATCH_MPI_ERROR(err)                                                   \

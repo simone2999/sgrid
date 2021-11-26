@@ -1,6 +1,10 @@
 #ifndef SGRID_RAW_IO_HPP
 #define SGRID_RAW_IO_HPP
 
+#include <string>
+
+#include <mpi.h>
+
 namespace sgrid {
 
 template <class Field> class RawIO {
@@ -9,7 +13,7 @@ public:
   using Real = typename Field::Real;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = Kokkos::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   void set_output_path(const std::string &output_path) {
@@ -26,7 +30,7 @@ public:
     auto grid = field_.grid();
 
     MPI_Comm comm = grid->raw_comm();
-    auto g_host = grid->view_host();
+    // auto g_host = grid->view_host();
 
     MPI_Datatype real_type = MPIType<Real>();
 

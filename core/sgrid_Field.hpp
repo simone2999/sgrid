@@ -18,7 +18,7 @@ public:
   using LocalOrdinal = typename Grid::LocalOrdinal;
   using GlobalOrdinal = typename Grid::GlobalOrdinal;
 
-  using ViewDevice = Kokkos::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   using SideHalo = sgrid::SideHalo<Field>;
@@ -47,7 +47,7 @@ public:
     assert(!field_device_.empty());
 
     field_host_.grid_ = grid_->view_host();
-    field_host_.data_ = Kokkos::create_mirror_view(field_device_.data_);
+    field_host_.data_ = sgrid::create_mirror_view(field_device_.data_);
     field_host_.block_size_ = block_size_;
   }
 
@@ -61,47 +61,47 @@ public:
       allocate_on_host();
     }
 
-    Kokkos::deep_copy(field_host_.data_, field_device_.data_);
+    sgrid::deep_copy(field_host_.data_, field_device_.data_);
   }
 
   void synch_host_to_device() {
     assert(!field_host_.empty());
-    Kokkos::deep_copy(field_device_.data_, field_host_.data_);
+    sgrid::deep_copy(field_device_.data_, field_host_.data_);
   }
 
   template <class LocalGrid, class View> class LocalField {
   public:
     // Only for scalar fields
     template <typename... Args>
-    KOKKOS_INLINE_FUNCTION Real &ref(Args... args) const {
+    SGRID_INLINE_FUNCTION Real &ref(Args... args) const {
       LocalOrdinal node = grid_.node_idx(args...);
       return data_[node];
     }
 
     template <typename... Args>
-    KOKKOS_INLINE_FUNCTION Real &operator()(Args... args) const {
+    SGRID_INLINE_FUNCTION Real &operator()(Args... args) const {
       return ref(args...);
     }
     template <typename... Args>
-    KOKKOS_INLINE_FUNCTION Real *block(Args... args) const {
+    SGRID_INLINE_FUNCTION Real *block(Args... args) const {
       LocalOrdinal node = grid_.node_idx(args...);
       return &data_[node * block_size_];
     }
 
-    KOKKOS_INLINE_FUNCTION Real *p_block(const LocalOrdinal *idx) {
+    SGRID_INLINE_FUNCTION Real *p_block(const LocalOrdinal *idx) {
       auto node = grid_.p_node_idx(idx);
       return &data_[node * block_size_];
     }
 
     // Only for scalar fields
-    KOKKOS_INLINE_FUNCTION Real &p_ref(const LocalOrdinal *idx) const {
+    SGRID_INLINE_FUNCTION Real &p_ref(const LocalOrdinal *idx) const {
       assert(block_size_ == 1);
       return data_[grid_.p_node_idx(idx)];
     }
 
-    KOKKOS_INLINE_FUNCTION bool empty() const { return block_size_ == -1; }
+    SGRID_INLINE_FUNCTION bool empty() const { return block_size_ == -1; }
 
-    void set(const Real value) { Kokkos::deep_copy(data_, value); }
+    void set(const Real value) { sgrid::deep_copy(data_, value); }
 
     inline View data() { return data_; }
     inline Real *ptr() { return &data_[0]; }

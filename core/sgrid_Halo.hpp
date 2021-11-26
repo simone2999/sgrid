@@ -18,7 +18,7 @@ public:
   using Real = typename Field::Real;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = Kokkos::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   static constexpr int MaxDim = 3;
@@ -122,7 +122,7 @@ public:
   using Real = typename Field::Real;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = Kokkos::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   bool init(int dim) {
@@ -293,7 +293,7 @@ public:
   using Real = typename Field::Real;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = Kokkos::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   SideHalo(Field &field) : field_(field) {}

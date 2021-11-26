@@ -3,6 +3,7 @@
 
 #include "sgrid_Base.hpp"
 #include "sgrid_Utils.hpp"
+#include "sgrid_View.hpp"
 
 #include <mpi.h>
 #include <type_traits>
@@ -19,32 +20,32 @@ public:
   using Real = Real_;
   static constexpr int Dim = Dim_;
 
-  using ViewHost = Kokkos::View<Real *, HostMemorySpace>;
-  using ViewDevice = Kokkos::View<Real *, DeviceMemorySpace>;
-  using IntD = Kokkos::View<LocalOrdinal[Dim], HostMemorySpace>;
+  using ViewHost = sgrid::View<Real *, HostMemorySpace>;
+  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
+  using IntD = sgrid::View<LocalOrdinal[Dim], HostMemorySpace>;
 
   using MDRangeDevice =
-      Kokkos::MDRangePolicy<Kokkos::Rank<Dim>, DeviceExecutionSpace>;
+      sgrid::MDRangePolicy<sgrid::Rank<Dim>, DeviceExecutionSpace>;
 
   using MDRangeHost =
-      Kokkos::MDRangePolicy<Kokkos::Rank<Dim>, HostExecutionSpace>;
+      sgrid::MDRangePolicy<sgrid::Rank<Dim>, HostExecutionSpace>;
 
   static constexpr int dim() { return Dim; }
 
   template <class MemorySpace, class ExecutionSpace> class LocalGrid {
   public:
-    using GView = Kokkos::View<GlobalOrdinal[Dim], MemorySpace>;
-    using LView = Kokkos::View<LocalOrdinal[Dim], MemorySpace>;
-    using MDRange = Kokkos::MDRangePolicy<Kokkos::Rank<Dim>, ExecutionSpace>;
-    using Range = Kokkos::RangePolicy<ExecutionSpace>;
+    using GView = sgrid::View<GlobalOrdinal[Dim], MemorySpace>;
+    using LView = sgrid::View<LocalOrdinal[Dim], MemorySpace>;
+    using MDRange = sgrid::MDRangePolicy<sgrid::Rank<Dim>, ExecutionSpace>;
+    using Range = sgrid::RangePolicy<ExecutionSpace>;
 
     template <typename FromMemSpace, typename FromExecutionSpace>
     void deep_copy(const LocalGrid<FromMemSpace, FromExecutionSpace> &from) {
-      Kokkos::deep_copy(global_dim, from.global_dim);
-      Kokkos::deep_copy(start, from.start);
-      Kokkos::deep_copy(margin, from.margin);
-      Kokkos::deep_copy(dim, from.dim);
-      Kokkos::deep_copy(dim_with_margin, from.dim_with_margin);
+      sgrid::deep_copy(global_dim, from.global_dim);
+      sgrid::deep_copy(start, from.start);
+      sgrid::deep_copy(margin, from.margin);
+      sgrid::deep_copy(dim, from.dim);
+      sgrid::deep_copy(dim_with_margin, from.dim_with_margin);
     }
 
     MDRange md_range_with_ghosts() {
@@ -76,12 +77,12 @@ public:
       margin = LView("margin");
       dim = LView("dim");
 
-      Kokkos::deep_copy(margin, 1);
+      sgrid::deep_copy(margin, 1);
 
       dim_with_margin = LView("dim_with_margin");
     }
 
-    KOKKOS_INLINE_FUNCTION LocalOrdinal data_size() const {
+    SGRID_INLINE_FUNCTION LocalOrdinal data_size() const {
       LocalOrdinal ret = 1;
 
       for (int d = 0; d < Dim; ++d) {
@@ -93,13 +94,13 @@ public:
 
     // Comodity, but prioritize p_node_idx for more generic codes
     template <typename... Args>
-    KOKKOS_INLINE_FUNCTION int node_idx(Args... args) const {
+    SGRID_INLINE_FUNCTION int node_idx(Args... args) const {
       static_assert(sizeof...(Args) == Dim,
                     "Number of arguments must be the same as Dim of grid!");
       return tensor_idx(dim_with_margin.data(), args...);
     }
 
-    KOKKOS_INLINE_FUNCTION LocalOrdinal
+    SGRID_INLINE_FUNCTION LocalOrdinal
     p_node_idx(const LocalOrdinal *idx) const {
       int stride = 1;
       int ret = 0;
