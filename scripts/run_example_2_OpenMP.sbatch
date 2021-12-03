@@ -30,7 +30,7 @@ export OMP_NUM_THREADS=18
 export OMP_PROC_BIND=true
 export MPICH_RDMA_ENABLED_CUDA=0
 
-echo './example_2 '$nx' '$ny' '$nz' '$block_size' '$write_output
-srun ./example_2 $nx $ny $nz $block_size $write_output
+echo './sgrid_example_2 '$nx' '$ny' '$nz' '$block_size' '$write_output
+srun ./sgrid_example_2 $nx $ny $nz $block_size $write_output
 
 # python3  ../scripts/plot.py --path=data.raw --nx=$nx --ny=$ny --output=out.pdf

@@ -23,8 +23,8 @@ export OMP_PROC_BIND=false
 
 rm data*.raw
 
-echo './example_2 '$nx' '$ny' '$nz' '$block_size' '$write_output
-srun ./example_2 $nx $ny $nz $block_size $write_output
+echo './sgrid_example_2 '$nx' '$ny' '$nz' '$block_size' '$write_output
+srun ./sgrid_example_2 $nx $ny $nz $block_size $write_output
 
 # python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size && \
 #     ls -lah data*.raw

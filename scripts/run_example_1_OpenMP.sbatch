@@ -24,7 +24,7 @@ export OMP_NUM_THREADS=18
 export OMP_PROC_BIND=true
 export MPICH_RDMA_ENABLED_CUDA=0
 
-echo './example_1 '$nx' '$ny
-srun ./example_1 $nx $ny
+echo './sgrid_example_1 '$nx' '$ny
+srun ./sgrid_example_1 $nx $ny
 
 # python3  ../scripts/plot.py --path=data.raw --nx=$nx --ny=$ny --output=out.pdf

@@ -21,7 +21,7 @@ ny=300
 export OMP_NUM_THREADS=1
 export OMP_PROC_BIND=false
 
-echo './example_1 '$nx' '$ny
-srun ./example_1 $nx $ny
+echo './sgrid_example_1 '$nx' '$ny
+srun ./sgrid_example_1 $nx $ny
 
 # python3  ../scripts/plot.py --path=data.raw --nx=$nx --ny=$ny --output=out.pdf
