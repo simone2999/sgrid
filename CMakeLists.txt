@@ -11,11 +11,11 @@ project(
 )
 
 include(CMakePackageConfigHelpers)
-
 include(cmake/SGridDefaults.cmake)
-include(cmake/SGridDependencies.cmake)
 include(cmake/SGridFunctions.cmake)
 include(cmake/SGridOptions.cmake)
+
+include(cmake/SGridDependencies.cmake)
 
 # ##############################################################################
 # ##############################################################################
