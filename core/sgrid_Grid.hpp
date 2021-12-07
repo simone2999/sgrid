@@ -5,6 +5,7 @@
 #include "sgrid_Utils.hpp"
 #include "sgrid_View.hpp"
 
+#include <cstdio>
 #include <mpi.h>
 #include <type_traits>
 #include <vector>
