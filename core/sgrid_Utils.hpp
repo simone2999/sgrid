@@ -44,8 +44,8 @@ template <typename T> inline MPI_Datatype MPIType() {
 SGRID_DEFINE_MPI_TYPE(double, MPI_DOUBLE)
 SGRID_DEFINE_MPI_TYPE(float, MPI_FLOAT)
 SGRID_DEFINE_MPI_TYPE(int, MPI_INT)
-SGRID_DEFINE_MPI_TYPE(long, MPI_LONG);
-SGRID_DEFINE_MPI_TYPE(short, MPI_SHORT);
+SGRID_DEFINE_MPI_TYPE(long, MPI_LONG)
+SGRID_DEFINE_MPI_TYPE(short, MPI_SHORT)
 
 template <typename I>
 inline constexpr I tensor_idx_with_margin(const I *dims_with_margin,
