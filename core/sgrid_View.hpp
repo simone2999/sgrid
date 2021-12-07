@@ -10,6 +10,9 @@
 #endif
 #endif // PDELAB_CPU_ONLY
 
+#include "sgrid_Utils.hpp"
+
+#include <Kokkos_Complex.hpp>
 #include <Kokkos_Core.hpp>
 
 #define SGRID_INLINE_FUNCTION KOKKOS_INLINE_FUNCTION
@@ -30,6 +33,14 @@ using Kokkos::MDRangePolicy;
 using Kokkos::RangePolicy;
 using Kokkos::Rank;
 using Kokkos::View;
+
+using Kokkos::complex;
+
+using complex_double_t = Kokkos::complex<double>;
+using complex_float_t = Kokkos::complex<float>;
+
+SGRID_DEFINE_MPI_TYPE(complex_double_t, MPI_DOUBLE_COMPLEX);
+SGRID_DEFINE_MPI_TYPE(complex_float_t, MPI_COMPLEX);
 
 /////////////////////////////////////////
 

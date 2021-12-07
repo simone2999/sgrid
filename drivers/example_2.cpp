@@ -11,6 +11,7 @@ using Real = double;
 using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
 using IntField_t = sgrid::Field<Grid_t, int>;
+using ComplexField_t = sgrid::Field<Grid_t, sgrid::complex<Real>>;
 
 /**
  * @brief Largest run
@@ -83,6 +84,26 @@ int main(int argc, char *argv[]) {
 
     auto idx_dev = idx.view_device();
 
+    ComplexField_t c_field("c_field", g, 1, sgrid::BOX_STENCIL);
+    c_field.allocate_on_device();
+
+    auto c_field_dev = c_field.view_device();
+
+    int c_size;
+    MPI_Type_size(MPI_DOUBLE_COMPLEX, &c_size);
+
+    assert(c_size = sizeof(sgrid::complex_double_t));
+
+    sgrid::complex_double_t val(1. * rank, -1. * rank);
+
+    MPI_Allreduce(MPI_IN_PLACE, &val, 1,
+                  sgrid::MPIType<sgrid::complex_double_t>(), MPI_SUM,
+                  g->raw_comm());
+
+    if (rank == 0) {
+      printf("complex: (%g, %g)", val.real(), val.imag());
+    }
+
     sgrid::parallel_for(
         "RHS", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
           const Real x = (g_dev.start[0] + i) * hx;
@@ -93,6 +114,8 @@ int main(int argc, char *argv[]) {
           block[0] = (rank + 1) * (x * x + y * y + z * z);
 
           idx_dev(i, j, k) = i * ny * nz + j * nz + k;
+
+          c_field_dev(i, j, k) = (x * x + y * y + z * z);
 
           for (int b = 1; b < block_size; ++b) {
             block[b] = (b) * (x * x + y * y + z * z);
@@ -116,6 +139,7 @@ int main(int argc, char *argv[]) {
 
     x.exchange_halos();
     idx.exchange_halos();
+    c_field.exchange_halos();
 
     MPI_Barrier(g->raw_comm());
 
@@ -135,6 +159,8 @@ int main(int argc, char *argv[]) {
 
       x.write("data.raw");
       idx.write("idx.raw");
+
+      c_field.write("c_field.raw");
 
       MPI_Barrier(g->raw_comm());
 
