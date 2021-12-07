@@ -1,6 +1,8 @@
 #ifndef SGRID_VIEW_HPP
 #define SGRID_VIEW_HPP
 
+#include "sgrid_Base.hpp"
+
 #ifdef SGRID_WITH_KOKKOS
 ////////////////////////////////////////////////////////////////////////////
 
@@ -9,8 +11,6 @@
 #define PDELAB_USE_GPU
 #endif
 #endif // PDELAB_CPU_ONLY
-
-#include "sgrid_Base.hpp"
 
 #include "sgrid_Utils.hpp"
 
