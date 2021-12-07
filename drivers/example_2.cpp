@@ -10,6 +10,7 @@ using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
+using IntField_t = sgrid::Field<Grid_t, int>;
 
 /**
  * @brief Largest run
@@ -77,6 +78,11 @@ int main(int argc, char *argv[]) {
 
     auto x_dev = x.view_device();
 
+    IntField_t idx("idx", g, 1, sgrid::BOX_STENCIL);
+    idx.allocate_on_device();
+
+    auto idx_dev = idx.view_device();
+
     sgrid::parallel_for(
         "RHS", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
           const Real x = (g_dev.start[0] + i) * hx;
@@ -85,6 +91,8 @@ int main(int argc, char *argv[]) {
           auto *block = x_dev.block(i, j, k);
 
           block[0] = (rank + 1) * (x * x + y * y + z * z);
+
+          idx_dev(i, j, k) = i * ny * nz + j * nz + k;
 
           for (int b = 1; b < block_size; ++b) {
             block[b] = (b) * (x * x + y * y + z * z);
@@ -107,6 +115,7 @@ int main(int argc, char *argv[]) {
     start = MPI_Wtime();
 
     x.exchange_halos();
+    idx.exchange_halos();
 
     MPI_Barrier(g->raw_comm());
 
@@ -125,6 +134,7 @@ int main(int argc, char *argv[]) {
       start = MPI_Wtime();
 
       x.write("data.raw");
+      idx.write("idx.raw");
 
       MPI_Barrier(g->raw_comm());
 

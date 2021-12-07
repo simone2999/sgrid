@@ -11,14 +11,15 @@ namespace sgrid {
 
 enum StencilType { STAR_STENCIL = 0, BOX_STENCIL = 1 };
 
-template <class Grid_> class Field {
+template <class Grid_, typename ValueType_ = typename Grid_::Real> class Field {
 public:
   using Grid = Grid_;
   using Real = typename Grid::Real;
+  using ValueType = ValueType_;
   using LocalOrdinal = typename Grid::LocalOrdinal;
   using GlobalOrdinal = typename Grid::GlobalOrdinal;
 
-  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   using SideHalo = sgrid::SideHalo<Field>;
@@ -73,38 +74,38 @@ public:
   public:
     // Only for scalar fields
     template <typename... Args>
-    SGRID_INLINE_FUNCTION Real &ref(Args... args) const {
+    SGRID_INLINE_FUNCTION ValueType &ref(Args... args) const {
       LocalOrdinal node = grid_.node_idx(args...);
       return data_[node];
     }
 
     template <typename... Args>
-    SGRID_INLINE_FUNCTION Real &operator()(Args... args) const {
+    SGRID_INLINE_FUNCTION ValueType &operator()(Args... args) const {
       return ref(args...);
     }
     template <typename... Args>
-    SGRID_INLINE_FUNCTION Real *block(Args... args) const {
+    SGRID_INLINE_FUNCTION ValueType *block(Args... args) const {
       LocalOrdinal node = grid_.node_idx(args...);
       return &data_[node * block_size_];
     }
 
-    SGRID_INLINE_FUNCTION Real *p_block(const LocalOrdinal *idx) {
+    SGRID_INLINE_FUNCTION ValueType *p_block(const LocalOrdinal *idx) {
       auto node = grid_.p_node_idx(idx);
       return &data_[node * block_size_];
     }
 
     // Only for scalar fields
-    SGRID_INLINE_FUNCTION Real &p_ref(const LocalOrdinal *idx) const {
+    SGRID_INLINE_FUNCTION ValueType &p_ref(const LocalOrdinal *idx) const {
       assert(block_size_ == 1);
       return data_[grid_.p_node_idx(idx)];
     }
 
     SGRID_INLINE_FUNCTION bool empty() const { return block_size_ == -1; }
 
-    void set(const Real value) { sgrid::deep_copy(data_, value); }
+    void set(const ValueType value) { sgrid::deep_copy(data_, value); }
 
     inline View data() { return data_; }
-    inline Real *ptr() { return &data_[0]; }
+    inline ValueType *ptr() { return &data_[0]; }
 
     LocalGrid grid_;
     View data_;

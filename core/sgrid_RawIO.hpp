@@ -10,10 +10,10 @@ namespace sgrid {
 template <class Field> class RawIO {
 public:
   using Grid = typename Field::Grid;
-  using Real = typename Field::Real;
+  using ValueType = typename Field::ValueType;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   void set_output_path(const std::string &output_path) {
@@ -32,7 +32,7 @@ public:
     MPI_Comm comm = grid->raw_comm();
     // auto g_host = grid->view_host();
 
-    MPI_Datatype real_type = MPIType<Real>();
+    MPI_Datatype real_type = MPIType<ValueType>();
 
     MPI_File fout;
 
@@ -75,7 +75,7 @@ private:
 
     auto g_host = grid->view_host();
 
-    MPI_Datatype real_type = MPIType<Real>();
+    MPI_Datatype real_type = MPIType<ValueType>();
     int block_size = field_.block_size();
 
     int tensor_size = Grid::Dim;

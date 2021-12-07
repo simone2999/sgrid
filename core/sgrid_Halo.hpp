@@ -15,10 +15,10 @@ public:
 template <class Field> class NodeHalo : public Halo {
 public:
   using Grid = typename Field::Grid;
-  using Real = typename Field::Real;
+  using ValueType = typename Field::ValueType;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   static constexpr int MaxDim = 3;
@@ -36,7 +36,7 @@ public:
     auto field_host = field_.view_host();
 
     int block_size = field_.block_size();
-    MPI_Datatype real_type = MPIType<Real>();
+    MPI_Datatype real_type = MPIType<ValueType>();
 
     // Generate displacements
     for (int d = 0; d < Grid::Dim; ++d) {
@@ -119,10 +119,10 @@ private:
 template <class Field> class EdgeHalo : public Halo {
 public:
   using Grid = typename Field::Grid;
-  using Real = typename Field::Real;
+  using ValueType = typename Field::ValueType;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   bool init(int dim) {
@@ -152,7 +152,7 @@ public:
       dims_[idx++] = d;
     }
 
-    MPI_Datatype real_type = MPIType<Real>();
+    MPI_Datatype real_type = MPIType<ValueType>();
 
     auto g_host = grid->view_host();
 
@@ -290,10 +290,10 @@ private:
 template <class Field> class SideHalo : public Halo {
 public:
   using Grid = typename Field::Grid;
-  using Real = typename Field::Real;
+  using ValueType = typename Field::ValueType;
   using LocalOrdinal = typename Field::LocalOrdinal;
   using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = sgrid::View<Real *, DeviceMemorySpace>;
+  using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
   using HostMirror = typename ViewDevice::HostMirror;
 
   SideHalo(Field &field) : field_(field) {}
@@ -304,7 +304,7 @@ public:
   bool init(int dim) {
     dim_ = dim;
 
-    MPI_Datatype real_type = MPIType<Real>();
+    MPI_Datatype real_type = MPIType<ValueType>();
 
     auto grid = field_.grid();
     auto g_host = grid->view_host();
