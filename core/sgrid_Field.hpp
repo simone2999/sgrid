@@ -145,21 +145,6 @@ public:
     synch_host_to_device();
   }
 
-  std::shared_ptr<Grid> grid() { return grid_; }
-
-  inline int block_size() const { return block_size_; }
-
-private:
-  std::string name_;
-  std::shared_ptr<Grid> grid_;
-  int block_size_{1};
-  StencilType stencil_type_{STAR_STENCIL};
-
-  LocalFieldDevice field_device_;
-  LocalFieldHost field_host_;
-
-  std::vector<std::unique_ptr<Halo>> halos_;
-
   void init_halos() {
     halos_.clear();
     for (int d = 0; d < Grid::Dim; ++d) {
@@ -190,6 +175,21 @@ private:
       }
     }
   }
+
+  std::shared_ptr<Grid> grid() { return grid_; }
+
+  inline int block_size() const { return block_size_; }
+
+private:
+  std::string name_;
+  std::shared_ptr<Grid> grid_;
+  int block_size_{1};
+  StencilType stencil_type_{STAR_STENCIL};
+
+  LocalFieldDevice field_device_;
+  LocalFieldHost field_host_;
+
+  std::vector<std::unique_ptr<Halo>> halos_;
 };
 
 } // namespace sgrid

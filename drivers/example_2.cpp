@@ -77,16 +77,19 @@ int main(int argc, char *argv[]) {
     Field_t x("x", g, block_size, sgrid::BOX_STENCIL);
     // Field_t x("x", g, block_size, sgrid::STAR_STENCIL);
     x.allocate_on_device(); // Only allocates device
+    x.init_halos();
 
     auto x_dev = x.view_device();
 
     IntField_t idx("idx", g, 1, sgrid::BOX_STENCIL);
     idx.allocate_on_device();
+    idx.init_halos();
 
     auto idx_dev = idx.view_device();
 
     ComplexField_t c_field("c_field", g, 1, sgrid::BOX_STENCIL);
     c_field.allocate_on_device();
+    c_field.init_halos();
 
     auto c_field_dev = c_field.view_device();
 
