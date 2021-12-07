@@ -39,8 +39,8 @@ using Kokkos::complex;
 using complex_double_t = Kokkos::complex<double>;
 using complex_float_t = Kokkos::complex<float>;
 
-SGRID_DEFINE_MPI_TYPE(complex_double_t, MPI_DOUBLE_COMPLEX);
-SGRID_DEFINE_MPI_TYPE(complex_float_t, MPI_COMPLEX);
+SGRID_DEFINE_MPI_TYPE(complex_double_t, MPI_DOUBLE_COMPLEX)
+SGRID_DEFINE_MPI_TYPE(complex_float_t, MPI_COMPLEX)
 
 /////////////////////////////////////////
 
