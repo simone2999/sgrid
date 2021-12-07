@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
     }
 
     sgrid::parallel_for(
-        "RHS", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+        "VolumeLoop", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
           const Real x = (g_dev.start[0] + i) * hx;
           const Real y = (g_dev.start[1] + j) * hy;
           const Real z = (g_dev.start[2] + k) * hz;
@@ -120,6 +120,27 @@ int main(int argc, char *argv[]) {
           idx_dev(i, j, k) = i * ny * nz + j * nz + k;
 
           c_field_dev(i, j, k) = (x * x + y * y + z * z);
+
+          for (int b = 1; b < block_size; ++b) {
+            block[b] = (b) * (x * x + y * y + z * z);
+          }
+        });
+
+    auto slice = g->md_range_slice(2);
+
+    sgrid::parallel_for(
+        "SliceLoop", slice, SGRID_LAMBDA(int i, int j) {
+          const Real x = (g_dev.start[0] + i) * hx;
+          const Real y = (g_dev.start[1] + j) * hy;
+          const Real z = (g_dev.start[2] + 0) * hz;
+
+          auto *block = x_dev.block(i, j, 0);
+
+          block[0] = (rank + 1) * (x * x + y * y + z * z);
+
+          idx_dev(i, j, 0) = i * ny * nz + j * nz + 0;
+
+          c_field_dev(i, j, 0) = (x * x + y * y + z * z);
 
           for (int b = 1; b < block_size; ++b) {
             block[b] = (b) * (x * x + y * y + z * z);

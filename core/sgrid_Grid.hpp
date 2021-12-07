@@ -74,7 +74,7 @@ public:
       return MDRange(start, end);
     }
 
-    MDRange md_range_slice(int plane) const {
+    MDRangeSlice md_range_slice(int plane) const {
       typename MDRangeSlice::point_type start, end;
 
       for (int d = 0, k = 0; d < Dim; ++d) {
@@ -151,7 +151,7 @@ public:
 
   MDRangeHost md_range() { return grid_host_.md_range(); }
 
-  MDRangeHost md_range_slice(int plane) const {
+  auto md_range_slice(int plane) const {
     return grid_host_.md_range_slice(plane);
   }
 
