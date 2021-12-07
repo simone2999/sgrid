@@ -2,6 +2,7 @@
 
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_View.hpp"
 
 #include <fstream>
 #include <mpi.h>
