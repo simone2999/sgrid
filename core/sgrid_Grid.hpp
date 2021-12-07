@@ -38,6 +38,9 @@ public:
     using GView = sgrid::View<GlobalOrdinal[Dim], MemorySpace>;
     using LView = sgrid::View<LocalOrdinal[Dim], MemorySpace>;
     using MDRange = sgrid::MDRangePolicy<sgrid::Rank<Dim>, ExecutionSpace>;
+    using MDRangeSlice =
+        sgrid::MDRangePolicy<sgrid::Rank<Dim - 1>, ExecutionSpace>;
+
     using Range = sgrid::RangePolicy<ExecutionSpace>;
 
     template <typename FromMemSpace, typename FromExecutionSpace>
@@ -69,6 +72,22 @@ public:
       }
 
       return MDRange(start, end);
+    }
+
+    MDRange md_range_slice(int plane) const {
+      typename MDRangeSlice::point_type start, end;
+
+      for (int d = 0, k = 0; d < Dim; ++d) {
+        if (d == plane)
+          continue;
+
+        start[k] = margin[d];
+        end[k] = dim[d] + margin[d];
+
+        ++k;
+      }
+
+      return MDRangeSlice(start, end);
     }
 
     void init() {
@@ -131,6 +150,10 @@ public:
   }
 
   MDRangeHost md_range() { return grid_host_.md_range(); }
+
+  MDRangeHost md_range_slice(int plane) const {
+    return grid_host_.md_range_slice(plane);
+  }
 
   void init(MPI_Comm standard_comm, const std::vector<GlobalOrdinal> &dim,
             std::vector<int> periods = {}, std::vector<int> proc_dims = {}
