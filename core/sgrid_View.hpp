@@ -10,6 +10,8 @@
 #endif
 #endif // PDELAB_CPU_ONLY
 
+#include "sgrid_Base.hpp"
+
 #include "sgrid_Utils.hpp"
 
 #include <Kokkos_Complex.hpp>
