@@ -9,6 +9,6 @@ block_size=3
 rm x.raw
 rm x_t*.raw
 
-mpiexec -np 2 ./sgrid_example_3 $nx $ny $nz $block_size && \
+mpiexec -np 8 ./sgrid_example_3 $nx $ny $nz $block_size && \
     python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=x.raw --output=x_t && \
     ls -lah x*.raw
