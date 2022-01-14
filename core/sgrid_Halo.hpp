@@ -25,7 +25,7 @@ public:
 
   static_assert(Grid::Dim <= MaxDim, "4D not supported yet!");
 
-  bool init() { return true; }
+  bool init() { return field_.grid()->comm_size() > 1; }
 
   void exchange() override {
     int disp[MaxDim][2];
@@ -382,6 +382,12 @@ public:
 
       MPI_Type_commit(&recv_layer_type[s]);
       MPI_Type_commit(&send_layer_type[s]);
+
+      // if (grid->comm_rank() == 0) {
+      //   printf("[%d] Neighs(%d): %d recv: %d, send %d, size: %d\n",
+      //          grid->comm_rank(), dim_, neigh_rank[s], recv_sides[s],
+      //          send_sides[s], g_host.dim[dim]);
+      // }
     }
 
     return true;
@@ -402,8 +408,6 @@ public:
     MPI_Datatype recv_type[2];
     MPI_Datatype send_type[2];
 
-    // LocalOrdinal recv_sides[2] = {0, 0};
-    // LocalOrdinal send_sides[2] = {0, 0};
     int neigh_rank[2] = {MPI_PROC_NULL, MPI_PROC_NULL};
 
     neigh_rank[left] = grid->shift(dim_, -1);
@@ -421,6 +425,11 @@ public:
     for (int s = 0; s < 2; ++s) {
       if (neigh_rank[s] == MPI_PROC_NULL)
         continue;
+
+      // if (grid->comm_rank() == 0) {
+      //   printf("[%d] Neighs(%d) -> %d\n", grid->comm_rank(), dim_,
+      //          neigh_rank[s]);
+      // }
 
       CATCH_MPI_ERROR(MPI_Sendrecv(field_host.ptr(), 1, send_type[s],
                                    neigh_rank[s], tag, field_host.ptr(), 1,

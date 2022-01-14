@@ -4,6 +4,7 @@
 #include "sgrid_Grid.hpp"
 #include "sgrid_Halo.hpp"
 #include "sgrid_RawIO.hpp"
+#include "sgrid_SerialPeriodicHalo.hpp"
 #include <fstream>
 #include <memory>
 
@@ -89,7 +90,7 @@ public:
       return &data_[node * block_size_];
     }
 
-    SGRID_INLINE_FUNCTION ValueType *p_block(const LocalOrdinal *idx) {
+    SGRID_INLINE_FUNCTION ValueType *p_block(const LocalOrdinal *idx) const {
       auto node = grid_.p_node_idx(idx);
       return &data_[node * block_size_];
     }
@@ -172,6 +173,13 @@ public:
         if (node->init()) {
           halos_.push_back(std::move(node));
         }
+      }
+    }
+
+    for (int d = 0; d < Grid::Dim; ++d) {
+      if (grid_->is_periodic(d) && grid_->comm_dim(d) == 1) {
+        halos_.push_back(
+            std::make_unique<SerialPeriodicSideHalo<Field>>(*this, d));
       }
     }
   }

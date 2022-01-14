@@ -52,6 +52,7 @@ def main(argv):
 
     for b in range(0, block_size):
         a_b = np.transpose(a[:, :, :, b])
+        # a_b = a[:, :, :, b]
         binary_file_out = open(output_path + str(b) + ".raw", "wb")
         binary_file_out.write(a_b.tobytes())
 

@@ -59,6 +59,7 @@ inline constexpr I tensor_idx_with_margin(const I *dims_with_margin,
                                           const I *margin, const int i,
                                           const int j) {
   return (margin[0] + i) * dims_with_margin[1] + margin[1] + j;
+  // return (margin[1] + j) * dims_with_margin[0] + margin[0] + i;
 }
 
 template <typename I>
@@ -68,6 +69,10 @@ inline constexpr I tensor_idx_with_margin(const I *dims_with_margin,
   return dims_with_margin[2] *
              ((margin[0] + i) * dims_with_margin[1] + margin[1] + j) +
          k;
+
+  // return dims_with_margin[0] *
+  //            ((margin[2] + k) * dims_with_margin[1] + margin[1] + j) +
+  //        i;
 }
 
 template <typename I>
@@ -79,12 +84,14 @@ inline constexpr I tensor_idx(const I *const dims, const int i) {
 template <typename I>
 inline constexpr I tensor_idx(const I *const dims, const int i, const int j) {
   return i * dims[1] + j;
+  // return j * dims[0] + i;
 }
 
 template <typename I>
 inline constexpr I tensor_idx(const I *const dims, const int i, const int j,
                               const int k) {
   return dims[2] * (i * dims[1] + j) + k;
+  // return dims[0] * (k * dims[1] + j) + i;
 }
 
 } // namespace sgrid

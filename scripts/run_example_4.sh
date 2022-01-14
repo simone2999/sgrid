@@ -1,0 +1,18 @@
+#!/bin/bash
+# sgrid_example_4.sh
+
+make -j4 sgrid_example_4
+
+nx=20
+ny=30
+nz=40
+block_size=3
+comm_size=8
+
+rm x.raw
+rm x_t*.raw
+
+mpiexec -np $comm_size ./sgrid_example_4 $nx $ny $nz && \
+    python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=x.raw --output=x_t && \
+    ls -lah x*.raw
+

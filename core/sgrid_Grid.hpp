@@ -90,6 +90,22 @@ public:
       return MDRangeSlice(start, end);
     }
 
+    MDRangeSlice md_range_slice_with_ghosts(int plane) const {
+      typename MDRangeSlice::point_type start, end;
+
+      for (int d = 0, k = 0; d < Dim; ++d) {
+        if (d == plane)
+          continue;
+
+        start[k] = 0;
+        end[k] = dim[d] + 2 * margin[d];
+
+        ++k;
+      }
+
+      return MDRangeSlice(start, end);
+    }
+
     void init() {
       global_dim = GView("global_dim");
       start = GView("start");
@@ -118,6 +134,11 @@ public:
       static_assert(sizeof...(Args) == Dim,
                     "Number of arguments must be the same as Dim of grid!");
       return tensor_idx(dim_with_margin.data(), args...);
+    }
+
+    SGRID_INLINE_FUNCTION GlobalOrdinal
+    global_coord(const int d, const LocalOrdinal local_coord) const {
+      return start[d] + local_coord - margin[d];
     }
 
     SGRID_INLINE_FUNCTION LocalOrdinal
@@ -153,6 +174,10 @@ public:
 
   auto md_range_slice(int plane) const {
     return grid_host_.md_range_slice(plane);
+  }
+
+  auto md_range_slice_with_ghosts(int plane) const {
+    return grid_host_.md_range_slice_with_ghosts(plane);
   }
 
   void init(MPI_Comm standard_comm, const std::vector<GlobalOrdinal> &dim,
@@ -250,6 +275,7 @@ public:
 
   int comm_coord(int d) const { return coords_[d]; }
   int comm_dim(int d) const { return proc_dims_[d]; }
+  bool is_periodic(int d) const { return periods_[d]; }
 
   int shift(int direction, int disp) const {
     int rank_source = comm_rank();
