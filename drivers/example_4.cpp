@@ -34,8 +34,8 @@ int main(int argc, char *argv[]) {
       g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 1}, {1, 1, comm_size});
     } else {
       // g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 0});
-      // g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 1});
-      g->init(MPI_COMM_WORLD, {nx, ny, nz}, {0, 0, 0});
+      g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 1});
+      // g->init(MPI_COMM_WORLD, {nx, ny, nz}, {0, 0, 0});
     }
 
     if (g->comm_rank() == 0) {

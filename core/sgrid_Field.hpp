@@ -157,15 +157,15 @@ public:
     }
 
     if (stencil_type_ == BOX_STENCIL) {
-      if (Grid::Dim == 3) {
-        for (int d = 0; d < Grid::Dim; ++d) {
-          auto side = std::make_unique<EdgeHalo>(*this);
+      // if (Grid::Dim == 3) {
+      //   for (int d = 0; d < Grid::Dim; ++d) {
+      //     auto side = std::make_unique<EdgeHalo>(*this);
 
-          if (side->init(d)) {
-            halos_.push_back(std::move(side));
-          }
-        }
-      }
+      //     if (side->init(d)) {
+      //       halos_.push_back(std::move(side));
+      //     }
+      //   }
+      // }
 
       if (Grid::Dim >= 2) {
         auto node = std::make_unique<NodeHalo>(*this);

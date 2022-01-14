@@ -7,7 +7,7 @@ nx=20
 ny=30
 nz=40
 block_size=3
-comm_size=8
+comm_size=1
 
 rm x.raw
 rm x_t*.raw
