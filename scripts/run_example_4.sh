@@ -3,11 +3,11 @@
 
 make -j4 sgrid_example_4
 
-nx=20
-ny=30
-nz=40
+nx=3
+ny=3
+nz=70
 block_size=3
-comm_size=1
+comm_size=8
 
 rm x.raw
 rm x_t*.raw

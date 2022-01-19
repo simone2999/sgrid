@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
       nz = atoi(argv[3]);
     }
 
-    // bool perodic_local = true;
-    bool perodic_local = false;
+    bool perodic_local = true;
+    // bool perodic_local = false;
 
     auto g = std::make_shared<Grid_t>();
 
@@ -56,9 +56,9 @@ int main(int argc, char *argv[]) {
 
     sgrid::parallel_for(
         "Index", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
-          ptrdiff_t x = g_dev.global_coord(0, i);
-          ptrdiff_t y = g_dev.global_coord(1, j);
-          ptrdiff_t z = g_dev.global_coord(2, k);
+          ptrdiff_t x = g_dev.global_coord(0, i); // 0=X
+          ptrdiff_t y = g_dev.global_coord(1, j); // 1=Y
+          ptrdiff_t z = g_dev.global_coord(2, k); // 2=Z
 
           auto b = x_dev.block(i, j, k);
 
