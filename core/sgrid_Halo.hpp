@@ -197,9 +197,10 @@ public:
     LocalOrdinal recv_idx[Grid::Dim];
     int proc_coord_disp[Grid::Dim];
 
-    send_idx[dim_] = g_host.margin[dim_];
     // send_idx[dim_] = 0;
     // recv_idx[dim_] = 0;
+
+    send_idx[dim_] = g_host.margin[dim_];
     recv_idx[dim_] = g_host.margin[dim_];
 
     int disp[Grid::Dim][2];
