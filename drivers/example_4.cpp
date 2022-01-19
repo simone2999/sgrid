@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
 
     auto g_dev = g->view_device();
 
-    // Field_t x("x", g, block_size, sgrid::BOX_STENCIL);
-    Field_t x("x", g, block_size, sgrid::STAR_STENCIL);
+    Field_t x("x", g, block_size, sgrid::BOX_STENCIL);
+    // Field_t x("x", g, block_size, sgrid::STAR_STENCIL);
 
     x.allocate_on_device();
 
@@ -78,9 +78,13 @@ int main(int argc, char *argv[]) {
         int px = g->comm_coord(0), py = g->comm_coord(1), pz = g->comm_coord(2);
 
         printf("--------------------------------\n");
-        printf("rank=%d, comm_coord=[%d, %d, %d], dim=[%d, %d, %d]\n", rank,
+        printf("--------------------------------\n");
+        printf("rank=%d, comm_coord=[%d, %d, %d], dim=[%d/%d, %d/%d, %d/%d]\n",
+               rank,
                // comm coords
-               px, py, pz, g_dev.dim[0], g_dev.dim[1], g_dev.dim[2]);
+               px, py, pz, g_dev.dim[0], nx, g_dev.dim[1], ny, g_dev.dim[2],
+               nz);
+        printf("--------------------------------\n");
 
         int bug = 0;
         sgrid::parallel_reduce(
@@ -93,17 +97,16 @@ int main(int argc, char *argv[]) {
               const ptrdiff_t yg = g_dev.global_coord(1, j);
               const ptrdiff_t zg = g_dev.global_coord(2, k);
 
-              ptrdiff_t x = xg;
-              ptrdiff_t y = yg;
-              ptrdiff_t z = zg;
-
               int is_boundary_x = (xg == -1 || xg == nx);
               int is_boundary_y = (yg == -1 || yg == ny);
               int is_boundary_z = (zg == -1 || zg == nz);
-
               int is_boundary = is_boundary_x + is_boundary_y + is_boundary_z;
 
               bool fix_periodic = true;
+
+              ptrdiff_t x = xg;
+              ptrdiff_t y = yg;
+              ptrdiff_t z = zg;
 
               if (fix_periodic) {
                 x = (x == -1) ? (x + nx) : x;
@@ -129,28 +132,42 @@ int main(int argc, char *argv[]) {
 
                 int is_ghost = is_ghost_x + is_ghost_y + is_ghost_z;
 
-                if (is_boundary != 1)
-                  return;
+                // if (is_boundary != 1)
+                //   return;
 
                 if (is_boundary == 3) {
-                  printf("CORNER:\t\t");
+                  printf("CORNER\t");
                 } else if (is_boundary == 2) {
-                  printf("EDGE:\t\t");
+                  printf("EDGE\t");
                 } else if (is_boundary == 1) {
-                  printf("SIDE:\t\t");
-                } else if (is_ghost == 1) {
-                  printf("GHOST_SIDE: \t");
-                } else if (is_ghost == 2) {
-                  printf("GHOST_EDGE: \t");
-                } else if (is_ghost == 3) {
-                  printf("GHOST_CORNER \t");
+                  printf("SIDE\t");
                 } else {
-                  printf("INTERNAL: ");
+                  printf("\t");
                 }
+
+                if (is_ghost) {
+                  printf("(");
+                }
+
+                if (is_ghost == 1) {
+                  printf("GHOST_SIDE");
+                } else if (is_ghost == 2) {
+                  printf("GHOST_EDGE");
+                } else if (is_ghost == 3) {
+                  printf("GHOST_CORNER");
+                } else {
+                  printf("\t\t");
+                }
+
+                if (is_ghost) {
+                  printf(")");
+                }
+
+                printf("\t");
 
                 printf(
                     "l(%d, %d, %d) -> (%ld, %ld, %ld) -> g(%ld, %ld, %ld) == "
-                    "<%ld,%ld,%ld>\n",
+                    "b=(%ld,%ld,%ld)\n",
                     // k, Local coords
                     i, j, k,
                     // Non periodic global coords
