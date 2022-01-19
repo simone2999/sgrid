@@ -162,19 +162,29 @@ public:
       stride *= g_host.dim_with_margin[d];
     }
 
+    // printf("dim=%d, stride=%d, dims=(%d, %d, %d)\n", dim, stride,
+    //        g_host.dim_with_margin[0], g_host.dim_with_margin[1],
+    //        g_host.dim_with_margin[2]);
+
     int count = g_host.dim[dim];
     int block_size = field_.block_size();
 
-    CATCH_MPI_ERROR(
-        MPI_Type_vector(count, block_size, stride, real_type, &recv_type_));
+    if (stride == 1) {
+      CATCH_MPI_ERROR(
+          MPI_Type_contiguous(count * block_size, real_type, &recv_type_));
+
+      CATCH_MPI_ERROR(
+          MPI_Type_contiguous(count * block_size, real_type, &send_type_));
+    } else {
+      CATCH_MPI_ERROR(MPI_Type_vector(count, block_size, stride * block_size,
+                                      real_type, &recv_type_));
+
+      CATCH_MPI_ERROR(MPI_Type_vector(count, block_size, stride * block_size,
+                                      real_type, &send_type_));
+    }
 
     MPI_Type_commit(&recv_type_);
-
-    CATCH_MPI_ERROR(
-        MPI_Type_vector(count, block_size, stride, real_type, &send_type_));
-
     MPI_Type_commit(&send_type_);
-
     return true;
   }
 
@@ -187,8 +197,10 @@ public:
     LocalOrdinal recv_idx[Grid::Dim];
     int proc_coord_disp[Grid::Dim];
 
-    send_idx[dim_] = 0;
-    recv_idx[dim_] = 0;
+    send_idx[dim_] = g_host.margin[dim_];
+    // send_idx[dim_] = 0;
+    // recv_idx[dim_] = 0;
+    recv_idx[dim_] = g_host.margin[dim_];
 
     int disp[Grid::Dim][2];
 
@@ -233,11 +245,11 @@ public:
 
           //////////////////////////////////////////////////////////////////////
 
-          send_idx[d1] = (disp[d1][disp_num_0] > 0)
+          send_idx[d1] = (disp[d1][disp_num_1] > 0)
                              ? (g_host.dim[d1] - 1 + g_host.margin[d1])
                              : g_host.margin[d1];
 
-          recv_idx[d1] = (disp[d1][disp_num_0] < 0)
+          recv_idx[d1] = (disp[d1][disp_num_1] < 0)
                              ? (g_host.dim[d1] - 1 + 2 * g_host.margin[d1])
                              : 0;
 
@@ -245,6 +257,12 @@ public:
 
           auto send_ptr = field_host.p_block(send_idx);
           auto recv_ptr = field_host.p_block(recv_idx);
+
+          // printf("[%d -> %d] send_idx=(%d, %d, %d), recv_idx=(%d, %d, %d), "
+          //        "d=(%d, %d), dims=(%d, %d, %d)\n",
+          //        grid->comm_rank(), neigh_rank, send_idx[0], send_idx[1],
+          //        send_idx[2], recv_idx[0], recv_idx[1], recv_idx[2], d0, d1,
+          //        g_host.dim[0], g_host.dim[1], g_host.dim[2]);
 
           int tag = 0;
 

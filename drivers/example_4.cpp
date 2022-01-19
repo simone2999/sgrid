@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
       nz = atoi(argv[3]);
     }
 
-    bool perodic_local = true;
-    // bool perodic_local = false;
+    // bool perodic_local = true;
+    bool perodic_local = false;
 
     auto g = std::make_shared<Grid_t>();
 
@@ -34,8 +34,8 @@ int main(int argc, char *argv[]) {
       g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 1}, {1, 1, comm_size});
     } else {
       // g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 0});
-      g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 1});
-      // g->init(MPI_COMM_WORLD, {nx, ny, nz}, {0, 0, 0});
+      // g->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 1});
+      g->init(MPI_COMM_WORLD, {nx, ny, nz}, {0, 0, 0});
     }
 
     if (g->comm_rank() == 0) {
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
     x.exchange_halos();
 
-    bool z_is_periodic = g->is_periodic(2);
+    // bool z_is_periodic = g->is_periodic(2);
 
     for (int r = 0; r < g->comm_size(); ++r) {
 
@@ -104,21 +104,11 @@ int main(int argc, char *argv[]) {
               if (fix_periodic) {
                 x = (x == -1) ? (x + nx) : x;
                 y = (y == -1) ? (y + ny) : y;
-
-                if (z_is_periodic) {
-                  z = (z == -1) ? (z + nz) : z;
-                } else {
-                  z = 0;
-                }
+                z = (z == -1) ? (z + nz) : z;
 
                 x = (x == nx) ? 0 : x;
                 y = (y == ny) ? 0 : y;
-
-                if (z_is_periodic) {
-                  z = (z == nz) ? 0 : z;
-                } else {
-                  z = 0;
-                }
+                z = (z == nz) ? 0 : z;
               }
 
               assert(x >= 0);
@@ -137,7 +127,8 @@ int main(int argc, char *argv[]) {
                 bool is_ghost = is_ghost_left || is_ghost_right;
 
                 int is_boundary = (x == -1 || y == -1) ||
-                                  (x == nx || y == ny) || (z == -1 || z == nz);
+                                  (x == (nx + 1) || y == (ny + 1)) ||
+                                  (z == -1 || z == (nz + 1));
 
                 if (iog) {
                   printf("IOG:\t");
@@ -145,6 +136,8 @@ int main(int argc, char *argv[]) {
                   printf("B: \t\t");
                 } else if (is_ghost) {
                   printf("G: \t\t\t");
+                } else {
+                  printf("I: ");
                 }
 
                 printf("l(%d, %d, %d) -> g(%ld, %ld, %ld) == "
