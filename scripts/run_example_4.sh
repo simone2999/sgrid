@@ -13,7 +13,7 @@ nx=3
 ny=4
 nz=2
 block_size=3
-comm_size=4
+comm_size=8
 
 stride_y=$(($nz + 2))
 echo 'stride_y='$stride_y
