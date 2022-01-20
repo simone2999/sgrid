@@ -88,7 +88,7 @@ public:
                               ? (g_host.dim[d] - 1 + g_host.margin[d])
                               : g_host.margin[d];
 
-            recv_idx[d] = (disp[d][tensor_idx[d]] < 0)
+            recv_idx[d] = (disp[d][tensor_idx[d]] > 0)
                               ? (g_host.dim[d] - 1 + 2 * g_host.margin[d])
                               : 0;
           }
@@ -240,7 +240,7 @@ public:
                              ? (g_host.dim[d0] - 1 + g_host.margin[d0])
                              : g_host.margin[d0];
 
-          recv_idx[d0] = (disp[d0][disp_num_0] < 0)
+          recv_idx[d0] = (disp[d0][disp_num_0] > 0)
                              ? (g_host.dim[d0] - 1 + 2 * g_host.margin[d0])
                              : 0;
 
@@ -250,7 +250,7 @@ public:
                              ? (g_host.dim[d1] - 1 + g_host.margin[d1])
                              : g_host.margin[d1];
 
-          recv_idx[d1] = (disp[d1][disp_num_1] < 0)
+          recv_idx[d1] = (disp[d1][disp_num_1] > 0)
                              ? (g_host.dim[d1] - 1 + 2 * g_host.margin[d1])
                              : 0;
 
