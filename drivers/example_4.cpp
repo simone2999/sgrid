@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
     int ny = 3;
     int nz = 4;
     int block_size = 3;
+    bool verbose = false;
 
     if (argc >= 3) {
       nx = atoi(argv[1]);
@@ -71,20 +72,24 @@ int main(int argc, char *argv[]) {
 
     x.exchange_halos();
 
+    long bugs = 0;
+
     for (int r = 0; r < g->comm_size(); ++r) {
 
       if (rank == r) {
 
         int px = g->comm_coord(0), py = g->comm_coord(1), pz = g->comm_coord(2);
 
-        printf("--------------------------------\n");
-        printf("--------------------------------\n");
-        printf("rank=%d, comm_coord=[%d, %d, %d], dim=[%d/%d, %d/%d, %d/%d]\n",
-               rank,
-               // comm coords
-               px, py, pz, g_dev.dim[0], nx, g_dev.dim[1], ny, g_dev.dim[2],
-               nz);
-        printf("--------------------------------\n");
+        if (verbose) {
+          printf("--------------------------------\n");
+          printf("--------------------------------\n");
+          printf(
+              "rank=%d, comm_coord=[%d, %d, %d], dim=[%d/%d, %d/%d, %d/%d]\n",
+              rank,
+              // comm coords
+              px, py, pz, g_dev.dim[0], nx, g_dev.dim[1], ny, g_dev.dim[2], nz);
+          printf("--------------------------------\n");
+        }
 
         int bug = 0;
         sgrid::parallel_reduce(
@@ -125,6 +130,9 @@ int main(int argc, char *argv[]) {
 
               if (!correct_value) {
                 acc += 1;
+
+                if (!verbose)
+                  return;
 
                 int is_ghost_x = i == 0 || i == g_dev.dim[0] + 1;
                 int is_ghost_y = j == 0 || j == g_dev.dim[1] + 1;
@@ -179,9 +187,18 @@ int main(int argc, char *argv[]) {
               }
             },
             bug);
+
+        bugs += bug;
       }
 
       MPI_Barrier(MPI_COMM_WORLD);
+    }
+
+    MPI_Allreduce(MPI_IN_PLACE, &bugs, 1, sgrid::MPIType<long>(), MPI_SUM,
+                  g->raw_comm());
+
+    if (g->comm_rank() == 0) {
+      printf("Num bugs %ld\n", bugs);
     }
     // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
     x.write("x.raw");
