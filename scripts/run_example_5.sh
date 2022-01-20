@@ -2,8 +2,8 @@
 
 make -j4 sgrid_example_5
 
-nx=6
-ny=4
+nx=61
+ny=10
 block_size=3
 comm_size=4
 

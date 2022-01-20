@@ -9,11 +9,11 @@ make -j4 sgrid_example_4
 # block_size=3
 # comm_size=8
 
-nx=3
-ny=4
-nz=2
+nx=30
+ny=40
+nz=20
 block_size=3
-comm_size=8
+comm_size=20
 
 stride_y=$(($nz + 2))
 echo 'stride_y='$stride_y
