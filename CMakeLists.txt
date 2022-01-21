@@ -67,6 +67,9 @@ target_link_libraries(sgrid_example_4 PUBLIC sgrid)
 add_executable(sgrid_example_5 drivers/example_5.cpp)
 target_link_libraries(sgrid_example_5 PUBLIC sgrid)
 
+add_executable(sgrid_example_6 drivers/example_6.cpp)
+target_link_libraries(sgrid_example_6 PUBLIC sgrid)
+
 
 # ##############################################################################
 # ##############################################################################

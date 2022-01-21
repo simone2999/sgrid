@@ -180,6 +180,28 @@ public:
     return grid_host_.md_range_slice_with_ghosts(plane);
   }
 
+  void check_dims() const {
+
+    if (comm_rank() == 0) {
+
+      bool valid = true;
+      for (int d = 0; d < Dim; ++d) {
+        if (grid_host_.global_dim[d] < proc_dims_[d]) {
+          valid = false;
+
+          fprintf(stderr,
+                  "Invalid problem dimensions for coordinate (%d). Condition "
+                  "%ld (dim) >= %d (proc dim) not respected!\n",
+                  d, grid_host_.global_dim[d], proc_dims_[d]);
+        }
+      }
+
+      if (!valid) {
+        MPI_Abort(raw_comm(), -1);
+      }
+    }
+  }
+
   void init(MPI_Comm standard_comm, const std::vector<GlobalOrdinal> &dim,
             std::vector<int> periods = {}, std::vector<int> proc_dims = {}
 
@@ -234,6 +256,8 @@ public:
       proc_dims_[d] = proc_dims[d];
       periods_[d] = periods[d];
     }
+
+    check_dims();
   }
 
   template <typename... Args> int neigh(Args... args) {
@@ -328,7 +352,7 @@ public:
   LocalGridHost &view_host() { return grid_host_; }
   LocalGridDevice &view_device() { return grid_device_; }
 
-  inline MPI_Comm raw_comm() { return comm_; }
+  inline MPI_Comm raw_comm() const { return comm_; }
 
 private:
   MPI_Comm comm_;
