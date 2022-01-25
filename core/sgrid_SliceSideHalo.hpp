@@ -25,7 +25,8 @@ public:
   ~SliceSideHalo() { destroy(); }
 
   void exchange(int slice_number) {
-    //
+    field_.synch_device_to_host();
+
     auto grid = field_.grid();
     auto grid_host = grid->view_host();
     auto field_host = field_.view_host();
@@ -70,10 +71,15 @@ public:
       recv_offsets[is_even] = 0;
       recv_offsets[!is_even] = grid_host.dim_with_margin[dim] - 1;
 
-      int tag = 0;
+      ////////////////////////////////
       // Send/Recv
+      ////////////////////////////////
 
+      int tag = 0;
       for (int k = 0; k < 2; ++k) {
+        if (neigh_rank[k] == MPI_PROC_NULL)
+          continue;
+
         recv_idx[dim] = recv_offsets[k];
         send_idx[dim] = send_offsets[k];
 
@@ -85,6 +91,8 @@ public:
                                      recv_type_[dim], neigh_rank[k], tag,
                                      grid->raw_comm(), MPI_STATUS_IGNORE));
       }
+
+      field_.synch_host_to_device();
     }
 
     // void wait_all() {}
@@ -129,8 +137,6 @@ private:
     auto grid = field_.grid();
     auto g_host = grid->view_host();
 
-    auto field_host = field_.view_host();
-
     MPI_Datatype real_type = MPIType<ValueType>();
 
     for (int dim = 0; dim < Dim; ++dim) {
@@ -160,6 +166,9 @@ private:
         CATCH_MPI_ERROR(MPI_Type_vector(count, block_size, stride * block_size,
                                         real_type, &send_type_[dim]));
       }
+
+      MPI_Type_commit(&recv_type_[dim]);
+      MPI_Type_commit(&send_type_[dim]);
     }
   }
 };

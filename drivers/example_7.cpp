@@ -32,11 +32,10 @@ int main(int argc, char *argv[]) {
 
     field->allocate_on_device();
 
-    // Initialize data
-
+    // Initialize side halo handler
     sgrid::SliceSideHalo<Field_t> halos(*field, 2);
 
-    /// slice 1
+    /// Exchange halos of slice 1
     halos.exchange(1);
   }
 
