@@ -24,38 +24,67 @@ public:
 
   ~SliceSideHalo() { destroy(); }
 
-  void exchange(int /*slice_number*/) {
+  void exchange(int slice_number) {
     //
     auto grid = field_.grid();
     auto grid_host = grid->view_host();
-    // auto field_host = field_.view_host();
+    auto field_host = field_.view_host();
+
+    int recv_idx[Dim];
+    int send_idx[Dim];
+    int dirs[2];
+    int neigh_rank[2];
+    int send_offsets[2];
+    int recv_offsets[2];
 
     for (int dim = 0; dim < Dim; ++dim) {
       // Skip dim of the plane
       if (dim == plane_)
         continue;
 
+      // Reset array starts
+      for (int d = 0; d < Dim; ++d) {
+        recv_idx[d] = grid_host.margin[d];
+        send_idx[d] = grid_host.margin[d];
+      }
+
+      // Set plane coordinate to slice number
+      recv_idx[plane_] = slice_number;
+      send_idx[plane_] = slice_number;
+
       int proc_coord = grid->comm_coord(dim);
       bool is_even = proc_coord % 2 == 0;
 
-      int dirs[2];
+      // Interlace communication
       dirs[0] = is_even ? -1 : 1;
       dirs[1] = is_even ? 1 : -1;
 
-      // Find neighs
-      int neighs[2];
-      neighs[0] = grid->shift(dim, dirs[0]);
-      neighs[1] = grid->shift(dim, dirs[1]);
+      // Find neighbors
+      neigh_rank[0] = grid->shift(dim, dirs[0]);
+      neigh_rank[1] = grid->shift(dim, dirs[1]);
 
-      int send_offsets[2];
+      // Offsets for array
       send_offsets[is_even] = grid_host.margin[dim];
       send_offsets[!is_even] = grid_host.dim[dim]; // includes left margin
 
-      int recv_offsets[2];
       recv_offsets[is_even] = 0;
       recv_offsets[!is_even] = grid_host.dim_with_margin[dim] - 1;
 
+      int tag = 0;
       // Send/Recv
+
+      for (int k = 0; k < 2; ++k) {
+        recv_idx[dim] = recv_offsets[k];
+        send_idx[dim] = send_offsets[k];
+
+        auto recv_ptr = field_host.p_block(recv_idx);
+        auto send_ptr = field_host.p_block(send_idx);
+
+        CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr, 1, send_type_[dim],
+                                     neigh_rank[k], tag, recv_ptr, 1,
+                                     recv_type_[dim], neigh_rank[k], tag,
+                                     grid->raw_comm(), MPI_STATUS_IGNORE));
+      }
     }
 
     // void wait_all() {}
