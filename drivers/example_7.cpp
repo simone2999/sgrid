@@ -2,7 +2,7 @@
 #include "sgrid_Field.hpp"
 #include "sgrid_View.hpp"
 
-#include "sgrid_SliceSideHalo.hpp"
+#include "sgrid_SliceHalo.hpp"
 
 #include <mpi.h>
 
@@ -30,11 +30,13 @@ int main(int argc, char *argv[]) {
       block_size = atoi(argv[4]);
     }
 
+    bool verbose = false;
+
     auto grid = std::make_shared<Grid_t>();
 
     grid->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 0});
 
-    if (grid->comm_rank() == 0) {
+    if (verbose && grid->comm_rank() == 0) {
       printf("Comm grid (%d, %d, %d)\n", grid->comm_dim(0), grid->comm_dim(1),
              grid->comm_dim(2));
     }
@@ -57,29 +59,30 @@ int main(int argc, char *argv[]) {
           b[0] = oracle;
         });
 
-    for (int r = 0; r < grid->comm_size(); ++r) {
-      int rank = grid->comm_rank();
+    if (verbose) {
+      for (int r = 0; r < grid->comm_size(); ++r) {
+        int rank = grid->comm_rank();
 
-      if (r == rank) {
-        printf("[%d] %d, %d, %d\n", rank, grid->comm_coord(0),
-               grid->comm_coord(1), grid->comm_coord(2));
+        if (r == rank) {
+          printf("[%d] %d, %d, %d\n", rank, grid->comm_coord(0),
+                 grid->comm_coord(1), grid->comm_coord(2));
+        }
+
+        fflush(stdout);
+
+        MPI_Barrier(grid->raw_comm());
       }
 
+      MPI_Barrier(grid->raw_comm());
       fflush(stdout);
-
       MPI_Barrier(grid->raw_comm());
     }
 
-    MPI_Barrier(grid->raw_comm());
-    fflush(stdout);
-    MPI_Barrier(grid->raw_comm());
+    // Initialize slice halo handler
+    sgrid::SliceHalo<Field_t> halos(*field, 2);
 
-    // Initialize side halo handler
-    sgrid::SliceSideHalo<Field_t> halos(*field, 2);
-
-    MPI_Barrier(grid->raw_comm());
-
-    /// Exchange halos of slice 0
+    // Exchange halos of slice 0
+    // Index is in global coordinates [0, nx) x [0, ny) x [0, nz)
     int global_slice_num = 0;
     halos.exchange(global_slice_num);
 
@@ -96,26 +99,12 @@ int main(int argc, char *argv[]) {
           ptrdiff_t x = g_dev.global_coord(0, i); // 2=Y
           ptrdiff_t y = g_dev.global_coord(1, j); // 2=Y
 
-          /////////////////////////
-          // Corners
-          /////////////////////////
-          if (x == -1 && y == -1)
-            return;
-
-          if (x == nx && y == ny)
-            return;
-
-          if (x == -1 && y == ny)
-            return;
-
-          if (x == nx && y == -1)
-            return;
-          /////////////////////////
-
           auto b = x_dev.block(i, j, k);
 
           if (oracle == b[0])
             return;
+
+          // else print bugs
 
           bool innner = true;
 

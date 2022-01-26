@@ -261,12 +261,13 @@ private:
     MPI_Type_size(interior_subarray_type_, &size_d[0]);
     MPI_Type_size(view_type_, &size_d[1]);
 
-    if (grid->comm_rank() == 0) {
-      printf("(%d,%d)\n", array_of_global_sizes[0], array_of_global_sizes[1]);
-    }
+    // if (grid->comm_rank() == 0) {
+    //   printf("(%d,%d)\n", array_of_global_sizes[0],
+    //   array_of_global_sizes[1]);
+    // }
 
-    printf("[%d] (%d, %d), -> size=%d,%d\n", grid->comm_rank(),
-           array_of_subsizes[0], array_of_subsizes[1], size_d[0], size_d[1]);
+    // printf("[%d] (%d, %d), -> size=%d,%d\n", grid->comm_rank(),
+    //        array_of_subsizes[0], array_of_subsizes[1], size_d[0], size_d[1]);
   }
 };
 

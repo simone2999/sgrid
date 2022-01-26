@@ -188,6 +188,8 @@ public:
 
   inline int block_size() const { return block_size_; }
 
+  inline StencilType stencil_type() const { return stencil_type_; }
+
 private:
   std::string name_;
   std::shared_ptr<Grid> grid_;
