@@ -15,28 +15,140 @@ int main(int argc, char *argv[]) {
   Kokkos::initialize(argc, argv);
 
   {
+    int nx = 2;
+    int ny = 2;
+    int nz = 1;
+    int block_size = 1;
+
+    if (argc >= 4) {
+      nx = atoi(argv[1]);
+      ny = atoi(argv[2]);
+      nz = atoi(argv[3]);
+    }
+
+    if (argc >= 5) {
+      block_size = atoi(argv[4]);
+    }
+
     auto grid = std::make_shared<Grid_t>();
 
-    grid->init(MPI_COMM_WORLD, {3, 3, 70}, {1, 1, 0});
+    grid->init(MPI_COMM_WORLD, {nx, ny, nz}, {1, 1, 0});
 
     if (grid->comm_rank() == 0) {
       printf("Comm grid (%d, %d, %d)\n", grid->comm_dim(0), grid->comm_dim(1),
              grid->comm_dim(2));
     }
 
-    const int block_size_ = 1584;
-
     // create fields
     auto field =
-        std::make_shared<Field_t>("F", grid, block_size_, sgrid::BOX_STENCIL);
+        std::make_shared<Field_t>("F", grid, block_size, sgrid::BOX_STENCIL);
 
     field->allocate_on_device();
+
+    auto g_dev = grid->view_device();
+    auto x_dev = field->view_device();
+
+    double oracle = -666;
+
+    sgrid::parallel_for(
+        "Index", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+          auto b = x_dev.block(i, j, k);
+
+          b[0] = oracle;
+        });
+
+    for (int r = 0; r < grid->comm_size(); ++r) {
+      int rank = grid->comm_rank();
+
+      if (r == rank) {
+        printf("[%d] %d, %d, %d\n", rank, grid->comm_coord(0),
+               grid->comm_coord(1), grid->comm_coord(2));
+      }
+
+      fflush(stdout);
+
+      MPI_Barrier(grid->raw_comm());
+    }
+
+    MPI_Barrier(grid->raw_comm());
+    fflush(stdout);
+    MPI_Barrier(grid->raw_comm());
 
     // Initialize side halo handler
     sgrid::SliceSideHalo<Field_t> halos(*field, 2);
 
-    /// Exchange halos of slice 1
-    halos.exchange(1);
+    MPI_Barrier(grid->raw_comm());
+
+    /// Exchange halos of slice 0
+    int global_slice_num = 0;
+    halos.exchange(global_slice_num);
+
+    MPI_Barrier(grid->raw_comm());
+
+    sgrid::parallel_for(
+        "Index", grid->md_range_with_ghosts(),
+        SGRID_LAMBDA(int i, int j, int k) {
+          ptrdiff_t z = g_dev.global_coord(2, k); // 2=Y
+
+          if (z != global_slice_num)
+            return;
+
+          ptrdiff_t x = g_dev.global_coord(0, i); // 2=Y
+          ptrdiff_t y = g_dev.global_coord(1, j); // 2=Y
+
+          /////////////////////////
+          // Corners
+          /////////////////////////
+          if (x == -1 && y == -1)
+            return;
+
+          if (x == nx && y == ny)
+            return;
+
+          if (x == -1 && y == ny)
+            return;
+
+          if (x == nx && y == -1)
+            return;
+          /////////////////////////
+
+          auto b = x_dev.block(i, j, k);
+
+          if (oracle == b[0])
+            return;
+
+          bool innner = true;
+
+          if (x == -1) {
+            printf("LEFT\t");
+            innner = false;
+          }
+
+          if (x == nx) {
+            printf("RIGHT\t");
+            innner = false;
+          }
+
+          if (y == -1) {
+            printf("BOTTOM\t");
+            innner = false;
+          }
+
+          if (y == ny) {
+            printf("TOP\t");
+            innner = false;
+          }
+
+          if (innner) {
+            printf("INNER\t");
+          }
+
+          printf("%d, %d, %d -> %g == %g\n", i, j, k, b[0], oracle);
+        });
+
+    sgrid::RawIODebug<Field_t> debug_out(*field);
+    debug_out.set_output_path("x_debug.raw");
+    debug_out.write();
   }
 
   Kokkos::finalize();
