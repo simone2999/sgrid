@@ -50,12 +50,11 @@ int main(int argc, char *argv[]) {
     auto g_dev = grid->view_device();
     auto x_dev = field->view_device();
 
-    double oracle = -666;
+    double oracle = -2;
 
     sgrid::parallel_for(
         "Index", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
           auto b = x_dev.block(i, j, k);
-
           b[0] = oracle;
         });
 
