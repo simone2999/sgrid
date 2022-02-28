@@ -10,7 +10,9 @@ class SerialPeriodicSideHalo final : public Halo {
 public:
   SerialPeriodicSideHalo(Field &field, int) {
     // IMPLEMENT ME
-    MPI_Abort(field.grid()->raw_comm(), -1);
+    // MPI_Abort(field.grid()->raw_comm(), -1);
+    if(field.grid()->comm_rank() == 0)
+      printf("SerialPeriodicSideHalo unsupporterd for dim = %d\n", Dim);
   }
 
   void exchange() override {
@@ -108,7 +110,7 @@ public:
   }
 
   SerialPeriodicSideHalo(Field &field, int dim) : field_(field), dim_(dim) {
-    std::cout << "SerialPeriodicSideHalo: " << dim << std::endl;
+    // std::cout << "SerialPeriodicSideHalo: " << dim << std::endl;
   }
 
 private:
