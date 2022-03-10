@@ -83,14 +83,15 @@ int main(int argc, char *argv[]) {
         }
 
         static constexpr int slice_exchange_dim = 2;  // We exchange slices in Z
+        bool auto_host_device_synch = true;
 
         ///////////////////////////////////////////////////////////////
-        // Slice excchange code
+        // Slice exchange code
         ///////////////////////////////////////////////////////////////
         // Initialize slice halo handler
         sgrid::SideHalo<Field_t> halos(*field);
         halos.init(slice_exchange_dim);
-        halos.exchange_slice(slice_number, true);
+        halos.exchange_slice(slice_number, auto_host_device_synch);
         ///////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////
 
