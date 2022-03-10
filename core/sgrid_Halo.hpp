@@ -417,14 +417,107 @@ namespace sgrid {
             return true;
         }
 
-        // void exchange_slice(int slice_number) {
-        //     auto grid = field_.grid();
-        //     auto grid_host = grid->view_host();
+        void exchange_slice(int slice_number, bool auto_synch = true) {
+            auto grid = field_.grid();
+            auto grid_host = grid->view_host();
 
-        //     if (slice_number < grid_host.start[plane_] ||
-        //         slice_number >= (grid_host.start[plane_] + grid_host.dim[plane_]))
-        //         return;
-        // }
+            int neigh_rank[2] = {MPI_PROC_NULL, MPI_PROC_NULL};
+            neigh_rank[0] = grid->shift(dim_, -1);
+            neigh_rank[1] = grid->shift(dim_, 1);
+
+            if (neigh_rank[0] == MPI_PROC_NULL && neigh_rank[1] == MPI_PROC_NULL) {
+                // No exchange required
+                return;
+            }
+
+            if (slice_number < 0 || slice_number >= grid_host.global_dim[dim_]) {
+                if (field_.grid()->comm_rank() == 0) {
+                    printf("slice_number (%d) out of range [%d, %ld)!\n", slice_number, 0, grid_host.global_dim[dim_]);
+                }
+
+                MPI_Abort(grid->raw_comm(), -1);
+            }
+
+            bool is_sender_dir[2];
+            is_sender_dir[0] = slice_number == grid_host.start[dim_];
+            is_sender_dir[1] = slice_number == (grid_host.start[dim_] + grid_host.dim[dim_] - 1);
+
+            bool is_sender = is_sender_dir[0] || is_sender_dir[1];
+
+            bool is_receiver_dir[2];
+            is_receiver_dir[0] = (slice_number == grid_host.start[dim_] - 1);
+            is_receiver_dir[1] = (slice_number == (grid_host.start[dim_] + grid_host.dim[dim_]));
+
+            bool is_receiver = is_receiver_dir[0] || is_receiver_dir[1];
+
+            assert(!is_sender || !is_receiver);
+
+            if (!is_sender && !is_receiver) return;
+
+            bool skip = true;
+            for (int dir = 0; dir < 2; ++dir) {
+                if (neigh_rank[dir] == MPI_PROC_NULL) continue;
+
+                if (is_receiver_dir[dir] || is_sender_dir[dir]) {
+                    skip = false;
+                }
+            }
+
+            if (skip) return;
+
+            if (!is_receiver) {
+                // Handle periodic boundary
+                if (grid_host.start[dim_] == 0 && slice_number == grid_host.global_dim[dim_] - 1) {
+                    if (field_.grid()->comm_rank() == 0) {
+                        printf("Slice exchange on periodic boundary not supported!\n");
+                    }
+
+                    MPI_Abort(grid->raw_comm(), -1);
+                }
+            }
+
+            int send_dir = is_sender_dir[0] ? 0 : 1;
+            int recv_dir = is_receiver_dir[0] ? 0 : 1;
+
+            // Remove global offset
+            // const int local_slice_number = slice_number - grid_host.start[dim_];
+            // printf(
+            //     "[%d] slice_number = %d, local_slice_number = %d, [%ld, %ld), %s (dirs %d -> %d), (ranks %d ->
+            //     %d)\n", grid->comm_rank(), slice_number, local_slice_number, grid_host.start[dim_],
+            //     grid_host.start[dim_] + grid_host.dim[dim_],
+            //     is_sender ? "sender" : "receiver",
+            //     send_dir,
+            //     recv_dir,
+            //     neigh_rank[0],
+            //     neigh_rank[1]);
+
+            assert(is_sender != is_receiver);
+
+            if (auto_synch) {
+                field_.synch_device_to_host();
+            }
+
+            auto field_host = field_.view_host();
+
+            int tag = 1;
+
+            if (is_sender) {
+                CATCH_MPI_ERROR(MPI_Send(
+                    field_host.ptr(), 1, send_layer_type[send_dir], neigh_rank[send_dir], tag, grid->raw_comm()));
+            } else {
+                CATCH_MPI_ERROR(MPI_Recv(field_host.ptr(),
+                                         1,
+                                         recv_layer_type[recv_dir],
+                                         neigh_rank[recv_dir],
+                                         tag,
+                                         grid->raw_comm(),
+                                         MPI_STATUS_IGNORE));
+            }
+
+            if (auto_synch) {
+                field_.synch_host_to_device();
+            }
+        }
 
         void exchange() override {
             auto grid = field_.grid();
