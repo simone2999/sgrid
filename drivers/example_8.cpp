@@ -82,12 +82,17 @@ int main(int argc, char *argv[]) {
             MPI_Barrier(grid->raw_comm());
         }
 
+        static constexpr int slice_exchange_dim = 2;  // We exchange slices in Z
+
+        ///////////////////////////////////////////////////////////////
+        // Slice excchange code
+        ///////////////////////////////////////////////////////////////
         // Initialize slice halo handler
         sgrid::SideHalo<Field_t> halos(*field);
-
-        static constexpr int slice_exchange_dim = 2;  // We exchange slices in Z
         halos.init(slice_exchange_dim);
         halos.exchange_slice(slice_number, true);
+        ///////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////
 
         sgrid::parallel_for(
             "Index", grid->md_range_with_ghosts(), SGRID_LAMBDA(int i, int j, int k) {
