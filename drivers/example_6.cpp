@@ -9,30 +9,28 @@ using Field_t = sgrid::Field<Grid_t, double>;
 
 // test
 int main(int argc, char *argv[]) {
-  MPI_Init(&argc, &argv);
-  Kokkos::initialize(argc, argv);
+    MPI_Init(&argc, &argv);
+    Kokkos::initialize(argc, argv);
 
-  {
-    auto grid = std::make_shared<Grid_t>();
+    {
+        auto grid = std::make_shared<Grid_t>();
 
-    grid->init(MPI_COMM_WORLD, {3, 3, 70}, {1, 1, 0});
+        grid->init(MPI_COMM_WORLD, {3, 3, 70}, {1, 1, 0});
 
-    if (grid->comm_rank() == 0) {
-      printf("Comm grid (%d, %d, %d)\n", grid->comm_dim(0), grid->comm_dim(1),
-             grid->comm_dim(2));
+        if (grid->comm_rank() == 0) {
+            printf("Comm grid (%d, %d, %d)\n", grid->comm_dim(0), grid->comm_dim(1), grid->comm_dim(2));
+        }
+
+        const int block_size_ = 1584;
+
+        // create fields
+        auto field = std::make_shared<Field_t>("F", grid, block_size_, sgrid::BOX_STENCIL);
+
+        field->allocate_on_device();
+
+        field->exchange_halos();
     }
 
-    const int block_size_ = 1584;
-
-    // create fields
-    auto field =
-        std::make_shared<Field_t>("F", grid, block_size_, sgrid::BOX_STENCIL);
-
-    field->allocate_on_device();
-
-    field->exchange_halos();
-  }
-
-  Kokkos::finalize();
-  return MPI_Finalize();
+    Kokkos::finalize();
+    return MPI_Finalize();
 }

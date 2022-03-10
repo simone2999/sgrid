@@ -7,4 +7,4 @@
 #include "sgrid_RawIO.hpp"
 #include "sgrid_Utils.hpp"
 
-#endif // SGRID_CORE_HPP
+#endif  // SGRID_CORE_HPP

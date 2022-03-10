@@ -3,220 +3,220 @@
 
 namespace sgrid {
 
-// Exchange edges (3D) or corners of (2d) of a slice
-template <class Field> class SliceSideHalo {
-public:
-  using Grid = typename Field::Grid;
-  using ValueType = typename Field::ValueType;
-  using LocalOrdinal = typename Field::LocalOrdinal;
-  using GlobalOrdinal = typename Field::GlobalOrdinal;
-  using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
-  using HostMirror = typename ViewDevice::HostMirror;
-  static constexpr int Dim = Grid::Dim;
+    // Exchange edges (3D) or corners of (2d) of a slice
+    template <class Field>
+    class SliceSideHalo {
+    public:
+        using Grid = typename Field::Grid;
+        using ValueType = typename Field::ValueType;
+        using LocalOrdinal = typename Field::LocalOrdinal;
+        using GlobalOrdinal = typename Field::GlobalOrdinal;
+        using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
+        using HostMirror = typename ViewDevice::HostMirror;
+        static constexpr int Dim = Grid::Dim;
 
-  static_assert(Dim == 3, "Only supports 3D");
+        static_assert(Dim == 3, "Only supports 3D");
 
-  /// 0=y(z)-plane, 1=x(z)-plane, (2=xy-plane)
-  explicit SliceSideHalo(Field &field, int plane)
-      : field_(field), plane_(plane) {
-    init();
-  }
+        /// 0=y(z)-plane, 1=x(z)-plane, (2=xy-plane)
+        explicit SliceSideHalo(Field &field, int plane) : field_(field), plane_(plane) { init(); }
 
-  ~SliceSideHalo() { destroy(); }
+        ~SliceSideHalo() { destroy(); }
 
-  void exchange(int slice_number) {
-    auto grid = field_.grid();
-    auto grid_host = grid->view_host();
+        void exchange(int slice_number) {
+            auto grid = field_.grid();
+            auto grid_host = grid->view_host();
 
-    if (slice_number < grid_host.start[plane_] ||
-        slice_number >= (grid_host.start[plane_] + grid_host.dim[plane_]))
-      return;
+            if (slice_number < grid_host.start[plane_] ||
+                slice_number >= (grid_host.start[plane_] + grid_host.dim[plane_]))
+                return;
 
-    int slice_local_coord =
-        grid_host.margin[plane_] + slice_number - grid_host.start[plane_];
+            int slice_local_coord = grid_host.margin[plane_] + slice_number - grid_host.start[plane_];
 
-    field_.synch_device_to_host();
+            field_.synch_device_to_host();
 
-    auto field_host = field_.view_host();
+            auto field_host = field_.view_host();
 
-    int recv_idx[Dim];
-    int send_idx[Dim];
-    int dirs[2];
-    int neigh_rank[2];
-    int send_offsets[2];
-    int recv_offsets[2];
+            int recv_idx[Dim];
+            int send_idx[Dim];
+            int dirs[2];
+            int neigh_rank[2];
+            int send_offsets[2];
+            int recv_offsets[2];
 
-    for (int dim = 0; dim < Dim; ++dim) {
-      // Skip dim of the plane
-      if (dim == plane_)
-        continue;
+            for (int dim = 0; dim < Dim; ++dim) {
+                // Skip dim of the plane
+                if (dim == plane_) continue;
 
-      // Reset array starts
-      for (int d = 0; d < Dim; ++d) {
-        recv_idx[d] = grid_host.margin[d];
-        send_idx[d] = grid_host.margin[d];
-      }
+                // Reset array starts
+                for (int d = 0; d < Dim; ++d) {
+                    recv_idx[d] = grid_host.margin[d];
+                    send_idx[d] = grid_host.margin[d];
+                }
 
-      // Set plane coordinate to slice number
-      recv_idx[plane_] = slice_local_coord;
-      send_idx[plane_] = slice_local_coord;
+                // Set plane coordinate to slice number
+                recv_idx[plane_] = slice_local_coord;
+                send_idx[plane_] = slice_local_coord;
 
-      int proc_coord = grid->comm_coord(dim);
-      bool is_even = proc_coord % 2 == 0;
+                int proc_coord = grid->comm_coord(dim);
+                bool is_even = proc_coord % 2 == 0;
 
-      // Interlace communication
-      dirs[0] = is_even ? -1 : 1;
-      dirs[1] = is_even ? 1 : -1;
+                // Interlace communication
+                dirs[0] = is_even ? -1 : 1;
+                dirs[1] = is_even ? 1 : -1;
 
-      // Find neighbors
-      neigh_rank[0] = grid->shift(dim, dirs[0]);
-      neigh_rank[1] = grid->shift(dim, dirs[1]);
+                // Find neighbors
+                neigh_rank[0] = grid->shift(dim, dirs[0]);
+                neigh_rank[1] = grid->shift(dim, dirs[1]);
 
-      // int line_dim = find_line_dim(dim);
+                // int line_dim = find_line_dim(dim);
 
-      // Offsets for array
-      send_offsets[is_even] = grid_host.margin[dim];
-      send_offsets[!is_even] = grid_host.dim[dim]; // includes left margin
+                // Offsets for array
+                send_offsets[is_even] = grid_host.margin[dim];
+                send_offsets[!is_even] = grid_host.dim[dim];  // includes left margin
 
-      recv_offsets[is_even] = 0;
-      recv_offsets[!is_even] = grid_host.dim_with_margin[dim] - 1;
+                recv_offsets[is_even] = 0;
+                recv_offsets[!is_even] = grid_host.dim_with_margin[dim] - 1;
 
-      ////////////////////////////////
-      // Send/Recv
-      ////////////////////////////////
+                ////////////////////////////////
+                // Send/Recv
+                ////////////////////////////////
 
-      int tag = 0;
-      for (int k = 0; k < 2; ++k) {
-        if (neigh_rank[k] == MPI_PROC_NULL)
-          continue;
+                int tag = 0;
+                for (int k = 0; k < 2; ++k) {
+                    if (neigh_rank[k] == MPI_PROC_NULL) continue;
 
-        recv_idx[dim] = recv_offsets[k];
-        send_idx[dim] = send_offsets[k];
+                    recv_idx[dim] = recv_offsets[k];
+                    send_idx[dim] = send_offsets[k];
 
-        auto recv_ptr = field_host.p_block(recv_idx);
-        auto send_ptr = field_host.p_block(send_idx);
+                    auto recv_ptr = field_host.p_block(recv_idx);
+                    auto send_ptr = field_host.p_block(send_idx);
 
-        int recv_size, send_size;
+                    int recv_size, send_size;
 
-        MPI_Type_size(send_type_[dim], &send_size);
-        MPI_Type_size(recv_type_[dim], &recv_size);
+                    MPI_Type_size(send_type_[dim], &send_size);
+                    MPI_Type_size(recv_type_[dim], &recv_size);
 
-        // printf("[%d] -> [%d] dim=%d, line_dim=%d, (send_size=%d, "
-        //        "recv_size=%d), phase=%d, "
-        //        "sp=(%d,%d,%d), "
-        //        "rp=(%d,%d,%d)\n",
-        //        grid->comm_rank(), neigh_rank[k], dim, line_dim, send_size,
-        //        recv_size, k, send_idx[0], send_idx[1], send_idx[2], //
-        //        recv_idx[0], recv_idx[1], recv_idx[2]);
+                    // printf("[%d] -> [%d] dim=%d, line_dim=%d, (send_size=%d, "
+                    //        "recv_size=%d), phase=%d, "
+                    //        "sp=(%d,%d,%d), "
+                    //        "rp=(%d,%d,%d)\n",
+                    //        grid->comm_rank(), neigh_rank[k], dim, line_dim, send_size,
+                    //        recv_size, k, send_idx[0], send_idx[1], send_idx[2], //
+                    //        recv_idx[0], recv_idx[1], recv_idx[2]);
 
-        CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr, 1, send_type_[dim],
-                                     neigh_rank[k], tag, recv_ptr, 1,
-                                     recv_type_[dim], neigh_rank[k], tag,
-                                     grid->raw_comm(), MPI_STATUS_IGNORE));
-      }
+                    CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr,
+                                                 1,
+                                                 send_type_[dim],
+                                                 neigh_rank[k],
+                                                 tag,
+                                                 recv_ptr,
+                                                 1,
+                                                 recv_type_[dim],
+                                                 neigh_rank[k],
+                                                 tag,
+                                                 grid->raw_comm(),
+                                                 MPI_STATUS_IGNORE));
+                }
 
-      field_.synch_host_to_device();
-    }
+                field_.synch_host_to_device();
+            }
 
-    // void wait_all() {}
-  }
+            // void wait_all() {}
+        }
 
-private:
-  Field &field_;
-  int plane_;
+    private:
+        Field &field_;
+        int plane_;
 
-  // One type per side of the slice
-  MPI_Datatype recv_type_[Dim];
-  MPI_Datatype send_type_[Dim];
+        // One type per side of the slice
+        MPI_Datatype recv_type_[Dim];
+        MPI_Datatype send_type_[Dim];
 
-  void destroy() {
-    for (auto &t : recv_type_) {
-      if (t != MPI_DATATYPE_NULL) {
-        MPI_Type_free(&t);
-      }
-      t = MPI_DATATYPE_NULL;
-    }
+        void destroy() {
+            for (auto &t : recv_type_) {
+                if (t != MPI_DATATYPE_NULL) {
+                    MPI_Type_free(&t);
+                }
+                t = MPI_DATATYPE_NULL;
+            }
 
-    for (auto &t : send_type_) {
-      if (t != MPI_DATATYPE_NULL) {
-        MPI_Type_free(&t);
-      }
-      t = MPI_DATATYPE_NULL;
-    }
-  }
+            for (auto &t : send_type_) {
+                if (t != MPI_DATATYPE_NULL) {
+                    MPI_Type_free(&t);
+                }
+                t = MPI_DATATYPE_NULL;
+            }
+        }
 
-  inline int find_line_dim(const int dim) const {
-    int line_dim = -1;
+        inline int find_line_dim(const int dim) const {
+            int line_dim = -1;
 
-    for (int d = 0; d < Grid::Dim; ++d) {
-      if (d != dim && d != plane_) {
-        line_dim = d;
-        break;
-      }
-    }
-    assert(line_dim >= 0);
-    return line_dim;
-  }
+            for (int d = 0; d < Grid::Dim; ++d) {
+                if (d != dim && d != plane_) {
+                    line_dim = d;
+                    break;
+                }
+            }
+            assert(line_dim >= 0);
+            return line_dim;
+        }
 
-  void init() {
-    // TODO check if dimension is serial and periodic
+        void init() {
+            // TODO check if dimension is serial and periodic
 
-    for (auto &t : recv_type_) {
-      t = MPI_DATATYPE_NULL;
-    }
+            for (auto &t : recv_type_) {
+                t = MPI_DATATYPE_NULL;
+            }
 
-    for (auto &t : send_type_) {
-      t = MPI_DATATYPE_NULL;
-    }
+            for (auto &t : send_type_) {
+                t = MPI_DATATYPE_NULL;
+            }
 
-    //
-    auto grid = field_.grid();
-    auto g_host = grid->view_host();
+            //
+            auto grid = field_.grid();
+            auto g_host = grid->view_host();
 
-    MPI_Datatype real_type = MPIType<ValueType>();
+            MPI_Datatype real_type = MPIType<ValueType>();
 
-    for (int dim = 0; dim < Dim; ++dim) {
-      // Skip dim of the plane
-      if (dim == plane_)
-        continue;
+            for (int dim = 0; dim < Dim; ++dim) {
+                // Skip dim of the plane
+                if (dim == plane_) continue;
 
-      int line_dim = find_line_dim(dim);
+                int line_dim = find_line_dim(dim);
 
-      int stride = 1;
+                int stride = 1;
 
-      for (int d = Grid::Dim - 1; d > line_dim; --d) {
-        stride *= g_host.dim_with_margin[d];
-      }
+                for (int d = Grid::Dim - 1; d > line_dim; --d) {
+                    stride *= g_host.dim_with_margin[d];
+                }
 
-      int count = g_host.dim[line_dim];
-      int block_size = field_.block_size();
+                int count = g_host.dim[line_dim];
+                int block_size = field_.block_size();
 
-      if (stride == 1) {
-        CATCH_MPI_ERROR(MPI_Type_contiguous(count * block_size, real_type,
-                                            &recv_type_[dim]));
+                if (stride == 1) {
+                    CATCH_MPI_ERROR(MPI_Type_contiguous(count * block_size, real_type, &recv_type_[dim]));
 
-        CATCH_MPI_ERROR(MPI_Type_contiguous(count * block_size, real_type,
-                                            &send_type_[dim]));
+                    CATCH_MPI_ERROR(MPI_Type_contiguous(count * block_size, real_type, &send_type_[dim]));
 
-        // printf("[%d] -> dim=%d, line_dim=%d, count=%d, stride=%d\n",
-        //        grid->comm_rank(), dim, line_dim, count, stride);
+                    // printf("[%d] -> dim=%d, line_dim=%d, count=%d, stride=%d\n",
+                    //        grid->comm_rank(), dim, line_dim, count, stride);
 
-      } else {
-        CATCH_MPI_ERROR(MPI_Type_vector(count, block_size, stride * block_size,
-                                        real_type, &recv_type_[dim]));
+                } else {
+                    CATCH_MPI_ERROR(
+                        MPI_Type_vector(count, block_size, stride * block_size, real_type, &recv_type_[dim]));
 
-        CATCH_MPI_ERROR(MPI_Type_vector(count, block_size, stride * block_size,
-                                        real_type, &send_type_[dim]));
+                    CATCH_MPI_ERROR(
+                        MPI_Type_vector(count, block_size, stride * block_size, real_type, &send_type_[dim]));
 
-        // printf("[%d] -> dim=%d, line_dim=%d, count=%d, stride=%d\n",
-        //        grid->comm_rank(), dim, line_dim, count, stride);
-      }
+                    // printf("[%d] -> dim=%d, line_dim=%d, count=%d, stride=%d\n",
+                    //        grid->comm_rank(), dim, line_dim, count, stride);
+                }
 
-      MPI_Type_commit(&recv_type_[dim]);
-      MPI_Type_commit(&send_type_[dim]);
-    }
-  }
-};
-} // namespace sgrid
+                MPI_Type_commit(&recv_type_[dim]);
+                MPI_Type_commit(&send_type_[dim]);
+            }
+        }
+    };
+}  // namespace sgrid
 
-#endif // SGRID_SLICE_SIDE_HALO_HPP
+#endif  // SGRID_SLICE_SIDE_HALO_HPP
