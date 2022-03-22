@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
             slice_number = atoi(argv[5]);
         }
 
-        bool verbose = false;
+        bool verbose = true;
 
         auto grid = std::make_shared<Grid_t>();
 
@@ -56,12 +56,12 @@ int main(int argc, char *argv[]) {
         auto g_dev = grid->view_device();
         auto x_dev = field->view_device();
 
-        double oracle = grid->comm_rank();
+        double oracle = grid->comm_rank() + 1;
 
         sgrid::parallel_for(
             "Index", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                 auto b = x_dev.block(i, j, k);
-                b[0] = oracle + 1;
+                b[0] = oracle;
             });
 
         if (verbose) {

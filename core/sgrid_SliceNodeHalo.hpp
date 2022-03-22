@@ -81,7 +81,7 @@ namespace sgrid {
 
                         const int neigh_rank = grid->p_neigh(proc_coord_disp);
 
-                        assert(neigh_rank != grid->comm_rank());
+                        // assert(neigh_rank != grid->comm_rank());
 
                         if (neigh_rank == MPI_PROC_NULL) continue;
 
