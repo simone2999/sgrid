@@ -22,13 +22,13 @@ int main(int argc, char *argv[]) {
         int mpi_size;
         MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
-        const int N_ = 10;
-        const int block_size_ = 10;
+        const int N_ = 6;
+        const int block_size = 3;
 
         auto space_grid_ = std::make_shared<Grid_t>();
         space_grid_->init(MPI_COMM_WORLD, {N_, N_, N_}, {1, 1, 0}, {1, 1, mpi_size});
 
-        auto I_field_ = std::make_shared<Field_t>("I", space_grid_, block_size_, sgrid::BOX_STENCIL);
+        auto I_field_ = std::make_shared<Field_t>("I", space_grid_, block_size, sgrid::BOX_STENCIL);
         I_field_->allocate_on_device();
 
         // fill field
@@ -37,10 +37,9 @@ int main(int argc, char *argv[]) {
         sgrid::parallel_for(
             "INIT I", space_grid_->md_range(), KOKKOS_LAMBDA(int i, int j, int k) {
                 auto *block = field_dev.block(i, j, k);
-
-                for (int b = 0; b < (int)block_size_; ++b) {
-                    block[b] = i + j + k + b;
-                }
+                block[0] = i;
+                block[1] = j;
+                block[2] = k;
             });
 
         // halos
@@ -65,8 +64,19 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // print random point
-        std::cout << "field = " << field_dev.block(0, 0, 5)[0] << std::endl;
+        sgrid::parallel_for(
+            "Print I", space_grid_->md_range_with_ghosts(), KOKKOS_LAMBDA(int i, int j, int k) {
+                auto *block = field_dev.block(i, j, k);
+
+                bool internal = (i > 0 && i <= N_) && (j > 0 && j <= N_) && (k > 0 && k <= N_);
+                // print random point
+
+                if (!internal) {
+                    std::cout << "(" << i << ", " << j << ", " << k << ")"
+                              << "->";
+                    std::cout << "(" << block[0] << ", " << block[1] << ", " << block[2] << ")" << std::endl;
+                }
+            });
     }
 
     sgrid::finalize();

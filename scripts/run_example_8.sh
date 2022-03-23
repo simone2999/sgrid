@@ -1,5 +1,5 @@
 #!/bin/bash
-# sgrid_example_4.sh
+# sgrid_example_8.sh
 
 make -j4 sgrid_example_8
 
