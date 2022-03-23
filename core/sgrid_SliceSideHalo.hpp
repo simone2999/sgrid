@@ -74,8 +74,8 @@ namespace sgrid {
                 send_offsets[is_even] = grid_host.margin[dim];
                 send_offsets[!is_even] = grid_host.dim[dim];  // includes left margin
 
-                recv_offsets[is_even] = 0;
-                recv_offsets[!is_even] = grid_host.dim_with_margin[dim] - 1;
+                recv_offsets[is_even] = grid_host.dim_with_margin[dim] - 1;
+                recv_offsets[!is_even] = 0;
 
                 ////////////////////////////////
                 // Send/Recv
@@ -96,13 +96,24 @@ namespace sgrid {
                     MPI_Type_size(send_type_[dim], &send_size);
                     MPI_Type_size(recv_type_[dim], &recv_size);
 
-                    // printf("[%d] -> [%d] dim=%d, line_dim=%d, (send_size=%d, "
-                    //        "recv_size=%d), phase=%d, "
-                    //        "sp=(%d,%d,%d), "
-                    //        "rp=(%d,%d,%d)\n",
-                    //        grid->comm_rank(), neigh_rank[k], dim, line_dim, send_size,
-                    //        recv_size, k, send_idx[0], send_idx[1], send_idx[2], //
-                    //        recv_idx[0], recv_idx[1], recv_idx[2]);
+                    // printf(
+                    //     "[%d] -> [%d] dim=%d, slice_number=%d, (send_size=%d, "
+                    //     "recv_size=%d), phase=%d, "
+                    //     "sp=(%d,%d,%d), "
+                    //     "rp=(%d,%d,%d)\n",
+                    //     grid->comm_rank(),
+                    //     neigh_rank[k],
+                    //     dim,
+                    //     slice_number,
+                    //     send_size,
+                    //     recv_size,
+                    //     k,
+                    //     send_idx[0],
+                    //     send_idx[1],
+                    //     send_idx[2],  //
+                    //     recv_idx[0],
+                    //     recv_idx[1],
+                    //     recv_idx[2]);
 
                     CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr,
                                                  1,

@@ -99,29 +99,29 @@ int main(int argc, char *argv[]) {
 
                 // else print bugs
 
-                bool innner = true;
+                bool inner = true;
 
                 if (x == -1) {
                     printf("LEFT\t");
-                    innner = false;
+                    inner = false;
                 }
 
                 if (x == nx) {
                     printf("RIGHT\t");
-                    innner = false;
+                    inner = false;
                 }
 
                 if (y == -1) {
                     printf("BOTTOM\t");
-                    innner = false;
+                    inner = false;
                 }
 
                 if (y == ny) {
                     printf("TOP\t");
-                    innner = false;
+                    inner = false;
                 }
 
-                if (innner) {
+                if (inner) {
                     printf("INNER\t");
                 }
 

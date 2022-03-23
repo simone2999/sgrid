@@ -92,10 +92,11 @@ namespace sgrid {
                         for (int d = 0; d < Grid::Dim; ++d) {
                             if (d == plane_) continue;
 
-                            send_idx[d] = (disp[d][tensor_idx[d]] > 0) ? (g_host.dim[d] - 1 + g_host.margin[d])
-                                                                       : g_host.margin[d];
+                            bool sending_right = (disp[d][tensor_idx[d]] > 0);
+                            bool receving_left = sending_right;
 
-                            recv_idx[d] = (disp[d][tensor_idx[d]] > 0) ? (g_host.dim[d] - 1 + 2 * g_host.margin[d]) : 0;
+                            send_idx[d] = sending_right ? (g_host.dim[d] - 1 + g_host.margin[d]) : g_host.margin[d];
+                            recv_idx[d] = receving_left ? 0 : (g_host.dim[d] - 1 + 2 * g_host.margin[d]);
                         }
 
                         send_idx[plane_] = slice_local_coord;

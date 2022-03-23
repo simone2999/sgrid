@@ -33,13 +33,20 @@ int main(int argc, char *argv[]) {
 
         // fill field
         auto field_dev = I_field_->view_device();
+        const auto g_dev = space_grid_->view_device();
+
+        int offset = 1;
 
         sgrid::parallel_for(
             "INIT I", space_grid_->md_range(), KOKKOS_LAMBDA(int i, int j, int k) {
+                ptrdiff_t x = g_dev.global_coord(0, i);  // 0=X
+                ptrdiff_t y = g_dev.global_coord(1, j);  // 1=Y
+                ptrdiff_t z = g_dev.global_coord(2, k);  // 2=Z
+
                 auto *block = field_dev.block(i, j, k);
-                block[0] = i;
-                block[1] = j;
-                block[2] = k;
+                block[0] = x + offset;
+                block[1] = y + offset;
+                block[2] = z + offset;
             });
 
         // halos
@@ -47,36 +54,61 @@ int main(int argc, char *argv[]) {
         sgrid::SideHalo<Field_t> halos(*I_field_);
         halos.init(2);
 
-        const auto g_dev = space_grid_->view_device();
-
         const int k_start = g_dev.margin[2];
         const int k_end = k_start + g_dev.dim[2];
+
+        // (void)k_start;
+        // (void)k_end;
 
         if (test) {
             I_field_->exchange_halos();
         } else {
             I_field_->synch_device_to_host();
             halos.exchange();
-            I_field_->synch_host_to_device();
 
             for (int k = k_start; k < k_end; ++k) {
                 halos_xy.exchange(k);
             }
+
+            I_field_->synch_host_to_device();
         }
 
-        sgrid::parallel_for(
-            "Print I", space_grid_->md_range_with_ghosts(), KOKKOS_LAMBDA(int i, int j, int k) {
-                auto *block = field_dev.block(i, j, k);
+        for (int r = 0; r < mpi_size; ++r) {
+            if (r == space_grid_->comm_rank()) {
+                std::cout << "[" << r << "]\n";
 
-                bool internal = (i > 0 && i <= N_) && (j > 0 && j <= N_) && (k > 0 && k <= N_);
-                // print random point
+                sgrid::parallel_for(
+                    "Print I", space_grid_->md_range_with_ghosts(), KOKKOS_LAMBDA(int i, int j, int k) {
+                        ptrdiff_t z = g_dev.global_coord(2, k);  // 2=Z
 
-                if (!internal) {
-                    std::cout << "(" << i << ", " << j << ", " << k << ")"
-                              << "->";
-                    std::cout << "(" << block[0] << ", " << block[1] << ", " << block[2] << ")" << std::endl;
-                }
-            });
+                        if (z == -1 || z == N_) return;
+
+                        ptrdiff_t x = g_dev.global_coord(0, i);  // 0=X
+                        ptrdiff_t y = g_dev.global_coord(1, j);  // 1=Y
+
+                        bool internal = (x > 0 && x < N_) && (y > 0 && y < N_) && (z > 0 && z < N_);
+                        (void)internal;
+
+                        // if (!internal) {
+                        //     auto *block = field_dev.block(i, j, k);
+
+                        //     // if (internal) {
+                        //     std::cout << "(" << (x + offset) << ", " << (y + offset) << ", " << (z + offset) << ")"
+                        //               << "->";
+                        //     std::cout << "(" << block[0] << ", " << block[1] << ", " << block[2] << ")" << std::endl;
+                        // }
+                    });
+            }
+
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
+
+        I_field_->synch_device_to_host();
+        I_field_->synch_host_to_device();
+
+        sgrid::RawIODebug<Field_t> debug_out(*I_field_);
+        debug_out.set_output_path("ex9_debug.raw");
+        debug_out.write();
     }
 
     sgrid::finalize();
