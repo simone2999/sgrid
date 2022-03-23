@@ -1,0 +1,74 @@
+#include "sgrid_Base.hpp"
+#include "sgrid_Field.hpp"
+#include "sgrid_SliceHalo.hpp"
+
+#include <cmath>
+#include <fstream>
+
+#include <mpi.h>
+
+using Real = double;
+
+using Grid_t = sgrid::Grid<Real, 3>;
+using Field_t = sgrid::Field<Grid_t>;
+
+int main(int argc, char *argv[]) {
+    MPI_Init(&argc, &argv);
+    sgrid::initialize(argc, argv);
+
+    {
+        const bool test = atoi(argv[1]);
+
+        int mpi_size;
+        MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+
+        const int N_ = 10;
+        const int block_size_ = 10;
+
+        auto space_grid_ = std::make_shared<Grid_t>();
+        space_grid_->init(MPI_COMM_WORLD, {N_, N_, N_}, {1, 1, 0}, {1, 1, mpi_size});
+
+        auto I_field_ = std::make_shared<Field_t>("I", space_grid_, block_size_, sgrid::BOX_STENCIL);
+        I_field_->allocate_on_device();
+
+        // fill field
+        auto field_dev = I_field_->view_device();
+
+        sgrid::parallel_for(
+            "INIT I", space_grid_->md_range(), KOKKOS_LAMBDA(int i, int j, int k) {
+                auto *block = field_dev.block(i, j, k);
+
+                for (int b = 0; b < (int)block_size_; ++b) {
+                    block[b] = i + j + k + b;
+                }
+            });
+
+        // halos
+        sgrid::SliceHalo<Field_t> halos_xy(*I_field_, 2);
+        sgrid::SideHalo<Field_t> halos(*I_field_);
+        halos.init(2);
+
+        const auto g_dev = space_grid_->view_device();
+
+        const int k_start = g_dev.margin[2];
+        const int k_end = k_start + g_dev.dim[2];
+
+        if (test) {
+            I_field_->exchange_halos();
+        } else {
+            I_field_->synch_device_to_host();
+            halos.exchange();
+            I_field_->synch_host_to_device();
+
+            for (int k = k_start; k < k_end; ++k) {
+                halos_xy.exchange(k);
+            }
+        }
+
+        // print random point
+        std::cout << "field = " << field_dev.block(0, 0, 5)[0] << std::endl;
+    }
+
+    sgrid::finalize();
+    return MPI_Finalize();
+}
