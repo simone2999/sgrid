@@ -7,6 +7,8 @@ nz=$(($n_procs * 2 + 6))
 echo "nz="$nz
 rm ex9_debug*
 
+make -j4 sgrid_example_9
+
  make -j4 sgrid_example_9 \
   && mpiexec -np $n_procs ./sgrid_example_9 0 \
   && python3 ../scripts/transpose_data.py --nx=8 --ny=8 --nz=$nz --block_size=3 --path=ex9_debug.raw --output=ex9_debug_t \

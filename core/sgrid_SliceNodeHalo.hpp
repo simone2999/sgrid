@@ -3,9 +3,73 @@
 
 namespace sgrid {
 
+    class SliceNodeHaloBase {
+    public:
+        virtual ~SliceNodeHaloBase() = default;
+        virtual void exchange(int slice_local_coord) = 0;
+    };
+
+    // template <class Field>
+    // class SerialSliceNodeHalo : public SliceNodeHaloBase {
+    // public:
+    //     using Grid = typename Field::Grid;
+    //     using ValueType = typename Field::ValueType;
+    //     using LocalOrdinal = typename Field::LocalOrdinal;
+    //     using GlobalOrdinal = typename Field::GlobalOrdinal;
+    //     using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
+    //     using HostMirror = typename ViewDevice::HostMirror;
+    //     static constexpr int Dim = Grid::Dim;
+    //     static constexpr int MaxDim = 3;
+
+    //     static_assert(Dim <= MaxDim, "Only supports 3D and below");
+
+    //     /// 0=y(z)-plane, 1=x(z)-plane, (2=xy-plane)
+    //     explicit SerialSliceNodeHalo(Field &field, int plane) : field_(field), plane_(plane) {}
+
+    //     void exchange(int slice_local_coord) override {}
+
+    //     static bool is_valid_handler(Field &field, const int plane) {
+    //         auto grid = field.grid();
+
+    //         int offset[2] = {0, 0};
+
+    //         switch (plane) {
+    //             case 0: {
+    //                 offset[0] = 1;
+    //                 offset[1] = 2;
+    //                 break;
+    //             }
+    //             case 1: {
+    //                 offset[0] = 0;
+    //                 offset[1] = 2;
+    //                 break;
+    //             }
+    //             case 2: {
+    //                 offset[0] = 0;
+    //                 offset[1] = 1;
+    //                 break;
+    //             }
+    //             default:
+    //                 break;
+    //         }
+
+    //         for (int k = 0; k < 2; ++k) {
+    //             if (grid->comm_dim(offset[k]) != 1) {
+    //                 // Only works for fully serial planes
+    //                 return false;
+    //             }
+    //         }
+
+    //         return true;
+    //     }
+
+    //     Field &field_;
+    //     int plane_;
+    // };
+
     // Exchange edges (3D) or corners of (2d) of a slice
     template <class Field>
-    class SliceNodeHalo {
+    class SliceNodeHalo : public SliceNodeHaloBase {
     public:
         using Grid = typename Field::Grid;
         using ValueType = typename Field::ValueType;
@@ -23,14 +87,15 @@ namespace sgrid {
 
         ~SliceNodeHalo() { destroy(); }
 
-        void exchange(int slice_number) {
+        void exchange(int slice_local_coord) override {
             auto grid = field_.grid();
             auto g_host = grid->view_host();
 
-            if (slice_number < g_host.start[plane_] || slice_number >= (g_host.start[plane_] + g_host.dim[plane_]))
-                return;
+            // if (slice_number < g_host.start[plane_] || slice_number >= (g_host.start[plane_] + g_host.dim[plane_]))
+            //     return;
 
-            int slice_local_coord = g_host.margin[plane_] + slice_number - g_host.start[plane_];
+            // int slice_number = g_host.start[plane_] + slice_local_coord - g_host.margin[plane_];
+            // int slice_local_coord = g_host.margin[plane_] + slice_number - g_host.start[plane_];
 
             ///////////////////////////////////////////////////////////////////
 
@@ -81,8 +146,6 @@ namespace sgrid {
 
                         const int neigh_rank = grid->p_neigh(proc_coord_disp);
 
-                        // assert(neigh_rank != grid->comm_rank());
-
                         if (neigh_rank == MPI_PROC_NULL) continue;
 
                         tensor_idx[0] = i;
@@ -92,11 +155,10 @@ namespace sgrid {
                         for (int d = 0; d < Grid::Dim; ++d) {
                             if (d == plane_) continue;
 
-                            bool sending_right = (disp[d][tensor_idx[d]] > 0);
-                            bool receving_left = sending_right;
+                            bool exchanging_right = disp[d][tensor_idx[d]] > 0;
 
-                            send_idx[d] = sending_right ? (g_host.dim[d] - 1 + g_host.margin[d]) : g_host.margin[d];
-                            recv_idx[d] = receving_left ? 0 : (g_host.dim[d] - 1 + 2 * g_host.margin[d]);
+                            send_idx[d] = exchanging_right ? (g_host.dim[d] - 1 + g_host.margin[d]) : g_host.margin[d];
+                            recv_idx[d] = exchanging_right ? (g_host.dim[d] - 1 + 2 * g_host.margin[d]) : 0;
                         }
 
                         send_idx[plane_] = slice_local_coord;

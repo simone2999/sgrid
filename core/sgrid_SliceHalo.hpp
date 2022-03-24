@@ -20,10 +20,20 @@ namespace sgrid {
         static_assert(Dim == 3, "Only supports 3D!");
 
         /// 0=y(z)-plane, 1=x(z)-plane, (2=xy-plane)
-        explicit SliceHalo(Field &field, int plane) : field_(field), side_(field, plane), node_(field, plane) {}
+        explicit SliceHalo(Field &field, int plane) : field_(field), node_(field, plane) {
+            if (SerialSliceSideHalo<Field>::is_valid_handler(field_, plane)) {
+                if (field_.grid()->comm_rank() == 0) {
+                    std::cout << "Using serial slice halo handler!\n";
+                }
+                side_ = std::make_shared<SerialSliceSideHalo<Field>>(field_, plane);
+            } else {
+                side_ = std::make_shared<SliceSideHalo<Field>>(field_, plane);
+            }
+        }
 
+        /// @param slice_number local index coordinate
         void exchange(int slice_number) {
-            side_.exchange(slice_number);
+            side_->exchange(slice_number);
 
             if (field_.stencil_type() == BOX_STENCIL) {
                 node_.exchange(slice_number);
@@ -32,7 +42,8 @@ namespace sgrid {
 
     private:
         Field &field_;
-        SliceSideHalo<Field> side_;
+        // SliceSideHalo<Field> side_;
+        std::shared_ptr<SliceSideHaloBase> side_;
         SliceNodeHalo<Field> node_;
     };
 
