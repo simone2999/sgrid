@@ -50,15 +50,17 @@ int main(int argc, char *argv[]) {
             });
 
         // halos
-        sgrid::SliceHalo<Field_t> halos_xy(*I_field_, 2);
+        sgrid::SliceHalo<Field_t> xy_slice_halos(*I_field_, 2);
         sgrid::SideHalo<Field_t> halos(*I_field_);
         halos.init(2);
 
-        const int k_start = g_dev.margin[2];
-        const int k_end = k_start + g_dev.dim[2];
+        // Local indexing
+        // const int k_start = g_dev.margin[2];
+        // const int k_end = k_start + g_dev.dim[2];
 
-        // (void)k_start;
-        // (void)k_end;
+        // Global indexing
+        const int k_start = g_dev.start[2];
+        const int k_end = k_start + g_dev.dim[2];
 
         if (test) {
             I_field_->exchange_halos();
@@ -67,7 +69,7 @@ int main(int argc, char *argv[]) {
             halos.exchange();
 
             for (int k = k_start; k < k_end; ++k) {
-                halos_xy.exchange(k);
+                xy_slice_halos.exchange(k);
             }
 
             I_field_->synch_host_to_device();
@@ -77,27 +79,31 @@ int main(int argc, char *argv[]) {
             if (r == space_grid_->comm_rank()) {
                 std::cout << "[" << r << "]\n";
 
-                sgrid::parallel_for(
-                    "Print I", space_grid_->md_range_with_ghosts(), KOKKOS_LAMBDA(int i, int j, int k) {
+                int zeros = 0;
+                sgrid::parallel_reduce(
+                    "Print I",
+                    space_grid_->md_range_with_ghosts(),
+                    KOKKOS_LAMBDA(int i, int j, int k, int &acc) {
                         ptrdiff_t z = g_dev.global_coord(2, k);  // 2=Z
 
-                        if (z == -1 || z == N_) return;
+                        if (z == -1 || z == N_ || k == 0 || k == g_dev.dim[2] + g_dev.margin[2]) return;
 
                         ptrdiff_t x = g_dev.global_coord(0, i);  // 0=X
                         ptrdiff_t y = g_dev.global_coord(1, j);  // 1=Y
 
-                        bool internal = (x > 0 && x < N_) && (y > 0 && y < N_) && (z > 0 && z < N_);
-                        (void)internal;
+                        auto *block = field_dev.block(i, j, k);
 
-                        // if (!internal) {
-                        //     auto *block = field_dev.block(i, j, k);
+                        if (block[0] == 0 || block[1] == 0 || block[2] == 0) {
+                            acc += 1;
 
-                        //     // if (internal) {
-                        //     std::cout << "(" << (x + offset) << ", " << (y + offset) << ", " << (z + offset) << ")"
-                        //               << "->";
-                        //     std::cout << "(" << block[0] << ", " << block[1] << ", " << block[2] << ")" << std::endl;
-                        // }
-                    });
+                            std::cout << "(" << (x + offset) << ", " << (y + offset) << ", " << (z + offset) << ")"
+                                      << "->";
+                            std::cout << "(" << block[0] << ", " << block[1] << ", " << block[2] << ")" << std::endl;
+                        }
+                    },
+                    zeros);
+
+                printf("[%d] zero halos %d\n", r, zeros);
             }
 
             MPI_Barrier(MPI_COMM_WORLD);
