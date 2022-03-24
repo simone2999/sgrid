@@ -35,9 +35,9 @@ namespace sgrid {
         void exchange(int slice_number) {
             side_->exchange(slice_number);
 
-            if (field_.stencil_type() == BOX_STENCIL) {
-                node_.exchange(slice_number);
-            }
+            // if (field_.stencil_type() == BOX_STENCIL) {
+            //     node_.exchange(slice_number);
+            // }
         }
 
     private:

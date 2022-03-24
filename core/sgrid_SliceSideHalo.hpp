@@ -137,16 +137,16 @@ namespace sgrid {
                             auto *b_from = x_dev.p_block(idx_from);
                             auto *b_to = x_dev.p_block(idx_to);
 
-                            printf("copy (%d, %d, %d) -> (%d, %d, %d) %g, %g, %g\n",
-                                   idx_from[0],
-                                   idx_from[1],
-                                   idx_from[2],
-                                   idx_to[0],
-                                   idx_to[1],
-                                   idx_to[2],
-                                   b_from[0],
-                                   b_from[1],
-                                   b_from[2]);
+                            // printf("copy (%d, %d, %d) -> (%d, %d, %d) %g, %g, %g\n",
+                            //        idx_from[0],
+                            //        idx_from[1],
+                            //        idx_from[2],
+                            //        idx_to[0],
+                            //        idx_to[1],
+                            //        idx_to[2],
+                            //        b_from[0],
+                            //        b_from[1],
+                            //        b_from[2]);
 
                             for (int b = 0; b < block_size; ++b) {
                                 b_to[b] = b_from[b];
