@@ -1,0 +1,122 @@
+#include "sgrid_Base.hpp"
+#include "sgrid_Field.hpp"
+#include "sgrid_SliceHalo.hpp"
+
+#include <cmath>
+#include <fstream>
+
+#include <mpi.h>
+
+using Real = double;
+
+using Grid_t = sgrid::Grid<Real, 2>;
+using Field_t = sgrid::Field<Grid_t>;
+
+int main(int argc, char *argv[]) {
+    MPI_Init(&argc, &argv);
+    sgrid::initialize(argc, argv);
+
+    {
+        const bool test = atoi(argv[1]);
+
+        int mpi_size;
+        MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+
+        const int N_ = 6;
+        const int block_size = 2;
+
+        auto space_grid_ = std::make_shared<Grid_t>();
+        space_grid_->init(MPI_COMM_WORLD, {N_, N_}, {1, 0}, {1, mpi_size});
+
+        auto I_field_ = std::make_shared<Field_t>("I", space_grid_, block_size, sgrid::BOX_STENCIL);
+        I_field_->allocate_on_device();
+
+        // fill field
+        auto field_dev = I_field_->view_device();
+        const auto g_dev = space_grid_->view_device();
+
+        int offset = 1;
+
+        sgrid::parallel_for(
+            "INIT I", space_grid_->md_range(), KOKKOS_LAMBDA(int i, int j) {
+                ptrdiff_t x = g_dev.global_coord(0, i);  // 0=X
+                ptrdiff_t y = g_dev.global_coord(1, j);  // 1=Y
+
+                auto *block = field_dev.block(i, j);
+                block[0] = x + offset;
+                block[1] = y + offset;
+            });
+
+        // halos
+        sgrid::SliceHalo<Field_t> xy_slice_halos(*I_field_, 1);
+        sgrid::SideHalo<Field_t> halos(*I_field_);
+        halos.init(1);
+
+        // Local indexing (includes ghosts)
+        const int k_start = 0;
+        const int k_end = k_start + 2 * g_dev.dim[1];
+
+        if (test) {
+            I_field_->exchange_halos();
+        } else {
+            I_field_->synch_device_to_host();
+            halos.exchange();
+
+            // For making sure halows are also available
+            I_field_->synch_host_to_device();
+            I_field_->synch_device_to_host();
+
+            for (int k = k_start; k < k_end; ++k) {
+                xy_slice_halos.exchange(k);
+            }
+
+            I_field_->synch_host_to_device();
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        for (int r = 0; r < mpi_size; ++r) {
+            if (r == space_grid_->comm_rank()) {
+                std::cout << "[" << r << "]\n";
+
+                int zeros = 0;
+                sgrid::parallel_reduce(
+                    "Print I",
+                    space_grid_->md_range_with_ghosts(),
+                    KOKKOS_LAMBDA(int i, int j, int &acc) {
+                        ptrdiff_t y = g_dev.global_coord(1, j);  // 1=y
+
+                        if (y == -1 || y == N_) return;
+
+                        auto *block = field_dev.block(i, j);
+
+                        if (block[0] == 0 || block[1] == 0) {
+                            acc += 1;
+                        }
+
+                        // std::cout << "(" << (x + offset) << ", " << (y + offset) << ", " << (z + offset) << ")"
+                        //           << "->";
+
+                        std::cout << "(" << (i) << ", " << (j) <<  ")"
+                                  << "->";
+                        std::cout << "(" << block[0] << ", " << block[1] << ")" << std::endl;
+                    },
+                    zeros);
+
+                printf("[%d] zero halos %d\n", r, zeros);
+            }
+
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
+
+        I_field_->synch_device_to_host();
+        I_field_->synch_host_to_device();
+
+        sgrid::RawIODebug<Field_t> debug_out(*I_field_);
+        debug_out.set_output_path("ex10_debug.raw");
+        debug_out.write();
+    }
+
+    sgrid::finalize();
+    return MPI_Finalize();
+}
