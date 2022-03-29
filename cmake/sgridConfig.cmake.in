@@ -1,3 +1,12 @@
+include(CMakeFindDependencyMacro)
+if (@SGRID_ENABLE_KOKKOS@)
+    find_dependency(Kokkos HINTS @Kokkos_DIR@)
+endif()
+
+if (@SGRID_ENABLE_KOKKOS_KERNELS@)
+    find_dependency(KokkosKernels HINTS @KokkosKernels_DIR@)
+endif()
+
 @PACKAGE_INIT@
 
 ########## old style variables. Preferably you should use target_link_libraries(my_target sgrid::sgrid) ################

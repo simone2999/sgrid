@@ -125,3 +125,4 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sgridConfig.cmake
 
 # ##############################################################################
 
+include(cmake/PostInstall.cmake)

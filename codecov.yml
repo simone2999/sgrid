@@ -1,0 +1,51 @@
+
+#MFEM codecov
+# codecov:
+#   require_ci_to_pass: no
+
+# coverage:
+#   precision: 2
+#   round: nearest
+#   range: "0...100"
+#   status:
+#     patch:
+#       default:
+#         target: auto
+#         threshold: 0%
+#         base: auto
+#         branches:
+#           - main
+#         if_ci_failed: error
+#         informational: true
+#         only_pulls: true
+#     project:
+#       default:
+#         target: auto   # compares coverage to the previous base commit
+#         threshold: 1%  # allows variations around the target
+#         base: auto
+#         branches:
+#           - main
+#         if_ci_failed: error
+#         only_pulls: true
+
+# github_checks:
+#   annotations: false
+
+# comment: false
+
+# Utopia codecov
+# codecov:
+#   token: ""
+#   bot: "codecov-io"
+#   # ci:
+#   #   - "travis.org"
+#   strict_yaml_branch: "yaml-config"
+#   # max_report_age: 24
+#   disable_default_path_fixes: yes
+#   require_ci_to_pass: no
+#   notify:
+#     after_n_builds: 2
+#     wait_for_ci: no
+# fixes:
+#   - "*/utopia/utopia/::/utopia/utopia/"
+#   - "*/utopia_cloned/utopia/::/utopia/utopia/"

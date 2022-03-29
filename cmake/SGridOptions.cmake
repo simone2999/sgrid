@@ -3,6 +3,8 @@ option(SGRID_ENABLE_DEV_MODE
 
 # option(SGRID_ENABLE_KOKKOS "Use Kokkos to handle arrays" OFF) # When installed, the target Kokkos::kokkos creates problem
 option(SGRID_ENABLE_KOKKOS_KERNELS "Use KokkosKernels algorithms" ON)
+# Not supported yet, see sgrid_View.hpp error
+option(SGRID_ENABLE_KOKKOS "Use Kokkos" ON)
 
 
 if(SGRID_ENABLE_DEV_MODE)

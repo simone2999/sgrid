@@ -1,30 +1,35 @@
 # MPI
 find_package(MPI COMPONENTS CXX C REQUIRED)
 
-if(MPI_C_INCLUDE_PATH)
-    set(SGRID_DEP_INCLUDES
-        "${SGRID_DEP_INCLUDES};${MPI_C_INCLUDE_PATH}")
+if (MPI_FOUND)
+    if(MPI_C_INCLUDE_PATH)
+        set(SGRID_DEP_INCLUDES
+            "${SGRID_DEP_INCLUDES};${MPI_C_INCLUDE_PATH}")
+    endif()
+
+    if(MPI_CXX_INCLUDE_PATH)
+        set(SGRID_DEP_INCLUDES
+            "${SGRID_DEP_INCLUDES};${MPI_CXX_INCLUDE_PATH}")
+    endif()
+
+    if(MPI_LIBRARIES)
+        set(SGRID_DEP_LIBRARIES
+            "${SGRID_DEP_LIBRARIES};${MPI_LIBRARIES}")
+    endif()
+
+    if(MPI_C_LIBRARIES)
+        set(SGRID_DEP_LIBRARIES
+            "${SGRID_DEP_LIBRARIES};${MPI_C_LIBRARIES}")
+    endif()
+
+    if(MPI_CXX_LIBRARIES)
+        set(SGRID_DEP_LIBRARIES
+            "${SGRID_DEP_LIBRARIES};${MPI_CXX_LIBRARIES}")
+    else()
+        message(FATAL_ERROR "MPI REQUIRED")
+    endif()
 endif()
 
-if(MPI_CXX_INCLUDE_PATH)
-    set(SGRID_DEP_INCLUDES
-        "${SGRID_DEP_INCLUDES};${MPI_CXX_INCLUDE_PATH}")
-endif()
-
-if(MPI_LIBRARIES)
-    set(SGRID_DEP_LIBRARIES
-        "${SGRID_DEP_LIBRARIES};${MPI_LIBRARIES}")
-endif()
-
-if(MPI_C_LIBRARIES)
-    set(SGRID_DEP_LIBRARIES
-        "${SGRID_DEP_LIBRARIES};${MPI_C_LIBRARIES}")
-endif()
-
-if(MPI_CXX_LIBRARIES)
-    set(SGRID_DEP_LIBRARIES
-        "${SGRID_DEP_LIBRARIES};${MPI_CXX_LIBRARIES}")
-endif()
 
 
 ########################################################################################################################
