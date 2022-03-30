@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
         // Local indexing (includes ghosts)
         const int k_start = 0;
-        const int k_end = k_start + 2 * g_dev.dim[1];
+        const int k_end = k_start + 2 * g_dev.margin[1] + g_dev.dim[1];
 
         if (test) {
             I_field_->exchange_halos();

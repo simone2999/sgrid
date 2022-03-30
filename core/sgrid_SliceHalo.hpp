@@ -28,13 +28,13 @@ namespace sgrid {
         }
 
         /// @param slice_number local index coordinate
-        void exchange(int slice_number) {
+        void exchange(int local_slice_number) {
             if (side_) {
-                side_->exchange(slice_number);
+                side_->exchange(local_slice_number);
             }
 
             if (node_) {
-                node_->exchange(slice_number);
+                node_->exchange(local_slice_number);
             }
         }
 

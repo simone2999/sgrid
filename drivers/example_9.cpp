@@ -18,9 +18,14 @@ int main(int argc, char *argv[]) {
 
     {
         bool test = 0;
+        bool exchange_halos = 1;
 
         if (argc > 1) {
             test = atoi(argv[1]);
+        }
+
+        if (argc > 2) {
+            exchange_halos = atoi(argv[2]);
         }
 
         int mpi_size;
@@ -60,20 +65,23 @@ int main(int argc, char *argv[]) {
 
         // Local indexing (includes ghosts)
         const int k_start = 0;
-        const int k_end = k_start + 2 * g_dev.dim[2];
+        const int k_end = k_start + 2 * g_dev.margin[2] + g_dev.dim[2];
 
         if (test) {
             I_field_->exchange_halos();
         } else {
             I_field_->synch_device_to_host();
-            halos.exchange();
+
+            if (exchange_halos) halos.exchange();
 
             // For making sure halows are also available
             I_field_->synch_host_to_device();
             I_field_->synch_device_to_host();
 
-            for (int k = k_start; k < k_end; ++k) {
-                xy_slice_halos.exchange(k);
+            if (exchange_halos) {
+                for (int k = k_start; k < k_end; ++k) {
+                    xy_slice_halos.exchange(k);
+                }
             }
 
             I_field_->synch_host_to_device();

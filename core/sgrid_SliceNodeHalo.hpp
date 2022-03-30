@@ -170,21 +170,22 @@ namespace sgrid {
 
                         int tag = 0;
 
-                        printf(
-                            "[%d] -> [%d] slice_number=%d, slice_local_coord=%d, phase=%d, "
-                            "sp=(%d,%d,%d), "
-                            "rp=(%d,%d,%d)\n",
-                            grid->comm_rank(),
-                            neigh_rank,
-                            int(g_host.start[plane_] + slice_local_coord - g_host.margin[plane_]),
-                            slice_local_coord,
-                            k,
-                            send_idx[0],
-                            send_idx[1],
-                            (Dim > 2) ? send_idx[2] : 0,  //
-                            recv_idx[0],
-                            recv_idx[1],
-                            (Dim > 2) ? recv_idx[2] : 0);
+                        // printf(
+                        //     "[%d] -> [%d] slice_number=%d, slice_local_coord=%d, phase=%d, "
+                        //     "sp=(%d,%d,%d), "
+                        //     "rp=(%d,%d,%d), value=%g\n",
+                        //     grid->comm_rank(),
+                        //     neigh_rank,
+                        //     int(g_host.start[plane_] + slice_local_coord - g_host.margin[plane_]),
+                        //     slice_local_coord,
+                        //     k,
+                        //     send_idx[0],
+                        //     send_idx[1],
+                        //     (Dim > 2) ? send_idx[2] : 0,  //
+                        //     recv_idx[0],
+                        //     recv_idx[1],
+                        //     (Dim > 2) ? recv_idx[2] : 0,
+                        //     send_ptr[1]);
 
                         CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr,
                                                      block_size,
