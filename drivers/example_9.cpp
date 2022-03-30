@@ -17,7 +17,11 @@ int main(int argc, char *argv[]) {
     sgrid::initialize(argc, argv);
 
     {
-        const bool test = atoi(argv[1]);
+        bool test = 0;
+
+        if (argc > 1) {
+            test = atoi(argv[1]);
+        }
 
         int mpi_size;
         MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);

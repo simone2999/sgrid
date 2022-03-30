@@ -417,7 +417,7 @@ namespace sgrid {
             return true;
         }
 
-        void exchange_slice(int slice_number, bool auto_synch = true) {
+        void exchange_slice(int slice_local_coord, bool auto_synch = true) {
             auto grid = field_.grid();
             auto grid_host = grid->view_host();
 
@@ -429,6 +429,8 @@ namespace sgrid {
                 // No exchange required
                 return;
             }
+
+            int slice_number = grid_host.start[dim_] + slice_local_coord - grid_host.margin[dim_];
 
             if (slice_number < 0 || slice_number >= grid_host.global_dim[dim_]) {
                 if (field_.grid()->comm_rank() == 0) {

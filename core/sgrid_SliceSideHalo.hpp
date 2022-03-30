@@ -186,7 +186,7 @@ namespace sgrid {
             //     slice_number >= (grid_host.start[plane_] + grid_host.dim[plane_]))
             //     return;
 
-            int slice_number = grid_host.start[plane_] + slice_local_coord - grid_host.margin[plane_];
+            // int slice_number = grid_host.start[plane_] + slice_local_coord - grid_host.margin[plane_];
             // int slice_local_coord = grid_host.margin[plane_] + slice_number - grid_host.start[plane_];
 
             field_.synch_device_to_host();
@@ -254,25 +254,25 @@ namespace sgrid {
                     MPI_Type_size(send_type_[dim], &send_size);
                     MPI_Type_size(recv_type_[dim], &recv_size);
 
-                    printf(
-                        "[%d] -> [%d] dim=%d, slice_number=%d, slice_local_coord=%d, (send_size=%d, "
-                        "recv_size=%d), phase=%d, "
-                        "sp=(%d,%d,%d), "
-                        "rp=(%d,%d,%d)\n",
-                        grid->comm_rank(),
-                        neigh_rank[k],
-                        dim,
-                        slice_number,
-                        slice_local_coord,
-                        send_size,
-                        recv_size,
-                        k,
-                        send_idx[0],
-                        send_idx[1],
-                        send_idx[2],  //
-                        recv_idx[0],
-                        recv_idx[1],
-                        recv_idx[2]);
+                    // printf(
+                    //     "[%d] -> [%d] dim=%d, slice_number=%d, slice_local_coord=%d, (send_size=%d, "
+                    //     "recv_size=%d), phase=%d, "
+                    //     "sp=(%d,%d,%d), "
+                    //     "rp=(%d,%d,%d)\n",
+                    //     grid->comm_rank(),
+                    //     neigh_rank[k],
+                    //     dim,
+                    //     slice_number,
+                    //     slice_local_coord,
+                    //     send_size,
+                    //     recv_size,
+                    //     k,
+                    //     send_idx[0],
+                    //     send_idx[1],
+                    //     (Dim > 2) ? send_idx[2] : 0,  //
+                    //     recv_idx[0],
+                    //     recv_idx[1],
+                    //     (Dim > 2) ? recv_idx[2] : 0);
 
                     CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr,
                                                  1,
@@ -319,7 +319,7 @@ namespace sgrid {
         }
 
         inline int find_line_dim(const int dim) const {
-            int line_dim = -1;
+            int line_dim = Grid::Dim - 1;
 
             for (int d = 0; d < Grid::Dim; ++d) {
                 if (d != dim && d != plane_) {
@@ -327,7 +327,6 @@ namespace sgrid {
                     break;
                 }
             }
-            assert(line_dim >= 0);
             return line_dim;
         }
 
@@ -388,7 +387,6 @@ namespace sgrid {
         }
     };
 
-
     template <class Field>
     class SliceSideHalo<Field, 2> : public SliceSideHaloBase {
     public:
@@ -411,18 +409,15 @@ namespace sgrid {
 
         void destroy() {}
 
-        void exchange(int slice_local_coord) override {
-            (void) slice_local_coord;
+        void exchange(int slice_local_coord) override { (void)slice_local_coord; }
 
-        }
+    private:
+        Field &field_;
+        int plane_;
 
-        private:
-            Field &field_;
-            int plane_;
-
-            // One type per side of the slice
-            MPI_Datatype recv_type_[Dim];
-            MPI_Datatype send_type_[Dim];
+        // One type per side of the slice
+        MPI_Datatype recv_type_[Dim];
+        MPI_Datatype send_type_[Dim];
     };
 }  // namespace sgrid
 

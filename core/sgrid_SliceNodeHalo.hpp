@@ -155,10 +155,11 @@ namespace sgrid {
                         for (int d = 0; d < Grid::Dim; ++d) {
                             if (d == plane_) continue;
 
-                            bool exchanging_right = disp[d][tensor_idx[d]] > 0;
+                            bool sending_right = disp[d][tensor_idx[d]] > 0;
 
-                            send_idx[d] = exchanging_right ? (g_host.dim[d] - 1 + g_host.margin[d]) : g_host.margin[d];
-                            recv_idx[d] = exchanging_right ? (g_host.dim[d] - 1 + 2 * g_host.margin[d]) : 0;
+                            send_idx[d] = sending_right ? (g_host.dim[d] - 1 + g_host.margin[d]) : g_host.margin[d];
+                            // recv_idx[d] = sending_right ? (g_host.dim[d] - 1 + 2 * g_host.margin[d]) : 0;
+                            recv_idx[d] = sending_right ? 0 : (g_host.dim[d] - 1 + 2 * g_host.margin[d]);
                         }
 
                         send_idx[plane_] = slice_local_coord;
@@ -168,6 +169,22 @@ namespace sgrid {
                         auto recv_ptr = field_host.p_block(recv_idx);
 
                         int tag = 0;
+
+                        printf(
+                            "[%d] -> [%d] slice_number=%d, slice_local_coord=%d, phase=%d, "
+                            "sp=(%d,%d,%d), "
+                            "rp=(%d,%d,%d)\n",
+                            grid->comm_rank(),
+                            neigh_rank,
+                            int(g_host.start[plane_] + slice_local_coord - g_host.margin[plane_]),
+                            slice_local_coord,
+                            k,
+                            send_idx[0],
+                            send_idx[1],
+                            (Dim > 2) ? send_idx[2] : 0,  //
+                            recv_idx[0],
+                            recv_idx[1],
+                            (Dim > 2) ? recv_idx[2] : 0);
 
                         CATCH_MPI_ERROR(MPI_Sendrecv(send_ptr,
                                                      block_size,
