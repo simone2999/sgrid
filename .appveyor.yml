@@ -15,8 +15,6 @@ install:
 - msmpisdk.msi /passive
 - set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
 
-# cache:
-
 # sgrid
 before_build:
 - cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install  -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" #-DCMAKE_VERBOSE_MAKEFILE=ON
@@ -29,7 +27,7 @@ build_script:
 - cmake --build all_builds --config Release --target install
 
 after_build:
-- .\all_builds\Release\sgrid_example_1.exe
-- .\all_builds\Release\sgrid_example_2.exe
+# - .\all_builds\Release\sgrid_example_1.exe
+# - .\all_builds\Release\sgrid_example_2.exe
 # - ctest -C Release --config Release --output-on-failure
 - cmake --build all_builds --config Release --target test_install
