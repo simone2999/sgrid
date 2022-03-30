@@ -100,3 +100,9 @@ if(SGRID_ENABLE_KOKKOS_KERNELS)
 endif()
 
 
+if(CMAKE_BUILD_TYPE MATCHES "[Cc][Oo][Vv][Ee][Rr][Aa][Gg][Ee]")
+    include(cmake/CodeCoverage.cmake)
+    add_codecov(sgrid_coverage sgrid_test coverage)
+endif()
+
+
