@@ -1,44 +1,7 @@
-
-#MFEM codecov
-# codecov:
-#   require_ci_to_pass: no
-
-# coverage:
-#   precision: 2
-#   round: nearest
-#   range: "0...100"
-#   status:
-#     patch:
-#       default:
-#         target: auto
-#         threshold: 0%
-#         base: auto
-#         branches:
-#           - main
-#         if_ci_failed: error
-#         informational: true
-#         only_pulls: true
-#     project:
-#       default:
-#         target: auto   # compares coverage to the previous base commit
-#         threshold: 1%  # allows variations around the target
-#         base: auto
-#         branches:
-#           - main
-#         if_ci_failed: error
-#         only_pulls: true
-
-# github_checks:
-#   annotations: false
-
-# comment: false
-
 # Sgrid codecov
 codecov:
   token: "d447bf12-d528-48b3-a937-82baebe2af60"
   bot: "codecov-io"
-  # ci:
-  #   - "travis.org"
   strict_yaml_branch: "yaml-config"
   # max_report_age: 24
   disable_default_path_fixes: yes
