@@ -33,19 +33,19 @@
 
 # comment: false
 
-# Utopia codecov
-# codecov:
-#   token: ""
-#   bot: "codecov-io"
-#   # ci:
-#   #   - "travis.org"
-#   strict_yaml_branch: "yaml-config"
-#   # max_report_age: 24
-#   disable_default_path_fixes: yes
-#   require_ci_to_pass: no
-#   notify:
-#     after_n_builds: 2
-#     wait_for_ci: no
-# fixes:
-#   - "*/utopia/utopia/::/utopia/utopia/"
-#   - "*/utopia_cloned/utopia/::/utopia/utopia/"
+# Sgrid codecov
+codecov:
+  token: "d447bf12-d528-48b3-a937-82baebe2af60"
+  bot: "codecov-io"
+  # ci:
+  #   - "travis.org"
+  strict_yaml_branch: "yaml-config"
+  # max_report_age: 24
+  disable_default_path_fixes: yes
+  require_ci_to_pass: no
+  notify:
+    after_n_builds: 2
+    wait_for_ci: no
+fixes:
+  - "*/sgrid/::/sgrid/"
+  - "*/sgrid_cloned/::/sgrid/"
