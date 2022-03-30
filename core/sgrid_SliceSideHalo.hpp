@@ -419,6 +419,10 @@ namespace sgrid {
         private:
             Field &field_;
             int plane_;
+
+            // One type per side of the slice
+            MPI_Datatype recv_type_[Dim];
+            MPI_Datatype send_type_[Dim];
     };
 }  // namespace sgrid
 

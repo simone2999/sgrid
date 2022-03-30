@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/bitbucket/zulianp/sgrid/badge/main)](https://www.codefactor.io/repository/bitbucket/zulianp/sgrid/overview/main)
+
 # README #
 
 ## General installation instructions ##
