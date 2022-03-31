@@ -1,5 +1,5 @@
 # MPI
-find_package(MPI COMPONENTS CXX C REQUIRED)
+find_package(MPI REQUIRED)
 
 if (MPI_FOUND)
     if(MPI_C_INCLUDE_PATH)
@@ -25,9 +25,9 @@ if (MPI_FOUND)
     if(MPI_CXX_LIBRARIES)
         set(SGRID_DEP_LIBRARIES
             "${SGRID_DEP_LIBRARIES};${MPI_CXX_LIBRARIES}")
+    endif()
     else()
         message(FATAL_ERROR "MPI REQUIRED")
-    endif()
 endif()
 
 
