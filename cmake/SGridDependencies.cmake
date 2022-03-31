@@ -26,8 +26,8 @@ if (MPI_FOUND)
         set(SGRID_DEP_LIBRARIES
             "${SGRID_DEP_LIBRARIES};${MPI_CXX_LIBRARIES}")
     endif()
-    else()
-        message(FATAL_ERROR "MPI REQUIRED")
+    # else()
+    #     message(FATAL_ERROR "MPI REQUIRED")
 endif()
 
 
