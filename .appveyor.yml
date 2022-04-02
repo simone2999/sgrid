@@ -15,10 +15,35 @@ install:
 - msmpisdk.msi /passive
 - set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
 
+
+# Install Kokkos
+- cd C:\
+- mkdir kg
+- cd kg
+- ps: Start-FileDownload 'https://github.com/kokkos/kokkos/archive/refs/tags/3.5.00.tar.gz'
+- 7z x 3.5.00.tar.gz -so | 7z x -si -ttar > nul
+- cd kokkos-3.5.00
+- mkdir build &&
+    cd build &&
+    cmake .. -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\projects\installations\kokkos -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF &&
+    cmake --build . --target install
+
+# Install KokkosKernels
+- cd C:\
+- mkdir kkg
+- cd kkg
+- ps: Start-FileDownload 'https://github.com/kokkos/kokkos-kernels/archive/refs/tags/3.5.00.tar.gz'
+- 7z x 3.5.00.tar.gz -so | 7z x -si -ttar > nul
+- cd kokkos-kernels-3.5.00
+- mkdir build &&
+    cd build &&
+    cmake .. -DKokkosKernels_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\projects\installations\kokkos-kernels  -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_DIR=C:\projects\installations\kokkos\lib\cmake\Kokkos -DCMAKE_CXX_FLAGS="-D__restrict__=__restrict" &&
+    cmake --build . --target install
+
 # sgrid
 before_build:
 - cd c:\projects\sgrid
-- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include  #-DCMAKE_VERBOSE_MAKEFILE=ON
+- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include -DKokkosKernels_DIR=C:\projects\installations\kokkos-kernels -DKokkos_DIR=C:\projects\installations\kokkos\lib\cmake\Kokkos  #-DCMAKE_VERBOSE_MAKEFILE=ON
 # -DBUILD_SHARED_LIBS=ON
 
 build_script:
