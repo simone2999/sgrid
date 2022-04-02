@@ -51,33 +51,28 @@ target_include_directories(
            $<INSTALL_INTERFACE:include>)
 
 # ##############################################################################
+# Executables.
 
-add_executable(sgrid_example_1 drivers/example_1.cpp)
-target_link_libraries(sgrid_example_1 PUBLIC sgrid)
+set(NUMBER 0)
 
-add_executable(sgrid_example_2 drivers/example_2.cpp)
-target_link_libraries(sgrid_example_2 PUBLIC sgrid)
+list(
+  APPEND
+  EXECUTABLES
+  drivers/example_1.cpp
+  drivers/example_2.cpp
+  drivers/example_3.cpp
+  drivers/example_4.cpp
+  drivers/example_5.cpp
+  drivers/example_6.cpp
+  drivers/example_7.cpp
+  drivers/example_8.cpp
+  drivers/example_9.cpp)
 
-add_executable(sgrid_example_3 drivers/example_3.cpp)
-target_link_libraries(sgrid_example_3 PUBLIC sgrid)
-
-add_executable(sgrid_example_4 drivers/example_4.cpp)
-target_link_libraries(sgrid_example_4 PUBLIC sgrid)
-
-add_executable(sgrid_example_5 drivers/example_5.cpp)
-target_link_libraries(sgrid_example_5 PUBLIC sgrid)
-
-add_executable(sgrid_example_6 drivers/example_6.cpp)
-target_link_libraries(sgrid_example_6 PUBLIC sgrid)
-
-add_executable(sgrid_example_7 drivers/example_7.cpp)
-target_link_libraries(sgrid_example_7 PUBLIC sgrid)
-
-add_executable(sgrid_example_8 drivers/example_8.cpp)
-target_link_libraries(sgrid_example_8 PUBLIC sgrid)
-
-add_executable(sgrid_example_9 drivers/example_9.cpp)
-target_link_libraries(sgrid_example_9 PUBLIC sgrid)
+foreach(EXECUTABLE ${EXECUTABLES})
+  math(EXPR NUMBER "${NUMBER}+1")
+  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
+  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
+endforeach(EXECUTABLE)
 
 # ##############################################################################
 # ##############################################################################

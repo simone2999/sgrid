@@ -1,5 +1,5 @@
 # MPI
-find_package(MPI REQUIRED)
+find_package(MPIExtended REQUIRED)
 
 if (MPI_FOUND)
     if(MPI_C_INCLUDE_PATH)

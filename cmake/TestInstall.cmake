@@ -1,5 +1,7 @@
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/TestInstall)
 
+message("CMAKE_INSTALL_PREFIX;${CMAKE_INSTALL_PREFIX}")
+
 add_custom_target(
     test_install
     COMMAND ${CMAKE_COMMAND} -E remove -f
