@@ -43,7 +43,7 @@ install:
 # sgrid
 before_build:
 - cd c:\projects\sgrid
-- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include -DKokkos_DIR=C:\projects\installations\kokkos\lib\cmake\Kokkos -DSGRID_ENABLE_KOKKOS=ON #-DCMAKE_VERBOSE_MAKEFILE=ON
+- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include -DKokkos_DIR="C:\projects\installations\kokkos\lib\cmake\Kokkos" -DSGRID_ENABLE_KOKKOS=ON #-DCMAKE_VERBOSE_MAKEFILE=ON
 # -DBUILD_SHARED_LIBS=ON
 
 build_script:
