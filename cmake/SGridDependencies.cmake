@@ -70,7 +70,7 @@ endif()
 ########################################################################################################################
 
 if(SGRID_ENABLE_KOKKOS_KERNELS)
-    find_package(KokkosKernels REQUIRED)
+    find_package(KokkosKernels QUIET)
 
     if (TARGET Kokkos::kokkoskernels)
         set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkoskernels")
