@@ -32,37 +32,37 @@ if(SGRID_ENABLE_KOKKOS)
                  ${Kokkos_DIR} $ENV{KOKKOS_DIR} REQUIRED)
   else()
     find_package(Kokkos REQUIRED)
-
-    if(TARGET Kokkos::kokkos)
-      set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkos")
-
-      # get_target_property(Kokkos_INCLUDE_DIRS Kokkos::kokkos
-      # INTERFACE_INCLUDE_DIRECTORIES) get_target_property(Kokkos_LIBRARIES
-      # Kokkos::kokkos INTERFACE_LINK_LIBRARIES)
-      # get_target_property(Kokkos_LIBRARY_DIRS Kokkos::kokkos
-      # INTERFACE_LINK_DIRECTORIES)
-
-    else()
-      set(SGRID_DEP_LIBRARIES
-          "${SGRID_DEP_LIBRARIES};${Kokkos_LIBRARIES};${Kokkos_TPL_LIBRARIES}")
-
-      set(SGRID_DEP_INCLUDES "${SGRID_DEP_INCLUDES};${Kokkos_INCLUDE_DIRS}")
-    endif()
-
-    # message("\nFound Kokkos!  Here are the details: ") message("
-    # Kokkos_CXX_COMPILER = ${Kokkos_CXX_COMPILER}") message("
-    # Kokkos_INCLUDE_DIRS = ${Kokkos_INCLUDE_DIRS}") message(" Kokkos_LIBRARIES
-    # = ${Kokkos_LIBRARIES}") message(" Kokkos_TPL_LIBRARIES =
-    # ${Kokkos_TPL_LIBRARIES}") message(" Kokkos_LIBRARY_DIRS =
-    # ${Kokkos_LIBRARY_DIRS}")
-
-    if(Kokkos_CXX_COMPILER)
-      set(CMAKE_C_COMPILER ${Kokkos_C_COMPILER})
-      set(CMAKE_CXX_COMPILER ${Kokkos_CXX_COMPILER})
-    endif()
-
-    set(SGRID_WITH_KOKKOS TRUE)
   endif()
+
+  if(TARGET Kokkos::kokkos)
+    set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkos")
+
+    # get_target_property(Kokkos_INCLUDE_DIRS Kokkos::kokkos
+    # INTERFACE_INCLUDE_DIRECTORIES) get_target_property(Kokkos_LIBRARIES
+    # Kokkos::kokkos INTERFACE_LINK_LIBRARIES)
+    # get_target_property(Kokkos_LIBRARY_DIRS Kokkos::kokkos
+    # INTERFACE_LINK_DIRECTORIES)
+
+  else()
+    set(SGRID_DEP_LIBRARIES
+        "${SGRID_DEP_LIBRARIES};${Kokkos_LIBRARIES};${Kokkos_TPL_LIBRARIES}")
+
+    set(SGRID_DEP_INCLUDES "${SGRID_DEP_INCLUDES};${Kokkos_INCLUDE_DIRS}")
+  endif()
+
+  # message("\nFound Kokkos!  Here are the details: ") message("
+  # Kokkos_CXX_COMPILER = ${Kokkos_CXX_COMPILER}") message(" Kokkos_INCLUDE_DIRS
+  # = ${Kokkos_INCLUDE_DIRS}") message(" Kokkos_LIBRARIES =
+  # ${Kokkos_LIBRARIES}") message(" Kokkos_TPL_LIBRARIES =
+  # ${Kokkos_TPL_LIBRARIES}") message(" Kokkos_LIBRARY_DIRS =
+  # ${Kokkos_LIBRARY_DIRS}")
+
+  if(Kokkos_CXX_COMPILER)
+    set(CMAKE_C_COMPILER ${Kokkos_C_COMPILER})
+    set(CMAKE_CXX_COMPILER ${Kokkos_CXX_COMPILER})
+  endif()
+
+  set(SGRID_WITH_KOKKOS TRUE)
 endif()
 
 # ##############################################################################
