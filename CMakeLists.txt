@@ -51,30 +51,6 @@ target_include_directories(
            $<INSTALL_INTERFACE:include>)
 
 # ##############################################################################
-# Executables.
-
-set(NUMBER 0)
-
-list(
-  APPEND
-  EXECUTABLES
-  drivers/example_1.cpp
-  drivers/example_2.cpp
-  drivers/example_3.cpp
-  drivers/example_4.cpp
-  drivers/example_5.cpp
-  drivers/example_6.cpp
-  drivers/example_7.cpp
-  drivers/example_8.cpp
-  drivers/example_9.cpp)
-
-foreach(EXECUTABLE ${EXECUTABLES})
-  math(EXPR NUMBER "${NUMBER}+1")
-  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
-  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
-endforeach(EXECUTABLE)
-
-# ##############################################################################
 # ##############################################################################
 # Installation
 # ##############################################################################
@@ -119,5 +95,28 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sgridConfig.cmake
         DESTINATION lib/cmake/)
 
 # ##############################################################################
+# ##############################################################################
+# Executables.
+
+set(NUMBER 0)
+
+list(
+  APPEND
+  EXECUTABLES
+  drivers/example_1.cpp
+  drivers/example_2.cpp
+  drivers/example_3.cpp
+  drivers/example_4.cpp
+  drivers/example_5.cpp
+  drivers/example_6.cpp
+  drivers/example_7.cpp
+  drivers/example_8.cpp
+  drivers/example_9.cpp)
+
+foreach(EXECUTABLE ${EXECUTABLES})
+  math(EXPR NUMBER "${NUMBER}+1")
+  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
+  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
+endforeach(EXECUTABLE)
 
 include(cmake/PostInstall.cmake)
