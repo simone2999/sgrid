@@ -7,6 +7,7 @@ option(SGRID_ENABLE_KOKKOS_KERNELS "Use KokkosKernels algorithms" ON)
 # Not supported yet, see sgrid_View.hpp error
 option(SGRID_ENABLE_KOKKOS "Use Kokkos" ON)
 
+# For win, appveyor complaining about wextra werror
 if(APPLE)
   if(SGRID_ENABLE_DEV_MODE)
     set(SGRID_DEV_FLAGS
