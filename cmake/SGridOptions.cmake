@@ -9,7 +9,7 @@ option(SGRID_ENABLE_KOKKOS "Use Kokkos" ON)
 
 if(SGRID_ENABLE_DEV_MODE)
     set(SGRID_DEV_FLAGS
-        "-Wall -Wextra -pedantic -Werror -Werror=enum-compare -Werror=delete-non-virtual-dtor -Werror=reorder -Werror=return-type" # -Werror=uninitialized
+        "-Wall -pedantic -Werror -Werror=enum-compare -Werror=delete-non-virtual-dtor -Werror=reorder -Werror=return-type" # -Werror=uninitialized
     )
 endif()
 
