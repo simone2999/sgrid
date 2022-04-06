@@ -2,7 +2,7 @@ version: '{build}'
 clone_folder: c:\projects\sgrid
 
 # https://www.appveyor.com/docs/build-environment/#build-worker-images
-image: Visual Studio 2022
+image: Visual Studio 2019
 
 install:
 # Install MS-MPI
