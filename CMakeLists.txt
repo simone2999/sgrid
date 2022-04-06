@@ -3,6 +3,7 @@ cmake_policy(SET CMP0048 NEW)
 
 if (WIN32)
     set(CMAKE_GENERATOR_PLATFORM x86)
+    set(CMAKE_GENERATOR_PLATFORM win32)
 endif()
 
 project(
