@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 # sgrid_example_9.sh
 
 n_procs=$1
