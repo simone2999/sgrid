@@ -14,7 +14,6 @@ include(CMakePackageConfigHelpers)
 include(cmake/SGridDefaults.cmake)
 include(cmake/SGridFunctions.cmake)
 include(cmake/SGridOptions.cmake)
-
 include(cmake/SGridDependencies.cmake)
 
 # ##############################################################################
@@ -116,7 +115,7 @@ list(
 foreach(EXECUTABLE ${EXECUTABLES})
   math(EXPR NUMBER "${NUMBER}+1")
   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
-  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
+  target_link_libraries(sgrid_example_${NUMBER} sgrid)
 endforeach(EXECUTABLE)
 
 include(cmake/PostInstall.cmake)
