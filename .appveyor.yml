@@ -25,8 +25,8 @@ install:
 - cd kokkos-3.5.00
 - mkdir build &&
     cd build
-- cmake -G "Visual Studio 15 2017" -A x64 -S .. -B "build64" -DCMAKE_GENERATOR_PLATFORM=x64 -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\projects\installations\kokkos -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
-- cmake --build build64 --config Release
+- cmake .. -DCMAKE_GENERATOR_PLATFORM=x64 -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\projects\installations\kokkos -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
+- cmake --build . --config Release
 
 # cmake -G "Visual Studio 16 2019" -A Win32 -S \path_to_source\ -B "build32"
 # cmake -G "Visual Studio 16 2019" -A x64 -S \path_to_source\ -B "build64"
