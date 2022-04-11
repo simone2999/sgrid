@@ -6,7 +6,8 @@ image: Visual Studio 2017
 platform:
     - x64
 
-- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+install:
+    - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
 # Install MS-MPI
