@@ -4,7 +4,7 @@ clone_folder: c:\projects\sgrid
 # https://www.appveyor.com/docs/build-environment/#build-worker-images
 image: Visual Studio 2017
 platform:
-    - x64
+    - x86
 
 install:
 # Install MS-MPI
