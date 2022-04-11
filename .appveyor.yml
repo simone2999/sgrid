@@ -27,9 +27,15 @@ install:
 - 7z x 3.5.00.tar.gz -so | 7z x -si -ttar > nul
 - cd kokkos-3.5.00
 - mkdir build &&
-    cd build &&
-    cmake .. -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\projects\installations\kokkos -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF &&
-    cmake --build . --target install
+    cd build
+- cmake -G "Visual Studio 15 2017" -A x64 -S .. -B "build64"
+- cmake .. -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=C:\projects\installations\kokkos -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
+- cmake --build build64 --target install
+
+# cmake -G "Visual Studio 16 2019" -A Win32 -S \path_to_source\ -B "build32"
+# cmake -G "Visual Studio 16 2019" -A x64 -S \path_to_source\ -B "build64"
+# cmake --build build32 --config Release
+# cmake --build build64 --config Release
 
 
 # sgrid
