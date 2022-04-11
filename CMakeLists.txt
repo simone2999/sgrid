@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.5...3.19)
 cmake_policy(SET CMP0048 NEW)
-
-if (WIN32)
-    set(CMAKE_GENERATOR_PLATFORM x86)
-    set(CMAKE_GENERATOR_PLATFORM win32)
-endif()
-
 project(
     main
     VERSION 0.0.1
