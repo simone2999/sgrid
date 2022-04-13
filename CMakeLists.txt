@@ -115,6 +115,7 @@ list(
   drivers/example_9.cpp)
 
 add_executable(sgrid_example_1 drivers/example_1.cpp)
+target_link_libraries(sgrid_example_1 ${MPI_LIBRARIES})
 target_link_libraries(sgrid_example_1 sgrid)
 
 # foreach(EXECUTABLE ${EXECUTABLES})
