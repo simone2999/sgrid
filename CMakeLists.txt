@@ -50,6 +50,7 @@ target_include_directories(
     sgrid BEFORE
     PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
            $<INSTALL_INTERFACE:include>)
+target_link_libraries(sgrid ${MPI_LIBRARIES})
 
 # ##############################################################################
 # ##############################################################################
@@ -115,7 +116,6 @@ list(
   drivers/example_9.cpp)
 
 add_executable(sgrid_example_1 drivers/example_1.cpp)
-target_link_libraries(sgrid_example_1 ${MPI_LIBRARIES})
 target_link_libraries(sgrid_example_1 sgrid)
 
 # foreach(EXECUTABLE ${EXECUTABLES})
