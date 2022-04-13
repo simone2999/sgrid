@@ -43,6 +43,9 @@ target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 # target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
 sgrid_set_compiler_features(sgrid)
 
+message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
+message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
+
 target_include_directories(
     sgrid BEFORE
     PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
