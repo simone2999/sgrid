@@ -1,11 +1,9 @@
-
+#include <mpi.h>
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
 
 #include <cmath>
 #include <fstream>
-
-#include <mpi.h>
 
 using Real = double;
 
