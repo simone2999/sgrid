@@ -21,6 +21,7 @@ if(MPI_FOUND)
   if(MPI_CXX_LIBRARIES)
     set(SGRID_DEP_LIBRARIES "${SGRID_DEP_LIBRARIES};${MPI_CXX_LIBRARIES}")
   endif()
+  target_link_libraries(sgrid ${MPI_LIBRARIES})
   # else() message(FATAL_ERROR "MPI REQUIRED")
 endif()
 
