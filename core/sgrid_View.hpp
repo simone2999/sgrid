@@ -70,7 +70,7 @@ using DeviceExecutionSpace = HostExecutionSpace;
 #else // SGRID_WITH_KOKKOS
 ////////////////////////////////////////////////////////////////////////////
 // Mock protoype. TODO reproduce simplified functionalites of Kokkos
-#error "Not supported yet!"
+// #error "Not supported yet!"
 
 #define SGRID_INLINE_FUNCTION inline
 #define SGRID_FUNCTION
