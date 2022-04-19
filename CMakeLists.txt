@@ -39,8 +39,6 @@ foreach(include ${SGRID_BUILD_INCLUDES})
 endforeach()
 
 target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
-target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
-# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
 sgrid_set_compiler_features(sgrid)
 
 message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
