@@ -26,29 +26,34 @@ foreach(MODULE ${SGRID_MODULES})
     add_subdirectory("${MODULE}")
 endforeach(MODULE)
 
+add_library(sgrid ${SGRID_SOURCES} ${SGRID_HEADERS})
+
 # message(STATUS "HERE:\n
 #               SGRID_DEP_INCLUDES=${SGRID_DEP_INCLUDES}\n
 #               SGRID_DEP_LIBRARIES=${SGRID_DEP_LIBRARIES}
 #               ")
-
-add_library(sgrid ${SGRID_SOURCES} ${SGRID_HEADERS})
 
 foreach(include ${SGRID_BUILD_INCLUDES})
     target_include_directories(sgrid BEFORE
                                PUBLIC $<BUILD_INTERFACE:${include}>)
 endforeach()
 
-target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
-sgrid_set_compiler_features(sgrid)
-
-message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
-message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
+# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
+# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
 
 target_include_directories(
     sgrid BEFORE
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
            $<INSTALL_INTERFACE:include>)
-target_link_libraries(sgrid ${MPI_LIBRARIES})
+
+
+target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
+message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
+message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
+# sgrid_set_compiler_features(sgrid)
+# target_link_libraries(sgrid ${MPI_LIBRARIES})
+
+target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 
 # ##############################################################################
 # ##############################################################################
@@ -113,13 +118,13 @@ list(
   drivers/example_8.cpp
   drivers/example_9.cpp)
 
-add_executable(sgrid_example_1 drivers/example_1.cpp)
-target_link_libraries(sgrid_example_1 sgrid)
+# add_executable(sgrid_example_1 drivers/example_1.cpp)
+# target_link_libraries(sgrid_example_1 sgrid)
 
-# foreach(EXECUTABLE ${EXECUTABLES})
-#   math(EXPR NUMBER "${NUMBER}+1")
-#   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
-#   target_link_libraries(sgrid_example_${NUMBER} sgrid)
-# endforeach(EXECUTABLE)
+foreach(EXECUTABLE ${EXECUTABLES})
+  math(EXPR NUMBER "${NUMBER}+1")
+  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
+  target_link_libraries(sgrid_example_${NUMBER} sgrid)
+endforeach(EXECUTABLE)
 
 include(cmake/PostInstall.cmake)
