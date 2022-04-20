@@ -53,6 +53,7 @@ namespace sgrid {
     SGRID_DEFINE_MPI_TYPE(unsigned long, MPI_UNSIGNED_LONG)
     SGRID_DEFINE_MPI_TYPE(unsigned long long, MPI_UNSIGNED_LONG_LONG)
     SGRID_DEFINE_MPI_TYPE(short, MPI_SHORT)
+    SGRID_DEFINE_MPI_TYPE(int64_t, MPI_INT64_T)
 
     template <typename I>
     inline constexpr I tensor_idx_with_margin(const I *dims_with_margin, const I *margin, const int i) {
