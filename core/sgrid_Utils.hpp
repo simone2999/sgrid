@@ -50,6 +50,7 @@ namespace sgrid {
     SGRID_DEFINE_MPI_TYPE(int, MPI_INT)
     SGRID_DEFINE_MPI_TYPE(long, MPI_LONG)
     SGRID_DEFINE_MPI_TYPE(unsigned long, MPI_UNSIGNED_LONG)
+    SGRID_DEFINE_MPI_TYPE(unsigned long long, MPI_UNSIGNED_LONG_LONG)
     SGRID_DEFINE_MPI_TYPE(short, MPI_SHORT)
 
     template <typename I>
