@@ -83,6 +83,7 @@ endfunction()
 # ##############################################################################
 
 macro (sgrid_set_compiler_features target_)
-target_compile_features(${target_} PUBLIC cxx_std_14)
+# target_compile_features(${target_} PUBLIC cxx_std_14)
+target_compile_features(${target_} PUBLIC cxx_std_17)
 endmacro(sgrid_set_compiler_features)
 

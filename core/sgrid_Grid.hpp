@@ -164,6 +164,24 @@ namespace sgrid {
 
         MDRangeHost md_range() { return grid_host_.md_range(); }
 
+        inline GlobalOrdinal n_nodes() const {
+            GlobalOrdinal ret = 1;
+            for (int d = 0; d < Dim; ++d) {
+                ret *= grid_host_.global_dim[d];
+            }
+
+            return ret;
+        }
+
+        inline LocalOrdinal n_owned_nodes() const {
+            LocalOrdinal ret = 1;
+            for (int d = 0; d < Dim; ++d) {
+                ret *= grid_host_.dim[d];
+            }
+
+            return ret;
+        }
+
         auto md_range_slice(int plane) const { return grid_host_.md_range_slice(plane); }
 
         auto md_range_slice_with_ghosts(int plane) const { return grid_host_.md_range_slice_with_ghosts(plane); }
@@ -244,6 +262,29 @@ namespace sgrid {
             }
 
             check_dims();
+        }
+
+        void dims(int rank, LocalOrdinal *dims) const {
+            int coords[Dim];
+            CATCH_MPI_ERROR(MPI_Cart_coords(comm_, rank, Dim, coords));
+
+            for (int d = 0; d < Dim; ++d) {
+                LocalOrdinal temp = grid_host_.global_dim[d] / proc_dims_[d];
+                LocalOrdinal modulo = grid_host_.global_dim[d] % proc_dims_[d];
+                dims[d] = temp + (coords[d] < modulo);
+            }
+        }
+
+        void starts_and_dims(int rank, GlobalOrdinal *starts, LocalOrdinal *dims) const {
+            int coords[Dim];
+            CATCH_MPI_ERROR(MPI_Cart_coords(comm_, rank, Dim, coords));
+
+            for (int d = 0; d < Dim; ++d) {
+                LocalOrdinal temp = grid_host_.global_dim[d] / proc_dims_[d];
+                LocalOrdinal modulo = grid_host_.global_dim[d] % proc_dims_[d];
+                dims[d] = temp + (coords[d] < modulo);
+                starts[d] = temp * coords_[d] + std::min(modulo, LocalOrdinal(coords[d]));
+            }
         }
 
         template <typename... Args>
