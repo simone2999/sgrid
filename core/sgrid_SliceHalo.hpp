@@ -17,34 +17,32 @@ namespace sgrid {
         using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
         using HostMirror = typename ViewDevice::HostMirror;
 
-        static_assert(Dim == 3, "Only supports 3D!");
-
-        /// 0=y(z)-plane, 1=x(z)-plane, (2=xy-plane)
-        explicit SliceHalo(Field &field, int plane) : field_(field), node_(field, plane) {
-            if (SerialSliceSideHalo<Field>::is_valid_handler(field_, plane)) {
-                if (field_.grid()->comm_rank() == 0) {
-                    std::cout << "Using serial slice halo handler!\n";
-                }
-                side_ = std::make_shared<SerialSliceSideHalo<Field>>(field_, plane);
-            } else {
+        explicit SliceHalo(Field &field, int plane) : field_(field) {
+            if (Dim == 3) {
                 side_ = std::make_shared<SliceSideHalo<Field>>(field_, plane);
+            }
+
+            if (Dim == 2 || (Dim == 3 && field_.stencil_type() == BOX_STENCIL)) {
+                node_ = std::make_shared<SliceNodeHalo<Field>>(field, plane);
             }
         }
 
         /// @param slice_number local index coordinate
-        void exchange(int slice_number) {
-            side_->exchange(slice_number);
+        void exchange(int local_slice_number) {
+            if (side_) {
+                side_->exchange(local_slice_number);
+            }
 
-            // if (field_.stencil_type() == BOX_STENCIL) {
-            //     node_.exchange(slice_number);
-            // }
+            if (node_) {
+                node_->exchange(local_slice_number);
+            }
         }
 
     private:
         Field &field_;
         // SliceSideHalo<Field> side_;
         std::shared_ptr<SliceSideHaloBase> side_;
-        SliceNodeHalo<Field> node_;
+        std::shared_ptr<SliceNodeHalo<Field>> node_;
     };
 
 }  // namespace sgrid
