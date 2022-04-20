@@ -44,11 +44,11 @@ namespace sgrid {
             } else {
                 CATCH_MPI_ERROR(MPI_Alltoallv(p_grid_buffer_.data(),
                                               a2a_counts_.data(),
-                                              a2a_displs_.data(),
+                                              p_block_a2a_displs_.data(),
                                               MPIType<ValueType>(),
                                               p_block_buffer_.data(),
                                               a2a_counts_.data(),
-                                              a2a_displs_.data(),
+                                              p_block_a2a_displs_.data(),
                                               MPIType<ValueType>(),
                                               in.grid()->raw_comm()));
             }
@@ -267,8 +267,8 @@ namespace sgrid {
 
             int comm_size = pgrid->comm_size();
             a2a_counts_.resize(comm_size);
-            a2a_displs_.resize(comm_size + 1);
-            a2a_displs_[0] = 0;
+            p_block_a2a_displs_.resize(comm_size + 1);
+            p_block_a2a_displs_[0] = 0;
 
             int dims[Dim];
             for (int r = 0; r < comm_size; ++r) {
@@ -281,9 +281,12 @@ namespace sgrid {
                 }
 
                 count *= tile_size;
+
                 a2a_counts_[r] = count;
-                a2a_displs_[r + 1] = a2a_displs_[r] + count;
+                p_block_a2a_displs_[r + 1] = p_block_a2a_displs_[r] + count;
             }
+
+            assert(p_block_a2a_displs_[comm_size] == n_nodes * tile_size);
 
             int check_count = a2a_counts_[0];
 
@@ -305,7 +308,7 @@ namespace sgrid {
         bool is_uniform_{false};
 
         std::vector<int> a2a_counts_;
-        std::vector<int> a2a_displs_;
+        std::vector<int> p_block_a2a_displs_;
     };
 
 }  // namespace sgrid

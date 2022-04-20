@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
         int mpi_size;
         MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
-        const int N = 10;
+        const int N = 3;
 
         const int tile_size = 4;
 
