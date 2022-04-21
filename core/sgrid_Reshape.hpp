@@ -263,20 +263,20 @@ namespace sgrid {
                 parallel_grid.starts_and_dims(r, starts, dims);
 
                 if constexpr (Dim == 3) {
-                    // auto range = MDRangeHost({0, 0}, {dims[0], dims[1], dims[2]});
+                    auto range = MDRangeHost({0, 0, 0}, {dims[0], dims[1], dims[2]});
 
-                    // sgrid::parallel_for(
-                    //     "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j, int
-                    //     k) {
-                    //         auto b = field_host.block(starts[0] + i + grid_host.margin[0],
-                    //                                   starts[1] + j + grid_host.margin[1],
-                    //                                   starts[2] + k + grid_host.margin[2]);
+                    sgrid::parallel_for(
+                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j, int k) {
+                            auto b = field_host.block(starts[0] + i + grid_host.margin[0],
+                                                      starts[1] + j + grid_host.margin[1],
+                                                      starts[2] + k + grid_host.margin[2]);
 
-                    //         for (int l = 0; l < tile_size; ++l) {
-                    //             auto value = b[l];
-                    //             p_block_buffer[proc_offset + (i * dims[1] * dims[2] + j * dims[2] + k + l)] = value;
-                    //         }
-                    //     });
+                            for (int l = 0; l < tile_size; ++l) {
+                                auto value = b[l];
+                                p_block_buffer[proc_offset + (i * dims[1] * dims[2] + j * dims[2] + k) * tile_size +
+                                               l] = value;
+                            }
+                        });
 
                 } else if constexpr (Dim == 2) {
                     auto range = MDRangeHost({0, 0}, {dims[0], dims[1]});
@@ -332,7 +332,20 @@ namespace sgrid {
                 int proc_offset = p_block_a2a_displs_[r];
 
                 if constexpr (Dim == 3) {
-                    assert(false);
+                    auto r = MDRangeHost({0, 0, 0}, {dims[0], dims[1], dims[2]});
+
+                    sgrid::parallel_for(
+                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", r, SGRID_LAMBDA(int i, int j, int k) {
+                            auto b = field_host.block(starts[0] + i + grid_host.margin[0],
+                                                      starts[1] + j + grid_host.margin[1],
+                                                      starts[2] + k + grid_host.margin[2]);
+
+                            auto node_offset = proc_offset + (i * dims[1] * dims[2] + j * dims[2] + k) * tile_size;
+                            for (int l = 0; l < tile_size; ++l) {
+                                auto value = p_block_buffer[node_offset + l];
+                                b[l] = value;
+                            }
+                        });
 
                 } else if constexpr (Dim == 2) {
                     auto r = MDRangeHost({0, 0}, {dims[0], dims[1]});

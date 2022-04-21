@@ -31,14 +31,15 @@ int main(int argc, char *argv[]) {
         const int block_size = n_tiles * mpi_size * tile_size;
 
         auto parallel_grid = std::make_shared<Grid_t>();
-        parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny}, {1, 0}, {1, mpi_size});
+        parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny}, {1, 0});
+        // parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny}, {1, 0}, {1, mpi_size}); //1D decomposition
 
         auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
         parallel_field->allocate_on_device();
 
         auto parallel_field_dev = parallel_field->view_device();
 
-        int rank = parallel_grid->comm_rank();
+        // int rank = parallel_grid->comm_rank();
 
         // Initialize parallel field
         sgrid::parallel_for(
@@ -64,67 +65,59 @@ int main(int argc, char *argv[]) {
 
             auto serial_field_dev = serial_field->view_device();
 
-            std::cout << std::flush;
-            MPI_Barrier(MPI_COMM_WORLD);
+            // MPI_Barrier(MPI_COMM_WORLD);
+            // printf("------------------------\n");
+            // MPI_Barrier(MPI_COMM_WORLD);
 
-            std::cout << "------------------------\n";
-            std::cout << std::flush;
-            MPI_Barrier(MPI_COMM_WORLD);
+            // for (int r = 0; r < mpi_size; ++r) {
+            //     if (r == rank) {
+            //         printf("[%d]\n", r);
+            sgrid::parallel_for(
+                "Processing on tile", serial_grid->md_range(), SGRID_LAMBDA(int i, int j) {
+                    auto b = serial_field_dev.block(i, j);
 
-            for (int r = 0; r < mpi_size; ++r) {
-                if (r == rank) {
-                    printf("[%d]\n", r);
-                    sgrid::parallel_for(
-                        "Processing on tile", serial_grid->md_range(), SGRID_LAMBDA(int i, int j) {
-                            auto b = serial_field_dev.block(i, j);
+                    for (int j = 0; j < tile_size; ++j) {
+                        // This in combination with initialization should give us a monotonically increasing
+                        // block index
+                        printf("%g ", b[j]);
+                        b[j] += 1;
+                    }
 
-                            for (int j = 0; j < tile_size; ++j) {
-                                // This in combination with initialization should give us a monotonically increasing
-                                // block index
-                                printf("%g ", b[j]);
-                                b[j] += 1;
-                            }
+                    printf("\n");
+                });
+            //     }
 
-                            printf("\n");
-                        });
-
-                    std::cout << std::flush;
-                }
-
-                MPI_Barrier(MPI_COMM_WORLD);
-            }
+            //     fflush(stdout);
+            //     MPI_Barrier(MPI_COMM_WORLD);
+            // }
 
             reshape.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
         }
 
         parallel_field->write("ex11.raw");
 
-        std::cout << std::flush;
-        MPI_Barrier(MPI_COMM_WORLD);
+        // MPI_Barrier(MPI_COMM_WORLD);
+        // printf("------------------------\n");
+        // MPI_Barrier(MPI_COMM_WORLD);
 
-        std::cout << "------------------------\n";
-        std::cout << std::flush;
-        MPI_Barrier(MPI_COMM_WORLD);
+        // for (int r = 0; r < mpi_size; ++r) {
+        //     if (r == rank) {
+        //         sgrid::parallel_for(
+        //             "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j) {
+        //                 auto b = parallel_field_dev.block(i, j);
 
-        for (int r = 0; r < mpi_size; ++r) {
-            if (r == rank) {
-                sgrid::parallel_for(
-                    "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j) {
-                        auto b = parallel_field_dev.block(i, j);
+        //                 printf("[%d] ", rank);
+        //                 for (int k = 0; k < block_size; ++k) {
+        //                     printf("%g ", b[k]);
+        //                 }
 
-                        std::cout << "[" << rank << "] ";
-                        for (int k = 0; k < block_size; ++k) {
-                            std::cout << b[k] << " ";
-                        }
+        //                 printf("\n");
+        //             });
+        //     }
 
-                        std::cout << "\n";
-                    });
-
-                std::cout << std::flush;
-            }
-
-            MPI_Barrier(MPI_COMM_WORLD);
-        }
+        //     fflush(stdout);
+        //     MPI_Barrier(MPI_COMM_WORLD);
+        // }
     }
 
     sgrid::finalize();
