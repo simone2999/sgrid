@@ -33,16 +33,16 @@ namespace sgrid {
             parallel.synch_device_to_host();
             p_grid_pack_data(parallel, serial.block_size(), tile_number);
 
-            // int comm_size = in.grid()->comm_size();
-            // int comm_rank = in.grid()->comm_rank();
+            // int comm_size = parallel.grid()->comm_size();
+            // int comm_rank = parallel.grid()->comm_rank();
 
             // std::cout << std::flush;
             // MPI_Barrier(MPI_COMM_WORLD);
             // for (int r = 0; r < comm_size; ++r) {
             //     if (r == comm_rank) {
             //         int size = p_grid_buffer_.size();
-            //         std::cout << "[" << comm_rank << "] tile_number " << tile_number << "/" << out.block_size() <<
-            //         "\n";
+            //         std::cout << "[" << comm_rank << "] tile_number " << tile_number << "/" << serial.block_size()
+            //                   << "\n";
 
             //         for (int i = 0; i < size; ++i) {
             //             std::cout << p_grid_buffer_[i] << " ";
@@ -116,42 +116,42 @@ namespace sgrid {
             p_grid_unpack_data(parallel, serial.block_size(), tile_number);
             parallel.synch_host_to_device();
 
-            int comm_size = parallel.grid()->comm_size();
-            int comm_rank = parallel.grid()->comm_rank();
-            std::cout << std::flush;
-            MPI_Barrier(MPI_COMM_WORLD);
+            // int comm_size = parallel.grid()->comm_size();
+            // int comm_rank = parallel.grid()->comm_rank();
+            // std::cout << std::flush;
+            // MPI_Barrier(MPI_COMM_WORLD);
 
-            for (int r = 0; r < comm_size; ++r) {
-                if (r == comm_rank) {
-                    std::stringstream ss;
-                    int size = p_grid_buffer_.size();
-                    ss << "[" << comm_rank << "] tile_number " << tile_number << "/"
-                       << (parallel.block_size() / (serial.block_size() * parallel.grid()->comm_size())) << "\n";
+            // for (int r = 0; r < comm_size; ++r) {
+            //     if (r == comm_rank) {
+            //         std::stringstream ss;
+            //         int size = p_grid_buffer_.size();
+            //         ss << "[" << comm_rank << "] tile_number " << tile_number << "/"
+            //            << (parallel.block_size() / (serial.block_size() * parallel.grid()->comm_size())) << "\n";
 
-                    for (int i = 0; i < size; ++i) {
-                        ss << p_grid_buffer_[i] << " ";
-                    }
+            //         for (int i = 0; i < size; ++i) {
+            //             ss << p_grid_buffer_[i] << " ";
+            //         }
 
-                    std::cout << ss.str();
-                    std::cout << std::endl;
-                    std::cout << std::flush;
-                }
+            //         std::cout << ss.str();
+            //         std::cout << std::endl;
+            //         std::cout << std::flush;
+            //     }
 
-                MPI_Barrier(MPI_COMM_WORLD);
-            }
+            //     MPI_Barrier(MPI_COMM_WORLD);
+            // }
         }
 
         // 1) buffer for data transposition (no MPI subarray types)
-        void p_grid_pack_data(Field &pgrid_field, int tile_size, int tile_number) {
-            auto pgrid = pgrid_field.grid();
+        void p_grid_pack_data(Field &parallel_field, int tile_size, int tile_number) {
+            auto pgrid = parallel_field.grid();
             auto grid_host = pgrid->view_host();
 
-            auto field_host = pgrid_field.view_host();
+            auto field_host = parallel_field.view_host();
 
             auto p_grid_buffer = p_grid_buffer_;
 
             int comm_size = pgrid->comm_size();
-            int block_size = pgrid_field.block_size();
+            int block_size = parallel_field.block_size();
             auto rank_offset = pgrid->n_owned_nodes() * tile_size;
 
             for (int r = 0; r < comm_size; ++r) {
@@ -194,16 +194,16 @@ namespace sgrid {
             }
         }
 
-        void p_grid_unpack_data(Field &pgrid_field, int tile_size, int tile_number) {
-            auto pgrid = pgrid_field.grid();
+        void p_grid_unpack_data(Field &parallel_field, int tile_size, int tile_number) {
+            auto pgrid = parallel_field.grid();
             auto grid_host = pgrid->view_host();
 
-            auto field_host = pgrid_field.view_host();
+            auto field_host = parallel_field.view_host();
 
             auto p_block_buffer = p_block_buffer_;
 
             int comm_size = pgrid->comm_size();
-            int block_size = pgrid_field.block_size();
+            int block_size = parallel_field.block_size();
             auto rank_offset = pgrid->n_owned_nodes() * tile_size;
 
             for (int r = 0; r < comm_size; ++r) {
@@ -244,13 +244,13 @@ namespace sgrid {
             }
         }
 
-        void p_block_pack_data(Grid &parallel_grid, Field &pblock_field) {
-            auto grid = pblock_field.grid();
+        void p_block_pack_data(Grid &parallel_grid, Field &serial_field) {
+            auto grid = serial_field.grid();
             int comm_size = parallel_grid.comm_size();
-            int tile_size = pblock_field.block_size();
+            int tile_size = serial_field.block_size();
 
             auto grid_host = grid->view_host();
-            auto field_host = pblock_field.view_host();
+            auto field_host = serial_field.view_host();
 
             LocalOrdinal dims[Dim];
             GlobalOrdinal starts[Dim];
@@ -260,22 +260,23 @@ namespace sgrid {
             for (int r = 0; r < comm_size; ++r) {
                 int proc_offset = p_block_a2a_displs_[r];
 
-                grid->starts_and_dims(r, starts, dims);
+                parallel_grid.starts_and_dims(r, starts, dims);
 
                 if constexpr (Dim == 3) {
-                    auto range = MDRangeHost({0, 0}, {dims[0], dims[1], dims[2]});
+                    // auto range = MDRangeHost({0, 0}, {dims[0], dims[1], dims[2]});
 
-                    sgrid::parallel_for(
-                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j, int k) {
-                            auto b = field_host.block(starts[0] + i + grid_host.margin[0],
-                                                      starts[1] + j + grid_host.margin[1],
-                                                      starts[2] + k + grid_host.margin[2]);
+                    // sgrid::parallel_for(
+                    //     "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j, int
+                    //     k) {
+                    //         auto b = field_host.block(starts[0] + i + grid_host.margin[0],
+                    //                                   starts[1] + j + grid_host.margin[1],
+                    //                                   starts[2] + k + grid_host.margin[2]);
 
-                            for (int l = 0; l < tile_size; ++l) {
-                                auto value = b[l];
-                                p_block_buffer[proc_offset + (i * dims[1] * dims[2] + j * dims[2] + k + l)] = value;
-                            }
-                        });
+                    //         for (int l = 0; l < tile_size; ++l) {
+                    //             auto value = b[l];
+                    //             p_block_buffer[proc_offset + (i * dims[1] * dims[2] + j * dims[2] + k + l)] = value;
+                    //         }
+                    //     });
 
                 } else if constexpr (Dim == 2) {
                     auto range = MDRangeHost({0, 0}, {dims[0], dims[1]});
@@ -287,13 +288,12 @@ namespace sgrid {
 
                             for (int l = 0; l < tile_size; ++l) {
                                 auto value = b[l];
-                                p_block_buffer[proc_offset + (i * dims[1] + j + l)] = value;
+                                p_block_buffer[proc_offset + (i * dims[1] + j) * tile_size + l] = value;
                             }
                         });
                 }
             }
 
-            // int comm_size = in.grid()->comm_size();
             // int comm_rank = parallel_grid.comm_rank();
             // std::cout << std::flush;
             // MPI_Barrier(MPI_COMM_WORLD);
@@ -314,13 +314,13 @@ namespace sgrid {
             // }
         }
 
-        void p_block_unpack_data(Grid &parallel_grid, Field &pblock_field) {
-            auto grid = pblock_field.grid();
+        void p_block_unpack_data(Grid &parallel_grid, Field &serial_field) {
+            auto grid = serial_field.grid();
             int comm_size = parallel_grid.comm_size();
-            int tile_size = pblock_field.block_size();
+            int tile_size = serial_field.block_size();
 
             auto grid_host = grid->view_host();
-            auto field_host = pblock_field.view_host();
+            auto field_host = serial_field.view_host();
 
             LocalOrdinal dims[Dim];
             GlobalOrdinal starts[Dim];
@@ -328,25 +328,11 @@ namespace sgrid {
             auto p_block_buffer = p_block_buffer_;
 
             for (int r = 0; r < comm_size; ++r) {
-                grid->starts_and_dims(r, starts, dims);
-
+                parallel_grid.starts_and_dims(r, starts, dims);
                 int proc_offset = p_block_a2a_displs_[r];
 
                 if constexpr (Dim == 3) {
-                    auto r = MDRangeHost({0, 0}, {dims[0], dims[1], dims[2]});
-
-                    sgrid::parallel_for(
-                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", r, SGRID_LAMBDA(int i, int j, int k) {
-                            auto b = field_host.block(starts[0] + i + grid_host.margin[0],
-                                                      starts[1] + j + grid_host.margin[1],
-                                                      starts[2] + k + grid_host.margin[2]);
-
-                            for (int l = 0; l < tile_size; ++l) {
-                                auto value =
-                                    p_block_buffer[proc_offset + (i * dims[1] * dims[2] + j * dims[2] + k + l)];
-                                b[l] = value;
-                            }
-                        });
+                    assert(false);
 
                 } else if constexpr (Dim == 2) {
                     auto r = MDRangeHost({0, 0}, {dims[0], dims[1]});
@@ -356,28 +342,48 @@ namespace sgrid {
                             auto b = field_host.block(starts[0] + i + grid_host.margin[0],
                                                       starts[1] + j + grid_host.margin[1]);
 
+                            auto node_offset = proc_offset + (i * dims[1] + j) * tile_size;
                             for (int l = 0; l < tile_size; ++l) {
-                                auto value = p_block_buffer[proc_offset + (i * dims[1] + j + l)];
+                                auto value = p_block_buffer[node_offset + l];
                                 b[l] = value;
                             }
                         });
                 }
             }
+
+            // int comm_rank = parallel_grid.comm_rank();
+            // std::cout << std::flush;
+            // MPI_Barrier(MPI_COMM_WORLD);
+            // for (int r = 0; r < comm_size; ++r) {
+            //     if (r == comm_rank) {
+            //         int size = p_block_buffer.size();
+            //         std::cout << "[" << comm_rank << "], " << p_block_a2a_displs_[r] << "\n";
+
+            //         for (int i = 0; i < size; ++i) {
+            //             std::cout << p_block_buffer[i] << " ";
+            //         }
+
+            //         std::cout << std::endl;
+            //         std::cout << std::flush;
+            //     }
+
+            //     MPI_Barrier(MPI_COMM_WORLD);
+            // }
         }
 
-        void init(Field &pgrid_field, Field &pblock_field) {
-            assert((pgrid_field.block_size() / pblock_field.block_size()) * pblock_field.block_size() ==
-                   pgrid_field.block_size());
+        void init(Field &parallel_field, Field &serial_field) {
+            assert((parallel_field.block_size() / serial_field.block_size()) * serial_field.block_size() ==
+                   parallel_field.block_size());
 
             // Must be serial
-            assert(pblock_field.grid()->comm_size() == 1);
+            assert(serial_field.grid()->comm_size() == 1);
 
-            auto pgrid = pgrid_field.grid();
-            auto pblock = pblock_field.grid();
+            auto pgrid = parallel_field.grid();
+            auto pblock = serial_field.grid();
 
             auto n_nodes = pgrid->n_nodes();
             auto n_owned_nodes = pgrid->n_owned_nodes();
-            auto tile_size = pblock_field.block_size();
+            auto tile_size = serial_field.block_size();
 
             assert(pblock->n_nodes() == n_nodes);
             int comm_size = pgrid->comm_size();

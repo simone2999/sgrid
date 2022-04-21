@@ -283,7 +283,7 @@ namespace sgrid {
                 LocalOrdinal temp = grid_host_.global_dim[d] / proc_dims_[d];
                 LocalOrdinal modulo = grid_host_.global_dim[d] % proc_dims_[d];
                 dims[d] = temp + (coords[d] < modulo);
-                starts[d] = temp * coords_[d] + std::min(modulo, LocalOrdinal(coords[d]));
+                starts[d] = temp * coords[d] + std::min(modulo, LocalOrdinal(coords[d]));
             }
         }
 

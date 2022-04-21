@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
         int mpi_size;
         MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
-        const int Nx = 1;
+        const int Nx = 5;
         const int Ny = 3 * mpi_size;
 
         const int tile_size = 2;
@@ -64,16 +64,35 @@ int main(int argc, char *argv[]) {
 
             auto serial_field_dev = serial_field->view_device();
 
-            sgrid::parallel_for(
-                "Processing on tile", serial_grid->md_range(), SGRID_LAMBDA(int i, int j) {
-                    auto b = serial_field_dev.block(i, j);
+            std::cout << std::flush;
+            MPI_Barrier(MPI_COMM_WORLD);
 
-                    for (int j = 0; j < tile_size; ++j) {
-                        // This in combination with initialization should give us a monotonically increasing
-                        // block index
-                        b[j] += 1;
-                    }
-                });
+            std::cout << "------------------------\n";
+            std::cout << std::flush;
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            for (int r = 0; r < mpi_size; ++r) {
+                if (r == rank) {
+                    printf("[%d]\n", r);
+                    sgrid::parallel_for(
+                        "Processing on tile", serial_grid->md_range(), SGRID_LAMBDA(int i, int j) {
+                            auto b = serial_field_dev.block(i, j);
+
+                            for (int j = 0; j < tile_size; ++j) {
+                                // This in combination with initialization should give us a monotonically increasing
+                                // block index
+                                printf("%g ", b[j]);
+                                b[j] += 1;
+                            }
+
+                            printf("\n");
+                        });
+
+                    std::cout << std::flush;
+                }
+
+                MPI_Barrier(MPI_COMM_WORLD);
+            }
 
             reshape.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
         }
