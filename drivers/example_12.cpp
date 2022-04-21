@@ -70,12 +70,16 @@ int main(int argc, char *argv[]) {
 
         MPI_Barrier(MPI_COMM_WORLD);
         double elapsed = MPI_Wtime();
+        double processing_time = 0;
 
         sgrid::ReMap<Field_t> remap;
         remap.init(*parallel_field, *serial_field);
+        bool is_uniform = remap.is_uniform();
 
         for (int tile_number = 0; tile_number < n_tiles; ++tile_number) {
             remap.from_pgrid_to_pblock(*parallel_field, *serial_field, tile_number);
+
+            double processing_elapsed = MPI_Wtime();
 
             auto serial_field_dev = serial_field->view_device();
 
@@ -90,6 +94,7 @@ int main(int argc, char *argv[]) {
                     }
                 });
 
+            processing_time += MPI_Wtime() - processing_elapsed;
             remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
         }
 
@@ -97,7 +102,10 @@ int main(int argc, char *argv[]) {
         elapsed = MPI_Wtime() - elapsed;
 
         if (rank == 0) {
-            printf("communication %g (seconds)\n", elapsed);
+            printf("communication + slice processing %g (seconds), processing only %g (seconds) %s\n",
+                   elapsed,
+                   processing_time,
+                   (is_uniform ? "A2A" : "A2AV"));
         }
 
         if (save_data) parallel_field->write("ex12.raw");
