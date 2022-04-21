@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
         parallel_field->allocate_on_device();
 
         auto parallel_field_dev = parallel_field->view_device();
+        int rank = parallel_grid->comm_rank();
 
         // Initialize parallel field
         sgrid::parallel_for(
@@ -66,6 +67,9 @@ int main(int argc, char *argv[]) {
 
         auto serial_field = std::make_shared<Field_t>("I", serial_grid, tile_size, sgrid::BOX_STENCIL);
         serial_field->allocate_on_device();
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        double elapsed = MPI_Wtime();
 
         sgrid::ReMap<Field_t> remap;
         remap.init(*parallel_field, *serial_field);
@@ -89,10 +93,16 @@ int main(int argc, char *argv[]) {
             remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
         }
 
+        MPI_Barrier(MPI_COMM_WORLD);
+        elapsed = MPI_Wtime() - elapsed;
+
+        if (rank == 0) {
+            printf("communication %g (seconds)\n", elapsed);
+        }
+
         if (save_data) parallel_field->write("ex12.raw");
 
         if (verbose) {
-            int rank = parallel_grid->comm_rank();
             MPI_Barrier(MPI_COMM_WORLD);
             printf("------------------------\n");
             MPI_Barrier(MPI_COMM_WORLD);
@@ -125,7 +135,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        printf("TTS: %g\n", end - start);
+        printf("TTS: %g (seconds)\n", end - start);
     }
 
     sgrid::finalize();
