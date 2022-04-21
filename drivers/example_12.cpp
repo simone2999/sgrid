@@ -102,10 +102,11 @@ int main(int argc, char *argv[]) {
         elapsed = MPI_Wtime() - elapsed;
 
         if (rank == 0) {
-            printf("communication + slice processing %g (seconds), processing only %g (seconds) %s\n",
-                   elapsed,
-                   processing_time,
-                   (is_uniform ? "A2A" : "A2AV"));
+            printf(
+                "communication + packing/unpacking + slice processing %g (seconds), processing only %g (seconds) %s\n",
+                elapsed,
+                processing_time,
+                (is_uniform ? "A2A" : "A2AV"));
         }
 
         if (save_data) parallel_field->write("ex12.raw");
