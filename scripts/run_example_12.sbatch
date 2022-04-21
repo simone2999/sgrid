@@ -20,4 +20,4 @@ block_size=$(($n_procs * $tile_size * $n_tiles))
 n_elements=$(($nx * $ny * $nz * $block_size))
 
 echo 'n_entries='$n_elements
-srun ./sgrid_example_12 $nx $ny $nz $tile_size $n_tiles $block_size 
+mpirun ./sgrid_example_12 $nx $ny $nz $tile_size $n_tiles $block_size 
