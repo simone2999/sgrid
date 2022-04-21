@@ -17,19 +17,30 @@ int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
     sgrid::initialize(argc, argv);
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    double start = MPI_Wtime();
     {
         int mpi_size;
         MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
-        const int Nx = 5;
-        const int Ny = 4;
-        const int Nz = 3 * mpi_size;
+        bool verbose = false;
+        bool save_data = false;
 
-        const int tile_size = 2;
+        int Nx = 5;
+        int Ny = 4;
+        int Nz = 3 * mpi_size;
+        int tile_size = 2;
+        int n_tiles = 2;
 
-        // n_tiles size must be a multiple of mpi_size for this application
-        const int n_tiles = 2;
-        const int block_size = n_tiles * mpi_size * tile_size;
+        if (argc >= 2) Nx = atoi(argv[1]);
+        if (argc >= 3) Ny = atoi(argv[2]);
+        if (argc >= 4) Nz = atoi(argv[3]);
+        if (argc >= 5) tile_size = atoi(argv[4]);
+        if (argc >= 6) n_tiles = atoi(argv[5]);
+
+        // block_size must be a multiple of mpi_size for this application
+        int block_size = n_tiles * mpi_size * tile_size;
+        if (argc >= 7) block_size = atoi(argv[6]);
 
         auto parallel_grid = std::make_shared<Grid_t>();
         parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
@@ -78,31 +89,43 @@ int main(int argc, char *argv[]) {
             remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
         }
 
-        parallel_field->write("ex12.raw");
+        if (save_data) parallel_field->write("ex12.raw");
 
-        int rank = parallel_grid->comm_rank();
-        MPI_Barrier(MPI_COMM_WORLD);
-        printf("------------------------\n");
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        for (int r = 0; r < mpi_size; ++r) {
-            if (r == rank) {
-                sgrid::parallel_for(
-                    "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
-                        auto b = parallel_field_dev.block(i, j, k);
-
-                        printf("[%d] ", rank);
-                        for (int l = 0; l < block_size; ++l) {
-                            printf("%g ", b[l]);
-                        }
-
-                        printf("\n");
-                    });
-            }
-
-            fflush(stdout);
+        if (verbose) {
+            int rank = parallel_grid->comm_rank();
             MPI_Barrier(MPI_COMM_WORLD);
+            printf("------------------------\n");
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            for (int r = 0; r < mpi_size; ++r) {
+                if (r == rank) {
+                    sgrid::parallel_for(
+                        "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+                            auto b = parallel_field_dev.block(i, j, k);
+
+                            printf("[%d] ", rank);
+                            for (int l = 0; l < block_size; ++l) {
+                                printf("%g ", b[l]);
+                            }
+
+                            printf("\n");
+                        });
+                }
+
+                fflush(stdout);
+                MPI_Barrier(MPI_COMM_WORLD);
+            }
         }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    double end = MPI_Wtime();
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if (rank == 0) {
+        printf("TTS: %g\n", end - start);
     }
 
     sgrid::finalize();
