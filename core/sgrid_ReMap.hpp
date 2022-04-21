@@ -1,10 +1,10 @@
-#ifndef SGRID_RESHAPE_HPP
-#define SGRID_RESHAPE_HPP
+#ifndef SGRID_REMAP_HPP
+#define SGRID_REMAP_HPP
 
 namespace sgrid {
 
     template <class Field>
-    class Reshape {
+    class ReMap {
     public:
         using Grid = typename Field::Grid;
         static constexpr int Dim = Grid::Dim;
@@ -160,7 +160,7 @@ namespace sgrid {
 
                 if constexpr (Dim == 3) {
                     sgrid::parallel_for(
-                        "Reshape::pack_data::CopyBlockSliceToBuffer",
+                        "ReMap::pack_data::CopyBlockSliceToBuffer",
                         pgrid->md_range(),
                         SGRID_LAMBDA(int i, int j, int k) {
                             auto b = field_host.block(i, j, k);
@@ -177,7 +177,7 @@ namespace sgrid {
                         });
                 } else if constexpr (Dim == 2) {
                     sgrid::parallel_for(
-                        "Reshape::pack_data::CopyBlockSliceToBuffer", pgrid->md_range(), SGRID_LAMBDA(int i, int j) {
+                        "ReMap::pack_data::CopyBlockSliceToBuffer", pgrid->md_range(), SGRID_LAMBDA(int i, int j) {
                             auto b = field_host.block(i, j);
 
                             int node_offset =
@@ -212,7 +212,7 @@ namespace sgrid {
 
                 if constexpr (Dim == 3) {
                     sgrid::parallel_for(
-                        "Reshape::pack_data::CopyBlockSliceFromBuffer",
+                        "ReMap::pack_data::CopyBlockSliceFromBuffer",
                         pgrid->md_range(),
                         SGRID_LAMBDA(int i, int j, int k) {
                             auto b = field_host.block(i, j, k);
@@ -228,7 +228,7 @@ namespace sgrid {
                         });
                 } else if constexpr (Dim == 2) {
                     sgrid::parallel_for(
-                        "Reshape::pack_data::CopyBlockSliceFromBuffer", pgrid->md_range(), SGRID_LAMBDA(int i, int j) {
+                        "ReMap::pack_data::CopyBlockSliceFromBuffer", pgrid->md_range(), SGRID_LAMBDA(int i, int j) {
                             auto b = field_host.block(i, j);
 
                             int node_offset =
@@ -266,7 +266,7 @@ namespace sgrid {
                     auto range = MDRangeHost({0, 0, 0}, {dims[0], dims[1], dims[2]});
 
                     sgrid::parallel_for(
-                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j, int k) {
+                        "ReMap::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j, int k) {
                             auto b = field_host.block(starts[0] + i + grid_host.margin[0],
                                                       starts[1] + j + grid_host.margin[1],
                                                       starts[2] + k + grid_host.margin[2]);
@@ -282,7 +282,7 @@ namespace sgrid {
                     auto range = MDRangeHost({0, 0}, {dims[0], dims[1]});
 
                     sgrid::parallel_for(
-                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j) {
+                        "ReMap::p_block_pack_data::CopyDataToSlicedBuffer", range, SGRID_LAMBDA(int i, int j) {
                             auto b = field_host.block(starts[0] + i + grid_host.margin[0],
                                                       starts[1] + j + grid_host.margin[1]);
 
@@ -335,7 +335,7 @@ namespace sgrid {
                     auto r = MDRangeHost({0, 0, 0}, {dims[0], dims[1], dims[2]});
 
                     sgrid::parallel_for(
-                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", r, SGRID_LAMBDA(int i, int j, int k) {
+                        "ReMap::p_block_pack_data::CopyDataToSlicedBuffer", r, SGRID_LAMBDA(int i, int j, int k) {
                             auto b = field_host.block(starts[0] + i + grid_host.margin[0],
                                                       starts[1] + j + grid_host.margin[1],
                                                       starts[2] + k + grid_host.margin[2]);
@@ -351,7 +351,7 @@ namespace sgrid {
                     auto r = MDRangeHost({0, 0}, {dims[0], dims[1]});
 
                     sgrid::parallel_for(
-                        "Reshape::p_block_pack_data::CopyDataToSlicedBuffer", r, SGRID_LAMBDA(int i, int j) {
+                        "ReMap::p_block_pack_data::CopyDataToSlicedBuffer", r, SGRID_LAMBDA(int i, int j) {
                             auto b = field_host.block(starts[0] + i + grid_host.margin[0],
                                                       starts[1] + j + grid_host.margin[1]);
 
@@ -512,4 +512,4 @@ namespace sgrid {
 
 }  // namespace sgrid
 
-#endif  // SGRID_RESHAPE_HPP
+#endif  // SGRID_REMAP_HPP

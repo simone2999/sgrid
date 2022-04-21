@@ -1,6 +1,6 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
-#include "sgrid_Reshape.hpp"
+#include "sgrid_ReMap.hpp"
 #include "sgrid_SliceHalo.hpp"
 
 #include <cmath>
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
         auto serial_field = std::make_shared<Field_t>("I", serial_grid, tile_size, sgrid::BOX_STENCIL);
         serial_field->allocate_on_device();
 
-        sgrid::Reshape<Field_t> reshape;
+        sgrid::ReMap<Field_t> reshape;
         reshape.init(*parallel_field, *serial_field);
 
         for (int tile_number = 0; tile_number < n_tiles; ++tile_number) {
