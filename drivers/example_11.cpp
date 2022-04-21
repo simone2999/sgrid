@@ -57,11 +57,11 @@ int main(int argc, char *argv[]) {
         auto serial_field = std::make_shared<Field_t>("I", serial_grid, tile_size, sgrid::BOX_STENCIL);
         serial_field->allocate_on_device();
 
-        sgrid::ReMap<Field_t> reshape;
-        reshape.init(*parallel_field, *serial_field);
+        sgrid::ReMap<Field_t> remap;
+        remap.init(*parallel_field, *serial_field);
 
         for (int tile_number = 0; tile_number < n_tiles; ++tile_number) {
-            reshape.from_pgrid_to_pblock(*parallel_field, *serial_field, tile_number);
+            remap.from_pgrid_to_pblock(*parallel_field, *serial_field, tile_number);
 
             auto serial_field_dev = serial_field->view_device();
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
             //     MPI_Barrier(MPI_COMM_WORLD);
             // }
 
-            reshape.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
+            remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
         }
 
         parallel_field->write("ex11.raw");
