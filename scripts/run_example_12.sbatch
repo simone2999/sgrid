@@ -6,9 +6,9 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:10:00
 #SBATCH --exclusive
-#SBATCH --partition=bigMem
+#SBATCH --partition=fat
 
-n_procs=$((2 * 20)))
+n_procs=40
 
 nx=100
 ny=100
