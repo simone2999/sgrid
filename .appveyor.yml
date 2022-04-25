@@ -48,10 +48,10 @@ before_build:
 # # -DBUILD_SHARED_LIBS=ON
 
 build_script:
-- cmake --build all_builds --config Release -j 4 --verbose
+- cmake --build all_builds --config Release -j 4
 - ls -lah all_builds
 - ls -lah all_builds/Release
-# - cmake --build all_builds --config Debug --target install
+- cmake --build all_builds --config Debug --target install
 
 after_build:
 # - .\all_builds\Release\sgrid_example_1.exe
