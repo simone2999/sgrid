@@ -55,9 +55,6 @@ message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
 
 target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 
-add_executable(sgrid_example_10 drivers/example_10.cpp)
-target_link_libraries(sgrid_example_10 PUBLIC sgrid)
-
 # ##############################################################################
 # ##############################################################################
 # Installation
@@ -119,7 +116,8 @@ list(
   drivers/example_6.cpp
   drivers/example_7.cpp
   drivers/example_8.cpp
-  drivers/example_9.cpp)
+  drivers/example_9.cpp
+  drivers/example_10.cpp)
 
 # add_executable(sgrid_example_1 drivers/example_1.cpp)
 # target_link_libraries(sgrid_example_1 sgrid)
@@ -127,7 +125,7 @@ list(
 foreach(EXECUTABLE ${EXECUTABLES})
   math(EXPR NUMBER "${NUMBER}+1")
   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
-  target_link_libraries(sgrid_example_${NUMBER} sgrid)
+  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
 endforeach(EXECUTABLE)
 
 include(cmake/PostInstall.cmake)
