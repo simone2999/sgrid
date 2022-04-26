@@ -57,4 +57,4 @@ after_build:
 # - .\all_builds\Release\sgrid_example_1.exe
 # - .\all_builds\Release\sgrid_example_2.exe
 # - ctest -C Release --config Release --output-on-failure
-- cmake --build all_builds --config Release --target test_install
+# - cmake --build all_builds --config Release --target test_install
