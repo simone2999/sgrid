@@ -43,7 +43,7 @@ endforeach()
 
 target_include_directories(
     sgrid BEFORE
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
            $<INSTALL_INTERFACE:include>)
 
 
