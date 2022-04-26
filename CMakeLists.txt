@@ -119,9 +119,6 @@ list(
   drivers/example_9.cpp
   drivers/example_10.cpp)
 
-# add_executable(sgrid_example_1 drivers/example_1.cpp)
-# target_link_libraries(sgrid_example_1 sgrid)
-
 foreach(EXECUTABLE ${EXECUTABLES})
   math(EXPR NUMBER "${NUMBER}+1")
   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)

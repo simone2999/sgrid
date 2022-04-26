@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5...3.19)
 project(sgrid_usage)
 
-# include(CMakeFindDependencyMacro)
+include(CMakeFindDependencyMacro)
 
 find_package(sgrid 0 REQUIRED)
 
