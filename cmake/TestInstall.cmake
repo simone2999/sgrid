@@ -18,7 +18,7 @@ if(WIN32)
             $<IF:$<CONFIG:Debug>,Debug,Release>
     COMMAND ${CMAKE_CTEST_COMMAND} -V -C $<IF:$<CONFIG:Debug>,Debug,Release>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/TestInstall
-    COMMENT "Testing the installation"
+    COMMENT "Testing the installation on windows"
     VERBATIM)
 
 else()

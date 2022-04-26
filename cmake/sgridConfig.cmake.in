@@ -3,7 +3,7 @@ if (@SGRID_ENABLE_KOKKOS@)
     find_dependency(Kokkos HINTS @Kokkos_DIR@)
 endif()
 
-if (@SGRID_ENABLE_KOKKOS_KERNELS@)
+if (@SGRID_ENABLE_KOKKOS_KERNELS@ AND NOT WIN32)
     find_dependency(KokkosKernels HINTS @KokkosKernels_DIR@)
 endif()
 

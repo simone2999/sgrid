@@ -171,7 +171,8 @@ if(SGRID_ENABLE_KOKKOS)
 
   # done with setting up Kokkos target
   unset(_KK_TARGET)
-  endif()
+  set(SGRID_WITH_KOKKOS TRUE)
+endif()
 # if(SGRID_ENABLE_KOKKOS)
 #   if(WIN32)
 #     find_package(Kokkos HINTS C:/projects/installations/kokkos/lib/cmake/Kokkos C:/Users/Dylan/source/repos/kokkos_install/lib/cmake/Kokkos
@@ -214,7 +215,7 @@ if(SGRID_ENABLE_KOKKOS)
 
 # ##############################################################################
 
-if(SGRID_ENABLE_KOKKOS_KERNELS)
+if(SGRID_ENABLE_KOKKOS_KERNELS AND NOT WIN32)
   find_package(KokkosKernels QUIET)
 
   if(TARGET Kokkos::kokkoskernels)
@@ -244,7 +245,6 @@ if(SGRID_ENABLE_KOKKOS_KERNELS)
   endif()
 
   set(SGRID_WITH_KOKKOS_KERNELS TRUE)
-  set(SGRID_WITH_KOKKOS TRUE)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "[Cc][Oo][Vv][Ee][Rr][Aa][Gg][Ee]")

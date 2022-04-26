@@ -18,9 +18,6 @@ install:
 - msmpisdk.msi /quiet /passive
 - set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
 
-- ls "C:\Program Files\Microsoft MPI\Bin"
-- ls "C:\Program Files (x86)\Microsoft SDKs\MPI\Include"
-
 
 # Install Kokkos
 - cd C:\
