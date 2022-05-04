@@ -55,6 +55,11 @@ message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
 
 target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 
+
+if(SGRID_ENABLE_TESTING)
+    include(tests/tests.cmake)
+endif()     
+
 # ##############################################################################
 # ##############################################################################
 # Installation
@@ -124,5 +129,6 @@ foreach(EXECUTABLE ${EXECUTABLES})
   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
   target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
 endforeach(EXECUTABLE)
+
 
 include(cmake/PostInstall.cmake)
