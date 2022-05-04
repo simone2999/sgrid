@@ -53,15 +53,19 @@ namespace sgrid {
             field_host_.block_size_ = block_size_;
         }
 
+        void ensure_view_host() {
+            if (field_host_.empty()) {
+                allocate_on_host();
+            }
+        }
+
         void allocate() {
             allocate_on_device();
             allocate_on_host();
         }
 
         void synch_device_to_host() {
-            if (field_host_.empty()) {
-                allocate_on_host();
-            }
+            ensure_view_host();
 
             sgrid::deep_copy(field_host_.data_, field_device_.data_);
         }

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J Example_4
 #SBATCH --output=Example_4-%j.out
-#SBATCH --nodes=1
+#SBATCH --nodes=10
 #SBATCH --tasks-per-node=36
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:10:00
