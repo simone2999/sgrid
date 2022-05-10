@@ -1,7 +1,8 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
 #include "sgrid_SliceHalo.hpp"
-#include "sgrid_grid_test.cpp"
+#include "sgrid_field_test.hpp"
+#include "sgrid_grid_test.hpp"
 
 #include "gtest/gtest.h"
 

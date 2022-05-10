@@ -193,6 +193,8 @@ namespace sgrid {
 
         inline StencilType stencil_type() const { return stencil_type_; }
 
+        std::shared_ptr<Grid> get_grid() { return grid_; }
+
     private:
         std::string name_;
         std::shared_ptr<Grid> grid_;
