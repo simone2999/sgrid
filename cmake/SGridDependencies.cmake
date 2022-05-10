@@ -24,6 +24,7 @@ if(MPI_FOUND)
   # else() message(FATAL_ERROR "MPI REQUIRED")
 endif()
 
+
 # ##############################################################################
 
 
@@ -158,7 +159,7 @@ if(SGRID_ENABLE_KOKKOS_KERNELS AND NOT WIN32)
       )
     else()
       set(SGRID_DEP_LIBRARIES
-          "${SGRID_DEP_LIBRARIES};${KokkosKernels_LIBRARIES};${KokkosKernels_TPL_LIBRARIES};-L${KokkosKernels_LIBRARY_DIRS}"
+          "${SGRID_DEP_LIBRARIES};${KokkosKernels_LIBRARIES};${KokkosKernels_TPL_LIBRARIES};${KokkosKernels_LIBRARY_DIRS}"
       )
     endif()
   endif()
@@ -178,3 +179,4 @@ if(CMAKE_BUILD_TYPE MATCHES "[Cc][Oo][Vv][Ee][Rr][Aa][Gg][Ee]")
   include(cmake/CodeCoverage.cmake)
   add_codecov(sgrid_coverage sgrid_test coverage)
 endif()
+# message ("SGRID_DEP_LIBRARIES : ${SGRID_DEP_LIBRARIES}")

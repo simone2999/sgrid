@@ -67,6 +67,7 @@ if(SGRID_ENABLE_TESTING)
     # ##########################################################################
 
     message ("UNIT_TESTS_SOURCES; ${UNIT_TESTS_SOURCES}")
+    message("SGRID_G_TEST_LIBRARIES ; ${SGRID_G_TEST_LIBRARIES}")
 
     SGRID_add_test(
         sgrid_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.cpp

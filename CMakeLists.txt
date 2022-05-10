@@ -15,6 +15,7 @@ include(cmake/SGridFunctions.cmake)
 include(cmake/SGridOptions.cmake)
 include(cmake/SGridDependencies.cmake)
 
+
 # ##############################################################################
 # ##############################################################################
 # Library
@@ -48,24 +49,20 @@ target_include_directories(
 
 
 target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
-message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
-message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
-# sgrid_set_compiler_features(sgrid)
+# message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
+# message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
+sgrid_set_compiler_features(sgrid)
 # target_link_libraries(sgrid ${MPI_LIBRARIES})
 
 target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
+# message ("SGRID_DEP_LIBRARIES : ${SGRID_DEP_LIBRARIES}")
 
 
 if(SGRID_ENABLE_TESTING)
     include(tests/tests.cmake)
+    # message ("SGRID_DEP_LIBRARIES : ${SGRID_DEP_LIBRARIES}")
 endif()     
 
-add_executable(sgrid_example_11 drivers/example_11.cpp)
-target_link_libraries(sgrid_example_11 PUBLIC sgrid)
-
-
-add_executable(sgrid_example_12 drivers/example_12.cpp)
-target_link_libraries(sgrid_example_12 PUBLIC sgrid)
 
 # ##############################################################################
 # ##############################################################################
@@ -129,13 +126,15 @@ list(
   drivers/example_7.cpp
   drivers/example_8.cpp
   drivers/example_9.cpp
-  drivers/example_10.cpp)
+  drivers/example_10.cpp
+  drivers/example_11.cpp
+  drivers/example_12.cpp)
 
-foreach(EXECUTABLE ${EXECUTABLES})
-  math(EXPR NUMBER "${NUMBER}+1")
-  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
-  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
-endforeach(EXECUTABLE)
+# foreach(EXECUTABLE ${EXECUTABLES})
+#   math(EXPR NUMBER "${NUMBER}+1")
+#   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
+#   target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
+# endforeach(EXECUTABLE)
 
 
 include(cmake/PostInstall.cmake)
