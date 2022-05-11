@@ -1,8 +1,10 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
 #include "sgrid_SliceHalo.hpp"
-#include "sgrid_field_test.hpp"
-#include "sgrid_grid_test.hpp"
+
+// FIXME: Should not be like this.
+// #include "sgrid_field_test.cpp"
+// #include "sgrid_grid_test.cpp"
 
 #include "gtest/gtest.h"
 

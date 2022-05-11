@@ -1,8 +1,9 @@
 #include <mpi.h>
 #include <cmath>
-#include "sgrid_Base.hpp"
-
 #include "gtest/gtest.h"
+
+#include "sgrid_Base.hpp"
+#include "sgrid_Grid.hpp"
 
 using Real = double;
 
@@ -48,6 +49,11 @@ TEST(GRIDTest, testIsPeriodic) {
     sgrid::Grid<Real, 2> grid;
     grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
     ASSERT_TRUE(grid.is_periodic(0) == false);
+}
+TEST(GRIDTest, testIsProcDims) {
+    sgrid::Grid<Real, 2> grid;
+    grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
+    // ASSERT_TRUE(grid.is_proc_dims(0) == false);
 }
 
 TEST(GRIDTest, testShift) {
