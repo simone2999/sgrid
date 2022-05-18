@@ -8,6 +8,7 @@ option(SGRID_ENABLE_KOKKOS_KERNELS "Use KokkosKernels algorithms" ON)
 option(SGRID_ENABLE_KOKKOS "Use Kokkos" ON)
 
 option(SGRID_ENABLE_TESTING "Enable testing for sgrid" OFF)
+option(SGRID_ENABLE_BENCHMARK "Enable benchmarks for sgrid" OFF)
 
 # For win, appveyor complaining about wextra werror
 if(APPLE)

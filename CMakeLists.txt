@@ -61,7 +61,11 @@ target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 if(SGRID_ENABLE_TESTING)
     include(tests/tests.cmake)
     # message ("SGRID_DEP_LIBRARIES : ${SGRID_DEP_LIBRARIES}")
-endif()     
+endif()    
+
+if(SGRID_ENABLE_BENCHMARK)
+    include(benchmarks/benchmarks.cmake)
+endif() 
 
 
 # ##############################################################################
