@@ -10,7 +10,6 @@ using Real = double;
 using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
 
-// Measure a parallel_for()
 static void bench_from_pgrid_to_pblock(benchmark::State& state) {
     int mpi_size;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
@@ -120,9 +119,34 @@ static void bench_from_pblock_to_pgrid(benchmark::State& state) {
 
 BENCHMARK(bench_from_pblock_to_pgrid);
 
-static void bench_3(benchmark::State& state) {
+static void bench_parallel_for(benchmark::State& state) {
+    int mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    int Nx = 5;
+    int Ny = 4;
+    int Nz = 3 * mpi_size;
+    int tile_size = 2;
+    int n_tiles = 2;
+
+    int block_size = n_tiles * mpi_size * tile_size;
+    auto parallel_grid = std::make_shared<Grid_t>();
+    parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
+    auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
+    parallel_field->allocate_on_device();
+    auto parallel_field_dev = parallel_field->view_device();
+    // int rank = parallel_grid->comm_rank();
+
     for (auto _ : state) {
+        // Initialize parallel field
+        sgrid::parallel_for(
+            "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+                auto b = parallel_field_dev.block(i, j, k);
+
+                for (int l = 0; l < block_size; ++l) {
+                    b[l] = l;
+                }
+            });
     }
 }
 
-BENCHMARK(bench_3);
+BENCHMARK(bench_parallel_for);
