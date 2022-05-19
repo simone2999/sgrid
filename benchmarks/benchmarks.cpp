@@ -4,8 +4,6 @@
 #include "sgrid_Field.hpp"
 #include "sgrid_SliceHalo.hpp"
 
-// BENCHMARK_MAIN();
-
 int main(int argc, char** argv) {
     using namespace sgrid;
 
