@@ -49,15 +49,21 @@ int main(int argc, char* argv[])
     if (argc >= 7)
         block_size = atoi(argv[6]);
 
+    size_t n_bytes = 0;
+
     {
 
         auto parallel_grid = std::make_shared<Grid_t>();
         parallel_grid->init(MPI_COMM_WORLD, { Nx, Ny, Nz }, { 1, 1, 0 }, {}, false);
 
+
+
         assert(parallel_grid->n_nodes() == Nx * Ny * Nz);
 
         auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
         parallel_field->allocate_on_device();
+
+        n_bytes = parallel_field->n_bytes();
 
         auto parallel_field_dev = parallel_field->view_device();
         int rank = parallel_grid->comm_rank();
@@ -178,7 +184,8 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        printf("Grid %d x %d x %d = %ld, block-size = %d, dofs = %ld TTS: %g (seconds)\n", Nx, Ny, Nz, long(Nx) * Ny * Nz, block_size, long(Nx) * Ny * Nz * block_size, end - start);
+        printf("Grid %d x %d x %d = %ld, block-size = %d, dofs = %ld %g GB TTS: %g (seconds)\n", 
+            Nx, Ny, Nz, long(Nx) * Ny * Nz, block_size, long(Nx) * Ny * Nz * block_size, n_bytes * 1e-9, end - start);
     }
 
     sgrid::finalize();
