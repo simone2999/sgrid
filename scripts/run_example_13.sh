@@ -11,11 +11,11 @@ n_procs=$1
 # block_size=$(($n_procs * $tile_size * $n_tiles))
 
 
-nx=2
-ny=2
-nz=2
-tile_size=10
-n_tiles=5
+nx=30
+ny=30
+nz=30
+tile_size=4
+n_tiles=2000
 block_size=$(($n_procs * $tile_size * $n_tiles))
 
 
