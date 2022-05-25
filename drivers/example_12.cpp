@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
 
         auto parallel_grid = std::make_shared<Grid_t>();
         parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
-        // parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny}, {1, 1m 9}, {1, 1, mpi_size}); //1D decomposition
 
         auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
         parallel_field->allocate_on_device();

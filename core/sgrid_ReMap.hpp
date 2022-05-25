@@ -55,6 +55,9 @@ namespace sgrid {
             //     MPI_Barrier(MPI_COMM_WORLD);
             // }
 
+            if (profile_) MPI_Barrier(parallel.grid()->raw_comm());
+            double elapsed = MPI_Wtime();
+
             if (is_uniform()) {
                 int comm_size = parallel.grid()->comm_size();
                 int sendcount = p_grid_buffer_.size() / comm_size;
@@ -79,6 +82,12 @@ namespace sgrid {
                                               parallel.grid()->raw_comm()));
             }
 
+            if (profile_) MPI_Barrier(parallel.grid()->raw_comm());
+            elapsed = MPI_Wtime() - elapsed;
+            if (profile_ && parallel.grid()->comm_rank() == 0) {
+                printf("Communication (1): %g\n", elapsed);
+            }
+
             serial.ensure_view_host();
             p_block_unpack_data(*parallel.grid(), serial);
             serial.synch_host_to_device();
@@ -87,6 +96,9 @@ namespace sgrid {
         void from_pblock_to_pgrid(Field &serial, Field &parallel, int tile_number) {
             serial.synch_device_to_host();
             p_block_pack_data(*parallel.grid(), serial);
+
+            if (profile_) MPI_Barrier(parallel.grid()->raw_comm());
+            double elapsed = MPI_Wtime();
 
             if (is_uniform()) {
                 int comm_size = parallel.grid()->comm_size();
@@ -110,6 +122,12 @@ namespace sgrid {
                                               p_grid_a2a_displs_.data(),
                                               MPIType<ValueType>(),
                                               parallel.grid()->raw_comm()));
+            }
+
+            if (profile_) MPI_Barrier(parallel.grid()->raw_comm());
+            elapsed = MPI_Wtime() - elapsed;
+            if (profile_ && parallel.grid()->comm_rank() == 0) {
+                printf("Communication (2): %g\n", elapsed);
             }
 
             parallel.ensure_view_host();
@@ -508,6 +526,8 @@ namespace sgrid {
 
         std::vector<int> p_block_a2a_counts_;
         std::vector<int> p_block_a2a_displs_;
+
+        bool profile_{true};
     };
 
 }  // namespace sgrid
