@@ -527,7 +527,7 @@ namespace sgrid {
         std::vector<int> p_block_a2a_counts_;
         std::vector<int> p_block_a2a_displs_;
 
-        bool profile_{true};
+        bool profile_{false};
     };
 
 }  // namespace sgrid

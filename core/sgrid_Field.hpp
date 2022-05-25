@@ -137,6 +137,8 @@ namespace sgrid {
 
         // Symplistic synchronization
         void exchange_halos() {
+            assert(grid()->has_margins());
+            
             synch_device_to_host();
 
             if (halos_.empty()) {

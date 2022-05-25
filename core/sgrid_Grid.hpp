@@ -330,6 +330,11 @@ namespace sgrid {
         int comm_dim(int d) const { return proc_dims_[d]; }
         bool is_periodic(int d) const { return periods_[d]; }
 
+        bool has_margins() const 
+        {
+            return grid_host_.margin[0] > 0;
+        }
+
         int shift(int direction, int disp) const {
             int rank_source = comm_rank();
             int rank_dest = MPI_PROC_NULL;
