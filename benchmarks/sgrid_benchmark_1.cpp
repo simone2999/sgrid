@@ -150,3 +150,24 @@ static void bench_parallel_for(benchmark::State& state) {
 }
 
 BENCHMARK(bench_parallel_for);
+
+static void bench_allocate_on_device(benchmark::State& state) {
+    int mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    int Nx = 5;
+    int Ny = 4;
+    int Nz = 3 * mpi_size;
+    int tile_size = 2;
+    int n_tiles = 2;
+
+    int block_size = n_tiles * mpi_size * tile_size;
+    auto parallel_grid = std::make_shared<Grid_t>();
+    parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
+    auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
+
+    for (auto _ : state) {
+        parallel_field->allocate_on_device();
+    }
+}
+
+BENCHMARK(bench_allocate_on_device);
