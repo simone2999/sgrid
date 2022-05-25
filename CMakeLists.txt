@@ -50,7 +50,7 @@ target_include_directories(
 target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
 message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
 message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
-# sgrid_set_compiler_features(sgrid)
+sgrid_set_compiler_features(sgrid)
 # target_link_libraries(sgrid ${MPI_LIBRARIES})
 
 target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
