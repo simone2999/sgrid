@@ -13,37 +13,46 @@ using Real = double;
 using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     MPI_Init(&argc, &argv);
     sgrid::initialize(argc, argv);
 
     MPI_Barrier(MPI_COMM_WORLD);
     double start = MPI_Wtime();
+
+    int mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+
+    bool verbose = false;
+    bool save_data = false;
+
+    int Nx = 5;
+    int Ny = 4;
+    int Nz = 3 * mpi_size;
+    int tile_size = 2;
+    int n_tiles = 2;
+
+    if (argc >= 2)
+        Nx = atoi(argv[1]);
+    if (argc >= 3)
+        Ny = atoi(argv[2]);
+    if (argc >= 4)
+        Nz = atoi(argv[3]);
+    if (argc >= 5)
+        tile_size = atoi(argv[4]);
+    if (argc >= 6)
+        n_tiles = atoi(argv[5]);
+
+    // block_size must be a multiple of mpi_size for this application
+    int block_size = n_tiles * mpi_size * tile_size;
+    if (argc >= 7)
+        block_size = atoi(argv[6]);
+
     {
-        int mpi_size;
-        MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-
-        bool verbose = false;
-        bool save_data = false;
-
-        int Nx = 5;
-        int Ny = 4;
-        int Nz = 3 * mpi_size;
-        int tile_size = 2;
-        int n_tiles = 2;
-
-        if (argc >= 2) Nx = atoi(argv[1]);
-        if (argc >= 3) Ny = atoi(argv[2]);
-        if (argc >= 4) Nz = atoi(argv[3]);
-        if (argc >= 5) tile_size = atoi(argv[4]);
-        if (argc >= 6) n_tiles = atoi(argv[5]);
-
-        // block_size must be a multiple of mpi_size for this application
-        int block_size = n_tiles * mpi_size * tile_size;
-        if (argc >= 7) block_size = atoi(argv[6]);
 
         auto parallel_grid = std::make_shared<Grid_t>();
-        parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
+        parallel_grid->init(MPI_COMM_WORLD, { Nx, Ny, Nz }, { 1, 1, 0 });
 
         auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
         parallel_field->allocate_on_device();
@@ -62,7 +71,7 @@ int main(int argc, char *argv[]) {
             });
 
         auto serial_grid = std::make_shared<Grid_t>();
-        serial_grid->init(MPI_COMM_SELF, {Nx, Ny, Nz});
+        serial_grid->init(MPI_COMM_SELF, { Nx, Ny, Nz });
 
         auto serial_field = std::make_shared<Field_t>("I", serial_grid, tile_size, sgrid::BOX_STENCIL);
         serial_field->allocate_on_device();
@@ -108,7 +117,8 @@ int main(int argc, char *argv[]) {
                 (is_uniform ? "A2A" : "A2AV"));
         }
 
-        if (save_data) parallel_field->write("ex12.raw");
+        if (save_data)
+            parallel_field->write("ex12.raw");
 
         if (verbose) {
             MPI_Barrier(MPI_COMM_WORLD);
@@ -143,7 +153,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        printf("TTS: %g (seconds)\n", end - start);
+        printf("Grid %d x %d x %d = %ld, block-size = %d, dofs = %ld TTS: %g (seconds)\n", Nx, Ny, Nz, long(Nx) * Ny * Nz, block_size, long(Nx) * Ny * Nz * block_size, end - start);
     }
 
     sgrid::finalize();

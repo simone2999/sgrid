@@ -20,34 +20,36 @@ int main(int argc, char* argv[])
 
     MPI_Barrier(MPI_COMM_WORLD);
     double start = MPI_Wtime();
+
+    int mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+
+    bool verbose = false;
+    bool save_data = false;
+
+    int Nx = 5;
+    int Ny = 4;
+    int Nz = 3 * mpi_size;
+    int tile_size = 2;
+    int n_tiles = 2;
+
+    if (argc >= 2)
+        Nx = atoi(argv[1]);
+    if (argc >= 3)
+        Ny = atoi(argv[2]);
+    if (argc >= 4)
+        Nz = atoi(argv[3]);
+    if (argc >= 5)
+        tile_size = atoi(argv[4]);
+    if (argc >= 6)
+        n_tiles = atoi(argv[5]);
+
+    // block_size must be a multiple of mpi_size for this application
+    int block_size = n_tiles * mpi_size * tile_size;
+    if (argc >= 7)
+        block_size = atoi(argv[6]);
+
     {
-        int mpi_size;
-        MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-
-        bool verbose = false;
-        bool save_data = false;
-
-        int Nx = 5;
-        int Ny = 4;
-        int Nz = 3 * mpi_size;
-        int tile_size = 2;
-        int n_tiles = 2;
-
-        if (argc >= 2)
-            Nx = atoi(argv[1]);
-        if (argc >= 3)
-            Ny = atoi(argv[2]);
-        if (argc >= 4)
-            Nz = atoi(argv[3]);
-        if (argc >= 5)
-            tile_size = atoi(argv[4]);
-        if (argc >= 6)
-            n_tiles = atoi(argv[5]);
-
-        // block_size must be a multiple of mpi_size for this application
-        int block_size = n_tiles * mpi_size * tile_size;
-        if (argc >= 7)
-            block_size = atoi(argv[6]);
 
         auto parallel_grid = std::make_shared<Grid_t>();
         parallel_grid->init(MPI_COMM_WORLD, { Nx, Ny, Nz }, { 1, 1, 0 }, {}, false);
@@ -82,13 +84,19 @@ int main(int argc, char* argv[])
         MPI_Barrier(MPI_COMM_WORLD);
         double elapsed = MPI_Wtime();
         double processing_time = 0;
+        double from_pgrid_to_pblock_time = 0;
+        double from_pblock_to_pgrid_time = 0;
+        double tick = 0;
 
         sgrid::ReMap<Field_t> remap;
         remap.init(*parallel_field, *serial_field);
         bool is_uniform = remap.is_uniform();
 
         for (int tile_number = 0; tile_number < n_tiles; ++tile_number) {
+
+            tick = MPI_Wtime();
             remap.from_pgrid_to_pblock(*parallel_field, *serial_field, tile_number);
+            from_pgrid_to_pblock_time += MPI_Wtime() - tick;
 
             double processing_elapsed = MPI_Wtime();
 
@@ -106,7 +114,10 @@ int main(int argc, char* argv[])
                 });
 
             processing_time += MPI_Wtime() - processing_elapsed;
+
+            tick = MPI_Wtime();
             remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
+            from_pblock_to_pgrid_time += MPI_Wtime() - tick;
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -114,10 +125,10 @@ int main(int argc, char* argv[])
 
         if (rank == 0) {
             printf(
-                "communication + packing/unpacking + slice processing %g (seconds), processing only %g (seconds) %s\n",
+                "communication + packing/unpacking + slice processing %gs, processing only %gs %s, from_pblock_to_pgrid %gs, from_pgrid_to_pblock %gs\n",
                 elapsed,
                 processing_time,
-                (is_uniform ? "A2A" : "A2AV"));
+                (is_uniform ? "A2A" : "A2AV"), from_pblock_to_pgrid_time, from_pgrid_to_pblock_time);
         }
 
         if (save_data)
@@ -167,7 +178,7 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        printf("TTS: %g (seconds)\n", end - start);
+        printf("Grid %d x %d x %d = %ld, block-size = %d, dofs = %ld TTS: %g (seconds)\n", Nx, Ny, Nz, long(Nx) * Ny * Nz, block_size, long(Nx) * Ny * Nz * block_size, end - start);
     }
 
     sgrid::finalize();
