@@ -11,7 +11,7 @@
 
 source /apps/daint/UES/anfink/cpu/environment
 
-n=20
+n=100
 nx=$n
 ny=$n
 nz=$n
