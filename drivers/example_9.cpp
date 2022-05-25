@@ -102,9 +102,10 @@ int main(int argc, char *argv[]) {
 
                         if (z == -1 || z == N_) return;
 
+#ifndef NDEBUG
                         int arr[3] = {i, j, k};
-
                         assert(g_dev.node_idx(i, j, k) == g_dev.p_node_idx(arr));
+#endif  // NDEBUG
 
                         // if(k == 0 || k == g_dev.dim[2] + g_dev.margin[2]) return;
 
