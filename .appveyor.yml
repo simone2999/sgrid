@@ -1,0 +1,48 @@
+version: '{build}'
+clone_folder: c:\projects\sgrid
+
+# https://www.appveyor.com/docs/build-environment/#build-worker-images
+image: Visual Studio 2019
+
+platform:
+    - x64
+
+install:
+# Install MS-MPI
+- ps: Start-FileDownload 'https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe'
+- msmpisetup.exe -unattend
+- set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
+
+# Install MS-MPI SDK
+- ps: Start-FileDownload 'https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisdk.msi'
+- msmpisdk.msi /quiet /passive
+- set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
+
+
+# Install Kokkos
+- cd C:\
+- mkdir kg
+- cd kg
+- ps: Start-FileDownload 'https://github.com/kokkos/kokkos/archive/refs/tags/3.5.00.tar.gz'
+- 7z x 3.5.00.tar.gz -so | 7z x -si -ttar > nul
+- cd kokkos-3.5.00
+- cmake -G "Visual Studio 16 2019" -A x64 -S . -B "build64" -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX="C:\projects\installations\kokkos" -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
+- cmake --build build64 --config Release --target install
+
+# sgrid
+before_build:
+- cd c:\projects\sgrid
+- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install  -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DKokkos_DIR="C:/projects/installations/kokkos/lib/cmake/Kokkos" -DSGRID_ENABLE_KOKKOS=ON -DSGRID_ENABLE_KOKKOS_KERNELS=OFF  #-DCMAKE_VERBOSE_MAKEFILE=ON
+# # -DBUILD_SHARED_LIBS=ON
+
+build_script:
+- cmake --build all_builds --config Release -j 4
+- ls -lah all_builds
+- ls -lah all_builds/Release
+- cmake --build all_builds --config Release --target install
+
+after_build:
+# - .\all_builds\Release\sgrid_example_1.exe
+# - .\all_builds\Release\sgrid_example_2.exe
+# - ctest -C Release --config Release --output-on-failure
+- cmake --build all_builds --config Release --target test_install

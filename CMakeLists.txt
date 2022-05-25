@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.5...3.19)
 cmake_policy(SET CMP0048 NEW)
-
 project(
     main
     VERSION 0.0.1
@@ -14,7 +13,6 @@ include(CMakePackageConfigHelpers)
 include(cmake/SGridDefaults.cmake)
 include(cmake/SGridFunctions.cmake)
 include(cmake/SGridOptions.cmake)
-
 include(cmake/SGridDependencies.cmake)
 
 # ##############################################################################
@@ -28,59 +26,34 @@ foreach(MODULE ${SGRID_MODULES})
     add_subdirectory("${MODULE}")
 endforeach(MODULE)
 
+add_library(sgrid ${SGRID_SOURCES} ${SGRID_HEADERS})
+
 # message(STATUS "HERE:\n
 #               SGRID_DEP_INCLUDES=${SGRID_DEP_INCLUDES}\n
 #               SGRID_DEP_LIBRARIES=${SGRID_DEP_LIBRARIES}
 #               ")
-
-add_library(sgrid ${SGRID_SOURCES} ${SGRID_HEADERS})
 
 foreach(include ${SGRID_BUILD_INCLUDES})
     target_include_directories(sgrid BEFORE
                                PUBLIC $<BUILD_INTERFACE:${include}>)
 endforeach()
 
-target_include_directories(sgrid SYSTEM PUBLIC ${SGRID_DEP_INCLUDES})
-target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
-target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
-sgrid_set_compiler_features(sgrid)
+# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
+# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
 
 target_include_directories(
     sgrid BEFORE
     PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
            $<INSTALL_INTERFACE:include>)
 
-# ##############################################################################
 
-add_executable(sgrid_example_1 drivers/example_1.cpp)
-target_link_libraries(sgrid_example_1 PUBLIC sgrid)
+target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
+message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
+message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
+sgrid_set_compiler_features(sgrid)
+# target_link_libraries(sgrid ${MPI_LIBRARIES})
 
-add_executable(sgrid_example_2 drivers/example_2.cpp)
-target_link_libraries(sgrid_example_2 PUBLIC sgrid)
-
-add_executable(sgrid_example_3 drivers/example_3.cpp)
-target_link_libraries(sgrid_example_3 PUBLIC sgrid)
-
-add_executable(sgrid_example_4 drivers/example_4.cpp)
-target_link_libraries(sgrid_example_4 PUBLIC sgrid)
-
-add_executable(sgrid_example_5 drivers/example_5.cpp)
-target_link_libraries(sgrid_example_5 PUBLIC sgrid)
-
-add_executable(sgrid_example_6 drivers/example_6.cpp)
-target_link_libraries(sgrid_example_6 PUBLIC sgrid)
-
-add_executable(sgrid_example_7 drivers/example_7.cpp)
-target_link_libraries(sgrid_example_7 PUBLIC sgrid)
-
-add_executable(sgrid_example_8 drivers/example_8.cpp)
-target_link_libraries(sgrid_example_8 PUBLIC sgrid)
-
-add_executable(sgrid_example_9 drivers/example_9.cpp)
-target_link_libraries(sgrid_example_9 PUBLIC sgrid)
-
-add_executable(sgrid_example_10 drivers/example_10.cpp)
-target_link_libraries(sgrid_example_10 PUBLIC sgrid)
+target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 
 add_executable(sgrid_example_11 drivers/example_11.cpp)
 target_link_libraries(sgrid_example_11 PUBLIC sgrid)
@@ -136,4 +109,29 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sgridConfig.cmake
         DESTINATION lib/cmake/)
 
 # ##############################################################################
+# ##############################################################################
+# Executables.
 
+set(NUMBER 0)
+
+list(
+  APPEND
+  EXECUTABLES
+  drivers/example_1.cpp
+  drivers/example_2.cpp
+  drivers/example_3.cpp
+  drivers/example_4.cpp
+  drivers/example_5.cpp
+  drivers/example_6.cpp
+  drivers/example_7.cpp
+  drivers/example_8.cpp
+  drivers/example_9.cpp
+  drivers/example_10.cpp)
+
+foreach(EXECUTABLE ${EXECUTABLES})
+  math(EXPR NUMBER "${NUMBER}+1")
+  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
+  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
+endforeach(EXECUTABLE)
+
+include(cmake/PostInstall.cmake)
