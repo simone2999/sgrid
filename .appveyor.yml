@@ -9,7 +9,7 @@ init:
 
 cache:
   - C:\projects\installations\kokkos-kernels -> appveyor.yml
-  - C:\projects\installations\kokkos -> appveyor.yml
+  # - C:\projects\installations\kokkos -> appveyor.yml
 
 
 ##########################################################################################
