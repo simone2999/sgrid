@@ -12,7 +12,6 @@ if(WIN32)
             ${CMAKE_CURRENT_BINARY_DIR}/TestInstall/CMakeFiles
     COMMAND
       ${CMAKE_COMMAND} -Dsgrid_DIR=${CMAKE_INSTALL_PREFIX}/lib/cmake/
-      -DSGRID_ENABLE_KOKKOS_KERNELS=OFF
       ${CMAKE_SOURCE_DIR}/drivers/usage_from_external_cmake_project
     COMMAND ${CMAKE_COMMAND} --build . --config
             $<IF:$<CONFIG:Debug>,Debug,Release>

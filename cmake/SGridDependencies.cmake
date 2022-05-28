@@ -143,8 +143,14 @@ endif()
 
 # ##############################################################################
 
-if(SGRID_ENABLE_KOKKOS_KERNELS AND NOT WIN32)
-  find_package(KokkosKernels QUIET)
+if(SGRID_ENABLE_KOKKOS_KERNELS)
+
+  if(WIN32)
+    find_package(Kokkos HINTS C:/projects/installations/kokkos-kernels/lib/cmake/KokkosKernels
+                 ${KokkosKernels_DIR} $ENV{KokkosKernels_DIR} REQUIRED)
+  else()
+  find_package(KokkosKernels REQUIRED)
+  endif()
 
   if(TARGET Kokkos::kokkoskernels)
     set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkoskernels")
