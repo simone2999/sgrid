@@ -3,9 +3,9 @@ option(SGRID_ENABLE_DEV_MODE "Add additional flags for more strict compilation"
 
 # option(SGRID_ENABLE_KOKKOS "Use Kokkos to handle arrays" OFF) # When
 # installed, the target Kokkos::kokkos creates problem
-option(SGRID_ENABLE_KOKKOS_KERNELS "Use KokkosKernels algorithms" ON)
-# Not supported yet, see sgrid_View.hpp error
 option(SGRID_ENABLE_KOKKOS "Use Kokkos" ON)
+option(SGRID_ENABLE_KOKKOS_KERNELS "Use KokkosKernels algorithms" OFF)
+# Not supported yet, see sgrid_View.hpp error
 
 option(SGRID_ENABLE_TESTING "Enable testing for sgrid" OFF)
 option(SGRID_ENABLE_BENCHMARK "Enable benchmarks for sgrid" OFF)
