@@ -52,7 +52,9 @@ int main(int argc, char* argv[])
     {
 
         auto parallel_grid = std::make_shared<Grid_t>();
-        parallel_grid->init(MPI_COMM_WORLD, { Nx, Ny, Nz }, { 1, 1, 0 });
+        parallel_grid->init(MPI_COMM_WORLD, { Nx, Ny, Nz }, { 1, 1, 0 }, {}, false);
+
+        assert(parallel_grid->n_nodes() == Nx * Ny * Nz);
 
         auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
         parallel_field->allocate_on_device();
@@ -71,21 +73,30 @@ int main(int argc, char* argv[])
             });
 
         auto serial_grid = std::make_shared<Grid_t>();
-        serial_grid->init(MPI_COMM_SELF, { Nx, Ny, Nz });
+        serial_grid->init(MPI_COMM_SELF, { Nx, Ny, Nz }, {}, {}, false);
 
         auto serial_field = std::make_shared<Field_t>("I", serial_grid, tile_size, sgrid::BOX_STENCIL);
         serial_field->allocate_on_device();
 
+        assert(serial_grid->view_host().margin[0] == 0);
+        assert(parallel_grid->view_host().margin[0] == 0);
+
         MPI_Barrier(MPI_COMM_WORLD);
         double elapsed = MPI_Wtime();
         double processing_time = 0;
+        double from_pgrid_to_pblock_time = 0;
+        double from_pblock_to_pgrid_time = 0;
+        double tick = 0;
 
         sgrid::ReMap<Field_t> remap;
         remap.init(*parallel_field, *serial_field);
         bool is_uniform = remap.is_uniform();
 
         for (int tile_number = 0; tile_number < n_tiles; ++tile_number) {
+
+            tick = MPI_Wtime();
             remap.from_pgrid_to_pblock(*parallel_field, *serial_field, tile_number);
+            from_pgrid_to_pblock_time += MPI_Wtime() - tick;
 
             double processing_elapsed = MPI_Wtime();
 
@@ -103,7 +114,10 @@ int main(int argc, char* argv[])
                 });
 
             processing_time += MPI_Wtime() - processing_elapsed;
+
+            tick = MPI_Wtime();
             remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
+            from_pblock_to_pgrid_time += MPI_Wtime() - tick;
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -111,10 +125,10 @@ int main(int argc, char* argv[])
 
         if (rank == 0) {
             printf(
-                "communication + packing/unpacking + slice processing %g (seconds), processing only %g (seconds) %s\n",
+                "communication + packing/unpacking + slice processing %gs, processing only %gs %s, from_pblock_to_pgrid %gs, from_pgrid_to_pblock %gs\n",
                 elapsed,
                 processing_time,
-                (is_uniform ? "A2A" : "A2AV"));
+                (is_uniform ? "A2A" : "A2AV"), from_pblock_to_pgrid_time, from_pgrid_to_pblock_time);
         }
 
         if (save_data)
@@ -124,22 +138,33 @@ int main(int argc, char* argv[])
             MPI_Barrier(MPI_COMM_WORLD);
             printf("------------------------\n");
             MPI_Barrier(MPI_COMM_WORLD);
+        }
 
-            for (int r = 0; r < mpi_size; ++r) {
-                if (r == rank) {
-                    sgrid::parallel_for(
-                        "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
-                            auto b = parallel_field_dev.block(i, j, k);
+        for (int r = 0; r < mpi_size; ++r) {
+            if (r == rank) {
+                sgrid::parallel_for(
+                    "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+                        auto b = parallel_field_dev.block(i, j, k);
 
+                        if (verbose) {
                             printf("[%d] ", rank);
-                            for (int l = 0; l < block_size; ++l) {
+                        }
+
+                        for (int l = 0; l < block_size; ++l) {
+                            if (verbose) {
                                 printf("%g ", b[l]);
                             }
 
-                            printf("\n");
-                        });
-                }
+                            assert(b[l] == l + 1);
+                        }
 
+                        if (verbose) {
+                            printf("\n");
+                        }
+                    });
+            }
+
+            if (verbose) {
                 fflush(stdout);
                 MPI_Barrier(MPI_COMM_WORLD);
             }

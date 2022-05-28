@@ -24,8 +24,8 @@ echo 'n_entries='$n_elements
 
 # rm ex12*
 
-make -j4 sgrid_example_12 \
-  && mpiexec -np $n_procs ./sgrid_example_12 $nx $ny $nz $tile_size $n_tiles $block_size 
+make -j4 sgrid_example_13 \
+  && mpiexec -np $n_procs ./sgrid_example_13 $nx $ny $nz $tile_size $n_tiles $block_size 
 
   # \
   # && python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=ex12.raw --output=ex12_t \

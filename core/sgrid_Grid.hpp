@@ -104,14 +104,18 @@ namespace sgrid {
                 return MDRangeSlice(start, end);
             }
 
-            void init() {
+            void init(const bool use_margins) {
                 global_dim = GView("global_dim");
                 start = GView("start");
 
                 margin = LView("margin");
                 dim = LView("dim");
 
-                sgrid::deep_copy(margin, 1);
+                if (use_margins) {
+                    sgrid::deep_copy(margin, 1);
+                } else {
+                    sgrid::deep_copy(margin, 0);
+                }
 
                 dim_with_margin = LView("dim_with_margin");
             }
@@ -212,9 +216,8 @@ namespace sgrid {
         void init(MPI_Comm standard_comm,
                   const std::vector<GlobalOrdinal> &dim,
                   std::vector<int> periods = {},
-                  std::vector<int> proc_dims = {}
-
-        ) {
+                  std::vector<int> proc_dims = {},
+                  const bool use_margins = true) {
             if (periods.empty()) {
                 periods.resize(Dim, 0);
             }
@@ -223,8 +226,8 @@ namespace sgrid {
                 proc_dims.resize(Dim, 0);
             }
 
-            grid_host_.init();
-            grid_device_.init();
+            grid_host_.init(use_margins);
+            grid_device_.init(use_margins);
 
             coords_ = IntD("coords");
             proc_dims_ = IntD("proc_dims");
@@ -328,6 +331,11 @@ namespace sgrid {
         int comm_dim(int d) const { return proc_dims_[d]; }
         bool is_periodic(int d) const { return periods_[d]; }
         bool is_proc_dims(int d) const { return proc_dims_[d]; }
+
+        bool has_margins() const 
+        {
+            return grid_host_.margin[0] > 0;
+        }
 
         int shift(int direction, int disp) const {
             int rank_source = comm_rank();
