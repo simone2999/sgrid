@@ -21,7 +21,11 @@ list(
   ../example_6.cpp
   ../example_7.cpp
   ../example_8.cpp
-  ../example_9.cpp)
+  ../example_9.cpp
+  ../example_10.cpp
+  ../example_11.cpp
+  ../example_12.cpp
+  ../example_13.cpp)
 
 foreach(EXECUTABLE ${EXECUTABLES})
   # we use one of our examples here
