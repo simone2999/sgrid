@@ -30,6 +30,5 @@ foreach(EXECUTABLE ${EXECUTABLES})
 
   # import all the dependencies and targets
   target_link_libraries(example_${NUMBER} sgrid::sgrid)
-  add_test(NAME sgrid.example_${NUMBER} COMMAND example_${NUMBER}
-                                                ${CMAKE_SOURCE_DIR}/../data)
+  add_test(NAME sgrid.example_${NUMBER} COMMAND example_${NUMBER})
 endforeach(EXECUTABLE)
