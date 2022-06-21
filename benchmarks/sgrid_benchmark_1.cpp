@@ -9,6 +9,7 @@ using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
+using LongIntField_t = sgrid::Field<Grid_t, long>;
 
 static void bench_from_pgrid_to_pblock(benchmark::State& state) {
     int mpi_size;
@@ -56,7 +57,6 @@ static void bench_from_pgrid_to_pblock(benchmark::State& state) {
 
 BENCHMARK(bench_from_pgrid_to_pblock);
 
-//
 static void bench_from_pblock_to_pgrid(benchmark::State& state) {
     int mpi_size;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
@@ -171,3 +171,78 @@ static void bench_allocate_on_device(benchmark::State& state) {
 }
 
 BENCHMARK(bench_allocate_on_device);
+
+static void bench_init(benchmark::State& state) {
+    int mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    int Nx = 5;
+    int Ny = 4;
+    int Nz = 3 * mpi_size;
+
+    auto parallel_grid = std::make_shared<Grid_t>();
+    for (auto _ : state) {
+        parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
+    }
+}
+
+BENCHMARK(bench_init);
+
+static void bench_init_halos(benchmark::State& state) {
+    int mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    int nx = 5;
+    int ny = 4;
+    int nz = 3 * mpi_size;
+    int tile_size = 2;
+    int n_tiles = 2;
+
+    int block_size = n_tiles * mpi_size * tile_size;
+
+    auto g = std::make_shared<Grid_t>();
+
+    g->init(MPI_COMM_WORLD, {nx, ny, nz}, {0, 0, 0});
+
+    Field_t x("x", g, block_size, sgrid::BOX_STENCIL);
+
+    for (auto _ : state) {
+        x.init_halos();
+    }
+}
+
+BENCHMARK(bench_init_halos);
+
+static void bench_write(benchmark::State& state) {
+    const int N_x = 4;
+    const int N_y = 4;
+    const int N_z = 10;
+    const int block_size = 3;
+
+    auto g = std::make_shared<Grid_t>();
+    g->init(MPI_COMM_WORLD, {N_x, N_y, N_z}, {1, 1, 0});
+
+    LongIntField_t x("index", g, block_size, sgrid::BOX_STENCIL);
+    x.allocate_on_device();
+
+    int rank = g->comm_rank();
+
+    // auto horizontal_slice = g->md_range_slice(2);
+
+    auto x_dev = x.view_device();
+    auto g_dev = g->view_device();
+
+    sgrid::parallel_for(
+        "TEST", g->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+            auto b = x_dev.block(i, j, k);
+            // Local index z coordinate
+            b[0] = k;
+            // process rank
+            b[1] = rank;
+            // Global index of z-coordinate
+            b[2] = g_dev.start[2] + k - g_dev.margin[2];
+        });
+
+    for (auto _ : state) {
+        x.write("x.raw");
+    }
+}
+BENCHMARK(bench_write);
