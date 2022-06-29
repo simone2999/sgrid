@@ -48,6 +48,16 @@ def main(argv):
 
     binary_file = open(path, "r")
     a = np.fromfile(binary_file, dtype=np.float64)
+
+    print(f"Read array with length {len(a)} == {nx * ny * nz * block_size}")
+
+    expected_len = nx * ny * nz * block_size
+
+    if(len(a) > expected_len):
+        a = a[0:expected_len]
+
+    assert len(a) == expected_len
+
     a = np.reshape(a, (nx, ny, nz, block_size))
 
     for b in range(0, block_size):
@@ -59,3 +69,4 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
