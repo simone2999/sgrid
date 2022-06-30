@@ -364,9 +364,6 @@ namespace sgrid {
 
             assert(num_partitions == parallel_field.block_size() / serial_field.block_size());
 
-            // std::cout << "num_partitions: " << num_partitions << " comm_size: " << parallel_field.grid()->comm_size()
-            //           << std::endl;
-
             // Must be serial
             assert(serial_field.grid()->comm_size() == 1);
 

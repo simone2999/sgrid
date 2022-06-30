@@ -36,7 +36,6 @@ int main(int argc, char* argv[]) {
     if (argc >= 3) Ny = atoi(argv[2]);
     if (argc >= 4) Nz = atoi(argv[3]);
     if (argc >= 5) tile_size = atoi(argv[4]);
-    if (argc >= 6) n_tiles = atoi(argv[5]);
 
     // block_size does not have to be a multiple of mpi_size for this application
     int n_data_subdomains = 2;
