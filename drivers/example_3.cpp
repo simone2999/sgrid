@@ -1,3 +1,4 @@
+#include <fstream>
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
 #include "sgrid_View.hpp"
@@ -9,8 +10,16 @@ using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
+std::string folder_name = "x.raw";
+struct data_export {
+    int nx;
+    int ny;
+    int nz;
+    int block_size;
+    std::string endianess;
+};
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
     sgrid::initialize(argc, argv);
 
@@ -44,7 +53,33 @@ int main(int argc, char *argv[]) {
                 b[2] = g_dev.start[2] + k - g_dev.margin[2];
             });
 
-        x.write("x.raw");
+        // Check if folder exists, not, then create then populate.
+        x.write(folder_name);
+
+        if (rank == 0) {
+            data_export example3;
+            example3.nx = N_x;
+            example3.ny = N_y;
+            example3.nz = N_z;
+            example3.block_size = block_size;
+            example3.endianess = "Little";
+
+            // Write in yml format,
+            // nx:value
+            // ny:value
+            // nz:value
+            // block_size:value
+            // endianess:value
+
+            std::ifstream ifs("export_data.yml");
+        }
+        // if (rank == 0) {
+        //     std::ifstream ifs("../xdmf_template.txt");
+        //     std::string xdmf_string;
+        //     xdmf_string.assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+        // }
+        // struct with all variables(nx, ny, nz, block_size, endianess), then write .yml. Then python to convert
+        // with xml parser.
     }
 
     sgrid::finalize();
