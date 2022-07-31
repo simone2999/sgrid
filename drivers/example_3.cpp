@@ -3,6 +3,8 @@
 #include "sgrid_Field.hpp"
 #include "sgrid_View.hpp"
 
+#include "sgrid_DataExport.hpp"
+
 #include <mpi.h>
 #include <fstream>
 
@@ -11,13 +13,6 @@ using Real = double;
 using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
 std::string folder_name = "x.raw";
-struct data_export {
-    int nx;
-    int ny;
-    int nz;
-    int block_size;
-    std::string endianess;
-};
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
@@ -63,15 +58,8 @@ int main(int argc, char* argv[]) {
             example3.nz = N_z;
             example3.block_size = block_size;
             example3.endianess = "Little";
-
-            // Write in yml format,
-            // nx:value
-            // ny:value
-            // nz:value
-            // block_size:value
-            // endianess:value
-
-            std::ifstream ifs("export_data.yml");
+            sgrid::DataExport d(example3);
+            d.create_header();
         }
         // if (rank == 0) {
         //     std::ifstream ifs("../xdmf_template.txt");

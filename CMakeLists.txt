@@ -136,10 +136,10 @@ list(
   drivers/example_13.cpp)
 
 
-# foreach(EXECUTABLE ${EXECUTABLES})
-  # math(EXPR NUMBER "${NUMBER}+1")
-  add_executable(sgrid_example_3 drivers/example_3.cpp)
-  target_link_libraries(sgrid_example_3 PUBLIC sgrid)
-# endforeach(EXECUTABLE)
+foreach(EXECUTABLE ${EXECUTABLES})
+  math(EXPR NUMBER "${NUMBER}+1")
+  add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
+  target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
+endforeach(EXECUTABLE)
 
 include(cmake/PostInstall.cmake)

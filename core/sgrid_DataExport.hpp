@@ -3,17 +3,35 @@
 
 #include <string.h>
 
+struct data_export {
+    int nx;
+    int ny;
+    int nz;
+    int block_size;
+    std::string endianess;
+};
+
 namespace sgrid {
     class DataExport {
     public:
         DataExport(){};
-        DataExport(const int nx, const int ny, const int nz, const int block_size, const std::string endianess) {
-            _nx = nx;
-            _ny = ny;
-            _nz = nz;
-            _endianess = endianess;
-            _block_size = block_size;
-        }
+        DataExport(struct data_export data) {
+            _nx = data.nx;
+            _ny = data.ny;
+            _nz = data.nz;
+            _endianess = data.endianess;
+            _block_size = data.block_size;
+        };
+
+        void create_header() {
+            std::ofstream file("xdmf_data.txt");
+            std::ostringstream oss;
+            oss << "nx:" << _nx << "\nny:" << _ny << "\nnz:" << _nz << "\nendianess:" << _endianess
+                << "\nblock_size:" << _block_size << std::endl;
+            std::string text = oss.str();
+            // std::cout << text;
+            file << text;
+        };
 
     private:
         int _nx;

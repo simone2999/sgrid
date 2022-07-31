@@ -6,44 +6,27 @@ import numpy as np
 import getopt
 
 
-def main(argv):
-    nx = -1
-    ny = -1
-    nz = 1
-    block_size = 1
-    path = "out"
-    endianess="Little"
-
-    help_message = 'python generate_xdmf.py --nx=<n nodes in x direction> --ny=<n nodes in y direction> --nz=<n nodes in z direction>'
-
-    try:
-        opts, args = getopt.getopt(
-            argv,"hx:y:p:o:b:",
-            ["help", "nx=", "ny=", "nz=","path=","block_size=", "endian="])
-    except getopt.GetoptError as err:
-        print(err)
-        print(help_message)
-        sys.exit(2)
-
-    for opt, arg in opts:
-        if opt in ('-h', '--help'):
-            print(help_message)
-            sys.exit()
-        elif opt in ("-x", "--nx"):
-            nx = int(arg)
-        elif opt in ("-y", "--ny"):
-            ny = int(arg)
-        elif opt in ("-z", "--nz"):
-            nz = int(arg)
-        elif opt in ("-p", "--path"):
-            path = arg
-            path = path.replace(".raw","")
-        elif opt in ("-b", "--block_size"):
-            block_size = int(arg)
-        elif endian in ("-e", "-endian"):
-            endianess = arg
-
-
+def main():
+    nx = 0
+    ny = 0
+    nz = 0
+    endianess = ""
+    block_size = 0
+    path = "../build/"
+    filename = "x"
+    with open('../build/xdmf_data.txt','r') as f:
+        Lines = f.readlines()
+        for i in Lines:
+            if i[:3] == "nx:":
+                nx = int(i[3:])
+            elif i[:3] == "ny:":
+                ny = int(i[3:])
+            elif i[:3] == "nz:":
+                nz = int(i[3:])
+            elif i[:10] == "endianess:":
+                endianess = i[10:]
+            elif i[:11] == "block_size:":
+                block_size = int(i[11:])
 
     xdmf_string = """<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
     <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
@@ -81,11 +64,10 @@ def main(argv):
     </Grid>
     </Grid>
     </Domain>
-    </Xdmf>""".format(dim= "" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=path, block_size=block_size)
+    </Xdmf>""".format(dim= "" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename, block_size=block_size)
 
-    textfile = open(path + ".xdmf", "w")
+    textfile = open(path + filename+ ".xdmf", "w")
     a = textfile.write(xdmf_string)
     textfile.close()
 if __name__ == '__main__':
-
-	main(sys.argv[1:])
+	main()
