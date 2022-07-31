@@ -195,7 +195,20 @@ namespace sgrid {
 
         inline StencilType stencil_type() const { return stencil_type_; }
 
-        std::shared_ptr<Grid> get_grid() { return grid_; }
+        inline size_t n_bytes() const 
+        {
+            auto g_host = grid_->view_host();
+
+            size_t count = 1;
+
+            for(int d = 0; d < Grid::Dim; ++d) {
+                size_t n = g_host.global_dim[d];
+                size_t halos = grid_->comm_dim(d) * g_host.margin[d];
+                count *= n + halos;
+            }
+
+            return sizeof(ValueType) * count * block_size_;
+        }
 
     private:
         std::string name_;

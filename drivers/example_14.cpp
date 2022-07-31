@@ -13,8 +13,7 @@ using Real = double;
 using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
     sgrid::initialize(argc, argv);
 
@@ -24,46 +23,32 @@ int main(int argc, char* argv[])
     int mpi_size;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
-    bool verbose = false;
+    bool verbose = true;
     bool save_data = false;
 
     int Nx = 5;
     int Ny = 4;
     int Nz = 3 * mpi_size;
     int tile_size = 2;
-    int n_tiles = 2;
+    int n_tiles = 1;
 
-    if (argc >= 2)
-        Nx = atoi(argv[1]);
-    if (argc >= 3)
-        Ny = atoi(argv[2]);
-    if (argc >= 4)
-        Nz = atoi(argv[3]);
-    if (argc >= 5)
-        tile_size = atoi(argv[4]);
-    if (argc >= 6)
-        n_tiles = atoi(argv[5]);
+    if (argc >= 2) Nx = atoi(argv[1]);
+    if (argc >= 3) Ny = atoi(argv[2]);
+    if (argc >= 4) Nz = atoi(argv[3]);
+    if (argc >= 5) tile_size = atoi(argv[4]);
 
-    // block_size must be a multiple of mpi_size for this application
-    int block_size = n_tiles * mpi_size * tile_size;
-    if (argc >= 7)
-        block_size = atoi(argv[6]);
+    // block_size does not have to be a multiple of mpi_size for this application
+    int n_data_subdomains = 2;
+    int block_size = n_tiles * n_data_subdomains * tile_size;
 
-    size_t n_bytes = 0;
+    if (argc >= 7) block_size = atoi(argv[6]);
 
     {
-
         auto parallel_grid = std::make_shared<Grid_t>();
-        parallel_grid->init(MPI_COMM_WORLD, { Nx, Ny, Nz }, { 1, 1, 0 }, {}, false);
-
-
-
-        assert(parallel_grid->n_nodes() == Nx * Ny * Nz);
+        parallel_grid->init(MPI_COMM_WORLD, {Nx, Ny, Nz}, {1, 1, 0});
 
         auto parallel_field = std::make_shared<Field_t>("I", parallel_grid, block_size, sgrid::BOX_STENCIL);
         parallel_field->allocate_on_device();
-
-        n_bytes = parallel_field->n_bytes();
 
         auto parallel_field_dev = parallel_field->view_device();
         int rank = parallel_grid->comm_rank();
@@ -79,30 +64,21 @@ int main(int argc, char* argv[])
             });
 
         auto serial_grid = std::make_shared<Grid_t>();
-        serial_grid->init(MPI_COMM_SELF, { Nx, Ny, Nz }, {}, {}, false);
+        serial_grid->init(MPI_COMM_SELF, {Nx, Ny, Nz});
 
         auto serial_field = std::make_shared<Field_t>("I", serial_grid, tile_size, sgrid::BOX_STENCIL);
         serial_field->allocate_on_device();
 
-        assert(serial_grid->view_host().margin[0] == 0);
-        assert(parallel_grid->view_host().margin[0] == 0);
-
         MPI_Barrier(MPI_COMM_WORLD);
         double elapsed = MPI_Wtime();
         double processing_time = 0;
-        double from_pgrid_to_pblock_time = 0;
-        double from_pblock_to_pgrid_time = 0;
-        double tick = 0;
 
         sgrid::ReMap<Field_t> remap;
         remap.init(*parallel_field, *serial_field);
         bool is_uniform = remap.is_uniform();
 
         for (int tile_number = 0; tile_number < n_tiles; ++tile_number) {
-
-            tick = MPI_Wtime();
             remap.from_pgrid_to_pblock(*parallel_field, *serial_field, tile_number);
-            from_pgrid_to_pblock_time += MPI_Wtime() - tick;
 
             double processing_elapsed = MPI_Wtime();
 
@@ -120,10 +96,7 @@ int main(int argc, char* argv[])
                 });
 
             processing_time += MPI_Wtime() - processing_elapsed;
-
-            tick = MPI_Wtime();
             remap.from_pblock_to_pgrid(*serial_field, *parallel_field, tile_number);
-            from_pblock_to_pgrid_time += MPI_Wtime() - tick;
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -131,46 +104,34 @@ int main(int argc, char* argv[])
 
         if (rank == 0) {
             printf(
-                "communication + packing/unpacking + slice processing %gs, processing only %gs %s, from_pblock_to_pgrid %gs, from_pgrid_to_pblock %gs\n",
+                "communication + packing/unpacking + slice processing %g (seconds), processing only %g (seconds) %s\n",
                 elapsed,
                 processing_time,
-                (is_uniform ? "A2A" : "A2AV"), from_pblock_to_pgrid_time, from_pgrid_to_pblock_time);
+                (is_uniform ? "A2A" : "A2AV"));
         }
 
-        if (save_data)
-            parallel_field->write("ex12.raw");
+        if (save_data) parallel_field->write("ex12.raw");
 
         if (verbose) {
             MPI_Barrier(MPI_COMM_WORLD);
             printf("------------------------\n");
             MPI_Barrier(MPI_COMM_WORLD);
-        }
 
-        for (int r = 0; r < mpi_size; ++r) {
-            if (r == rank) {
-                sgrid::parallel_for(
-                    "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
-                        auto b = parallel_field_dev.block(i, j, k);
+            for (int r = 0; r < mpi_size; ++r) {
+                if (r == rank) {
+                    sgrid::parallel_for(
+                        "Processing on subdomain", parallel_grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+                            auto b = parallel_field_dev.block(i, j, k);
 
-                        if (verbose) {
                             printf("[%d] ", rank);
-                        }
-
-                        for (int l = 0; l < block_size; ++l) {
-                            if (verbose) {
+                            for (int l = 0; l < block_size; ++l) {
                                 printf("%g ", b[l]);
                             }
 
-                            assert(b[l] == l + 1);
-                        }
-
-                        if (verbose) {
                             printf("\n");
-                        }
-                    });
-            }
+                        });
+                }
 
-            if (verbose) {
                 fflush(stdout);
                 MPI_Barrier(MPI_COMM_WORLD);
             }
@@ -184,8 +145,14 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        printf("Grid %d x %d x %d = %ld, block-size = %d, dofs = %ld %g GB TTS: %g (seconds)\n", 
-            Nx, Ny, Nz, long(Nx) * Ny * Nz, block_size, long(Nx) * Ny * Nz * block_size, n_bytes * 1e-9, end - start);
+        printf("Grid %d x %d x %d = %ld, block-size = %d, dofs = %ld TTS: %g (seconds)\n",
+               Nx,
+               Ny,
+               Nz,
+               long(Nx) * Ny * Nz,
+               block_size,
+               long(Nx) * Ny * Nz * block_size,
+               end - start);
     }
 
     sgrid::finalize();
