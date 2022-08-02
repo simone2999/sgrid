@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![CodeFactor](https://www.codefactor.io/repository/bitbucket/zulianp/sgrid/badge/main)](https://www.codefactor.io/repository/bitbucket/zulianp/sgrid/overview/main)
 [![Build status](https://ci.appveyor.com/api/projects/status/x8ddkg5jw11dv9a8/branch/master?svg=true)](https://ci.appveyor.com/project/zulianp/sgrid/branch/master)
 
