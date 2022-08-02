@@ -4,6 +4,20 @@
 
 # README #
 
+## Main contributors
+
+- Dr. Patrick Zulian (Lead developer, Euler institute)
+- Dylan Ramelli (CI, USI)
+
+Developed at the Euler institute, USI, Lugano, Switzerland (https://www.euler.usi.ch/).
+
+## License
+The software is realized with NO WARRANTY and it is licenzed under BSD 3-Clause license
+
+## Copyright
+
+Copyright (c) 2020 Euler institute - USI Università della Svizzera Italiana
+
 ## General installation instructions ##
 
 ```bash
