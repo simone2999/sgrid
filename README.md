@@ -14,7 +14,7 @@ Developed at the Euler institute, USI, Lugano, Switzerland (https://www.euler.us
 ## License ##
 The software is realized with NO WARRANTY and it is licenzed under BSD 3-Clause license
 
-## Copyright ## 
+## Copyright ##
 
 Copyright (c) 2020 Euler institute - USI Università della Svizzera Italiana
 
