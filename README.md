@@ -4,17 +4,17 @@
 
 # README #
 
-## Main contributors
+## Main contributors ##
 
 - Dr. Patrick Zulian (Lead developer, Euler institute)
 - Dylan Ramelli (CI, USI)
 
 Developed at the Euler institute, USI, Lugano, Switzerland (https://www.euler.usi.ch/).
 
-## License
+## License ##
 The software is realized with NO WARRANTY and it is licenzed under BSD 3-Clause license
 
-## Copyright
+## Copyright ## 
 
 Copyright (c) 2020 Euler institute - USI Università della Svizzera Italiana
 
@@ -53,4 +53,17 @@ From the build folder
 ```bash
 sbatch ../scripts/run_example_2.sbatch
 
+```
+
+
+## Citing sgrid ##
+
+```bibtex
+@misc{sgridgit,
+	author = {Patrick Zulian and Dylan Ramelli},
+	title = {{SGRID}: a structured grid manager for supercomputing},
+	url = {https://bitbucket.org/zulianp/sgrid},
+	howpublished = {https://bitbucket.org/zulianp/grid},
+	year = {2020}
+}
 ```
