@@ -2,19 +2,19 @@ import sys
 import os
 import string
 
-import numpy as np
-import getopt
+# TODO: given file path create folder where we put .raw .xdmf, 
+# with folder name as the name of the example 
 
 
-def main():
+def main(example_name, file_name):
     nx = 0
     ny = 0
     nz = 0
     endianess = ""
     block_size = 0
-    path = "../build/"
-    filename = "x"
-    with open('../build/xdmf_data.txt','r') as f:
+    path = "../build/" + example_name + '/'
+    filename = file_name
+    with open('../build/' + example_name + '/'+ 'xdmf_data.txt','r') as f:
         Lines = f.readlines()
         for i in Lines:
             if i[:3] == "nx:":
@@ -66,8 +66,8 @@ def main():
     </Domain>
     </Xdmf>""".format(dim= "" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename, block_size=block_size)
 
-    textfile = open(path + filename+ ".xdmf", "w")
+    textfile = open(path + filename+".xdmf", "w")
     a = textfile.write(xdmf_string)
     textfile.close()
 if __name__ == '__main__':
-	main()
+	main(sys.argv[1], sys.argv[2])

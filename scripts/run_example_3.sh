@@ -1,15 +1,15 @@
 #!/bin/bash
 # run_example_2.sh
 
-nx=4
-ny=4
-nz=10
-block_size=3
+nx=6
+ny=6
+nz=12
+block_size=1
 
-rm x.raw
-rm x_t*.raw
+rm ../build/example_3/x.raw
+rm ../build/example_3/x_t*.raw
 
-mpiexec -np 8 ./sgrid_example_3 $nx $ny $nz $block_size && \
-    python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=x.raw --output=x_t && \
-    ls -lah x*.raw
-python3 ../test_xdmf/generate_xdmf.py
+mpiexec -np 6 ./sgrid_example_3 $nx $ny $nz $block_size && \
+    python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=../build/example_3/x.raw --output=../build/example_3/x_t && \
+    ls -lah ../build/example_3/x*.raw
+python3 ../scripts/generate_xdmf.py example_3 x

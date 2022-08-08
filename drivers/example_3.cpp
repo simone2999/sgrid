@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
@@ -12,7 +13,9 @@ using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
-std::string folder_name = "x.raw";
+const std::string file_name = "x.raw";
+const std::string folder_name = "example_3";
+const std::filesystem::path folder_path = folder_name;
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
@@ -49,25 +52,18 @@ int main(int argc, char* argv[]) {
             });
 
         // Check if folder exists, not, then create then populate.
-        x.write(folder_name);
-
         if (rank == 0) {
-            data_export example3;
-            example3.nx = N_x;
-            example3.ny = N_y;
-            example3.nz = N_z;
-            example3.block_size = block_size;
-            example3.endianess = "Little";
-            sgrid::DataExport d(example3);
-            d.create_header();
+            if (std::filesystem::exists(folder_path)) {
+                std::cout << "Folder exists" << std::endl;
+            } else {
+                std::filesystem::create_directory(folder_path);
+            }
         }
-        // if (rank == 0) {
-        //     std::ifstream ifs("../xdmf_template.txt");
-        //     std::string xdmf_string;
-        //     xdmf_string.assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-        // }
-        // struct with all variables(nx, ny, nz, block_size, endianess), then write .yml. Then python to convert
-        // with xml parser.
+        x.write(folder_name + "/" + file_name);
+        if (rank == 0) {
+            sgrid::DataExport d(N_x, N_y, N_z, "Little", block_size);
+            d.create_header(folder_name);
+        }
     }
 
     sgrid::finalize();

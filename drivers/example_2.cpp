@@ -1,6 +1,7 @@
 
 
 #include "sgrid_Base.hpp"
+#include "sgrid_DataExport.hpp"
 #include "sgrid_Field.hpp"
 #include "sgrid_View.hpp"
 
@@ -13,6 +14,9 @@ using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
 using IntField_t = sgrid::Field<Grid_t, int>;
 using ComplexField_t = sgrid::Field<Grid_t, sgrid::complex<Real>>;
+const std::string file_name = "data.raw";
+const std::string folder_name = "example_2";
+const std::filesystem::path folder_path = folder_name;
 
 /**
  * @brief Largest run
@@ -176,12 +180,20 @@ int main(int argc, char *argv[]) {
         // Output
         ////////////////////////////////////////////////////////////
         if (write_output) {
+            // Check if folder exists, not, then create then populate.
+            if (rank == 0) {
+                if (std::filesystem::exists(folder_path)) {
+                    std::cout << "Folder exists" << std::endl;
+                } else {
+                    std::filesystem::create_directory(folder_path);
+                }
+            }
             start = MPI_Wtime();
 
-            x.write("data.raw");
-            idx.write("idx.raw");
+            x.write(folder_name + "/" + file_name);
+            idx.write(folder_name + "/" + "idx.raw");
 
-            c_field.write("c_field.raw");
+            c_field.write(folder_name + "/" + "c_field.raw");
 
             MPI_Barrier(g->raw_comm());
 
@@ -190,6 +202,8 @@ int main(int argc, char *argv[]) {
 
             if (rank == 0) {
                 printf("Output Time:\t\t%g (seconds)\n", user_time);
+                sgrid::DataExport d(nx, ny, nz, "Little", block_size);
+                d.create_header(folder_name);
             }
         }
         ////////////////////////////////////////////////////////////////////////

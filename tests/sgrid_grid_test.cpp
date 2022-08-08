@@ -7,6 +7,8 @@
 
 using Real = double;
 
+// TODO: Finish these tests.
+
 TEST(GRIDTest, testCommCoord) {
     sgrid::Grid<Real, 2> grid;
     grid.init(MPI_COMM_WORLD, {10, 10}, {0, 0});
@@ -51,28 +53,34 @@ TEST(GRIDTest, testCommRank) {
 TEST(GRIDTest, testCommDim) {
     sgrid::Grid<Real, 2> grid;
     grid.init(MPI_COMM_WORLD, {10, 10}, {1, 1});
-    if (grid.comm_size() == 0) {
-        // ASSERT_TRUE(grid.comm_dim(0) == 1);
-        // ASSERT_TRUE(grid.comm_dim(1) == 1);
+    if (grid.comm_size() == 4) {
+        // Parameters are x,y,z
+        ASSERT_TRUE(grid.comm_dim(0) == 2);
+        ASSERT_TRUE(grid.comm_dim(1) == 2);
     }
 }
-// TEST(GRIDTest, testIsPeriodic) {
-//     sgrid::Grid<Real, 2> grid;
-//     grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
-//     ASSERT_TRUE(grid.is_periodic(0) == false);
-// }
+TEST(GRIDTest, testIsPeriodic) {
+    sgrid::Grid<Real, 2> grid;
+    grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
+    ASSERT_TRUE(grid.is_periodic(0) == false);
+}
+
+// Don't think we need to test this.
 // TEST(GRIDTest, testIsProcDims) {
 //     sgrid::Grid<Real, 2> grid;
 //     grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
-//     // ASSERT_TRUE(grid.is_proc_dims(0) == false);
+//     ASSERT_TRUE(grid.is_proc_dims(0) == false);
 // }
 
-// TEST(GRIDTest, testShift) {
-//     sgrid::Grid<Real, 2> grid;
-//     grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
-//     if (grid.comm_size() == 0) {
-//     }
-// }
+TEST(GRIDTest, testShift) {
+    sgrid::Grid<Real, 2> grid;
+    grid.init(MPI_COMM_WORLD, {10, 10}, {0, 0});
+    if (grid.comm_size() == 4) {
+        grid.describe();
+        grid.shift(0, 1);
+        grid.describe();
+    }
+}
 
 // TEST(GRIDTest, testNeigh) {
 //     sgrid::Grid<Real, 2> grid;
