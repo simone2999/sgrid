@@ -44,27 +44,63 @@ def main(example_name, file_name):
     {block_size} {block_size} {block_size}
     </DataItem>
     </Geometry>
-    <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
-    <!--  <Time TimeType="HyperSlab">
-    <DataItem Format="XML" NumberType="Float" Dimensions="3">
-    0.0 1.0 1
-    </DataItem>
-    </Time> -->
     <Grid Name="T1" GridType="Uniform">
     <Topology Reference="/Xdmf/Domain/Topology[1]"/>
     <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
     <Attribute Name="T" Center="Node">
-    <DataItem Format="Binary" 
-    DataType="Float" Precision="8" Endian="{endianess}"
-    Dimensions="{dim}">
+    <DataItem Format="Binary"
+    DataType="Float" Precision="8" Endian="{endianess}" Dimensions="{dim}">
     <!-- data_t0.raw -->
     {filename}.raw
     </DataItem>
     </Attribute>
     </Grid>
-    </Grid>
     </Domain>
     </Xdmf>""".format(dim= "" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename, block_size=block_size)
+
+
+    """
+    <!-- https://www.paraview.org/Wiki/ParaView/Data_formats#Read_a_Raw_file_into_Paraview -->
+<?xml version="1.0" ?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+<Domain>
+    <Topology name="topo" TopologyType="3DCoRectMesh"
+        Dimensions="8 8 64">
+    </Topology>
+    <Geometry name="geo" Type="ORIGIN_DXDYDZ">
+        <!-- Origin -->
+        <DataItem Format="XML" Dimensions="3">
+        0.0 0.0 0.0
+        </DataItem>
+        <!-- DxDyDz -->
+        <DataItem Format="XML" Dimensions="3">
+        1 1 1
+        </DataItem>
+    </Geometry>
+    <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
+        <Time TimeType="HyperSlab">
+             <DataItem Format="XML" NumberType="Float" Dimensions="3">
+             0.0 1.0 1
+             </DataItem>
+         </Time>
+        <Grid Name="T1" GridType="Uniform">
+            <Topology Reference="/Xdmf/Domain/Topology[1]"/>
+            <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
+            <Attribute Name="T" Center="Node">
+                <DataItem Format="Binary" 
+                 DataType="Float" Precision="8" Endian="Little"
+                 Dimensions="8 8 64">
+                     <!-- data_t0.raw -->
+                      T.raw 
+                </DataItem>
+            </Attribute>
+        </Grid>
+    </Grid>
+</Domain>
+</Xdmf>
+
+    """
 
     textfile = open(path + filename+".xdmf", "w")
     a = textfile.write(xdmf_string)

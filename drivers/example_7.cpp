@@ -8,6 +8,8 @@
 
 using Grid_t = sgrid::Grid<double, 3>;
 using Field_t = sgrid::Field<Grid_t, double>;
+const std::string folder_name = "example_6";
+const std::filesystem::path folder_path = folder_name;
 
 // test
 int main(int argc, char *argv[]) {
@@ -128,8 +130,17 @@ int main(int argc, char *argv[]) {
                 printf("%d, %d, %d -> %g == %g\n", i, j, k, b[0], oracle);
             });
 
+        // Check if folder exists, not, then create then populate.
+        if (grid->comm_rank() == 0) {
+            if (std::filesystem::exists(folder_path)) {
+                std::cout << "Folder exists" << std::endl;
+            } else {
+                std::filesystem::create_directory(folder_path);
+            }
+        }
+
         sgrid::RawIODebug<Field_t> debug_out(*field);
-        debug_out.set_output_path("x_debug.raw");
+        debug_out.set_output_path("example_6/x_debug.raw");
         debug_out.write();
     }
 

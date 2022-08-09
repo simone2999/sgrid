@@ -1,4 +1,5 @@
 #include "sgrid_Base.hpp"
+#include "sgrid_DataExport.hpp"
 #include "sgrid_Field.hpp"
 #include "sgrid_View.hpp"
 
@@ -6,6 +7,9 @@
 
 using Grid_t = sgrid::Grid<double, 2>;
 using Field_t = sgrid::Field<Grid_t, double>;
+const std::string file_name = "x.raw";
+const std::string folder_name = "example_5";
+const std::filesystem::path folder_path = folder_name;
 
 int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
@@ -184,11 +188,24 @@ int main(int argc, char *argv[]) {
 
             MPI_Barrier(MPI_COMM_WORLD);
         }
+        // Check if folder exists, not, then create then populate.
+        if (rank == 0) {
+            if (std::filesystem::exists(folder_path)) {
+                std::cout << "Folder exists" << std::endl;
+            } else {
+                std::filesystem::create_directory(folder_path);
+            }
+        }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
-        x.write("x.raw");
+        x.write(folder_name + "/" + file_name);
+
+        if (rank == 0) {
+            sgrid::DataExport d(nx, ny, 0, "Little", block_size);
+            d.create_header(folder_name);
+        }
 
         sgrid::RawIODebug<Field_t> debug_out(x);
-        debug_out.set_output_path("x_debug.raw");
+        debug_out.set_output_path("example_5/x_debug.raw");
         debug_out.write();
         MPI_Barrier(MPI_COMM_WORLD);
     }
