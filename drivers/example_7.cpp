@@ -1,5 +1,6 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
 
 #include "sgrid_SliceHalo.hpp"
@@ -130,18 +131,14 @@ int main(int argc, char *argv[]) {
                 printf("%d, %d, %d -> %g == %g\n", i, j, k, b[0], oracle);
             });
 
-        // Check if folder exists, not, then create then populate.
-        if (grid->comm_rank() == 0) {
-            if (std::filesystem::exists(folder_path)) {
-                std::cout << "Folder exists" << std::endl;
-            } else {
-                std::filesystem::create_directory(folder_path);
-            }
-        }
-
         sgrid::RawIODebug<Field_t> debug_out(*field);
         debug_out.set_output_path("example_6/x_debug.raw");
         debug_out.write();
+
+        if (grid->comm_rank() == 0) {
+            sgrid::IO io(nx, ny, 0, block_size, folder_name);
+            io.write();
+        }
     }
 
     Kokkos::finalize();

@@ -1,6 +1,6 @@
 #include "sgrid_Base.hpp"
-#include "sgrid_DataExport.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
 
 #include <mpi.h>
@@ -215,20 +215,11 @@ int main(int argc, char *argv[]) {
         if (g->comm_rank() == 0) {
             printf("Num bugs %ld\n", bugs);
         }
-
-        // Check if folder exists, not, then create then populate.
-        if (rank == 0) {
-            if (std::filesystem::exists(folder_path)) {
-                std::cout << "Folder exists" << std::endl;
-            } else {
-                std::filesystem::create_directory(folder_path);
-            }
-        }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
-        x.write(folder_name + "/" + file_name);
+        x.write("example_4/x.raw");
         if (rank == 0) {
-            sgrid::DataExport d(nx, ny, nz, "Little", block_size);
-            d.create_header(folder_name);
+            sgrid::IO io(nx, ny, nz, block_size, "example_4");
+            io.write();
         }
     }
 

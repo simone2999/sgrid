@@ -1,6 +1,8 @@
 #ifndef SGRID_RAW_IO_HPP
 #define SGRID_RAW_IO_HPP
 
+#include <filesystem>
+#include <fstream>
 #include <string>
 
 #include <mpi.h>
@@ -23,10 +25,20 @@ namespace sgrid {
 
         ~RawIO() { destroy(); }
 
-        void write() {
+        void write(std::string path = "") {
             field_.synch_device_to_host();
 
             auto grid = field_.grid();
+
+            if (grid->comm_rank() == 0) {
+                if (path != "") {
+                    if (std::filesystem::exists(path)) {
+                        std::cout << "Folder exists" << std::endl;
+                    } else {
+                        std::filesystem::create_directory(path);
+                    }
+                }
+            }
 
             MPI_Comm comm = grid->raw_comm();
             // auto g_host = grid->view_host();

@@ -2,9 +2,8 @@
 #include <fstream>
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
-
-#include "sgrid_DataExport.hpp"
 
 #include <mpi.h>
 #include <fstream>
@@ -13,19 +12,26 @@ using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
-const std::string file_name = "x.raw";
-const std::string folder_name = "example_3";
-const std::filesystem::path folder_path = folder_name;
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
     sgrid::initialize(argc, argv);
 
     {
-        const int N_x = 4;
-        const int N_y = 4;
-        const int N_z = 10;
-        const int block_size = 3;
+        int N_x = 4;
+        int N_y = 4;
+        int N_z = 10;
+        int block_size = 3;
+
+        if (argc >= 3) {
+            N_x = atoi(argv[1]);
+            N_y = atoi(argv[2]);
+            N_z = atoi(argv[3]);
+        }
+
+        if (argc >= 5) {
+            block_size = atoi(argv[4]);
+        }
 
         auto g = std::make_shared<Grid_t>();
         g->init(MPI_COMM_WORLD, {N_x, N_y, N_z}, {1, 1, 0});
@@ -51,18 +57,10 @@ int main(int argc, char* argv[]) {
                 b[2] = g_dev.start[2] + k - g_dev.margin[2];
             });
 
-        // Check if folder exists, not, then create then populate.
+        x.write("example_3/x.raw");
         if (rank == 0) {
-            if (std::filesystem::exists(folder_path)) {
-                std::cout << "Folder exists" << std::endl;
-            } else {
-                std::filesystem::create_directory(folder_path);
-            }
-        }
-        x.write(folder_name + "/" + file_name);
-        if (rank == 0) {
-            sgrid::DataExport d(N_x, N_y, N_z, "Little", block_size);
-            d.create_header(folder_name);
+            sgrid::IO io(N_x, N_y, N_z, block_size, "example_3");
+            io.write();
         }
     }
 
