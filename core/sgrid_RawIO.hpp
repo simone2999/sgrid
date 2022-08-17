@@ -19,26 +19,33 @@ namespace sgrid {
         using ViewDevice = sgrid::View<ValueType *, DeviceMemorySpace>;
         using HostMirror = typename ViewDevice::HostMirror;
 
-        void set_output_path(const std::string &output_path) { output_path_ = output_path; }
+        void set_output_path(const std::string &output_path) {
+            auto grid = field_.grid();
+
+            MPI_Comm comm = grid->raw_comm();
+            int rank;
+            MPI_Comm_rank(comm, &rank);
+
+            if (rank == 0) {
+                int pos = output_path.find("/");
+                std::string folder = output_path.substr(0, pos);
+                if (std::filesystem::exists(folder)) {
+                    std::cout << "Folder exists" << std::endl;
+                } else {
+                    std::filesystem::create_directory(folder);
+                }
+            }
+            output_path_ = output_path;
+        }
 
         RawIO(Field &field) : field_(field) { init(); }
 
         ~RawIO() { destroy(); }
 
-        void write(std::string path = "") {
+        void write() {
             field_.synch_device_to_host();
 
             auto grid = field_.grid();
-
-            if (grid->comm_rank() == 0) {
-                if (path != "") {
-                    if (std::filesystem::exists(path)) {
-                        std::cout << "Folder exists" << std::endl;
-                    } else {
-                        std::filesystem::create_directory(path);
-                    }
-                }
-            }
 
             MPI_Comm comm = grid->raw_comm();
             // auto g_host = grid->view_host();
