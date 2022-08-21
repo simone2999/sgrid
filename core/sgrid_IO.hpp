@@ -42,14 +42,12 @@ namespace sgrid {
          */
         void write(const std::string& raw_file_name) {
             auto grid = field_.grid();
-            MPI_Comm comm = grid->raw_comm();
             int rank;
-            MPI_Comm_rank(comm, &rank);
-
+            MPI_Comm_rank(grid->raw_comm(), &rank);
             if (rank == 0) {
                 meta.write();
-                field_.write(folder_name_ + '/' + raw_file_name);
             }
+            field_.write(folder_name_ + '/' + raw_file_name);
         }
 
         class MetadataIO {

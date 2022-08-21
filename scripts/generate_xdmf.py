@@ -1,6 +1,5 @@
 import sys
-import os
-import string
+
 
 def main(example_name, file_name):
     nx = 0
@@ -10,7 +9,7 @@ def main(example_name, file_name):
     block_size = 0
     path = "../build/" + example_name + '/'
     filename = file_name
-    with open('../build/' + example_name + '/'+ 'metadata.yml','r') as f:
+    with open('../build/' + example_name + '/' + 'metadata.yml', 'r') as f:
         Lines = f.readlines()
         for i in Lines:
             if i[:4] == "nx: ":
@@ -27,7 +26,7 @@ def main(example_name, file_name):
     xdmf_string = """<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
     <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
     <Domain>
-    <Topology name="topo" TopologyType="3DRectMesh"
+    <Topology name="topo" TopologyType="3DCoRectMesh"
     Dimensions="{dim}">
     </Topology>
     <Geometry name="geo" Type="ORIGIN_DXDYDZ">
@@ -57,10 +56,13 @@ def main(example_name, file_name):
     </Attribute>
     </Grid>
     </Domain>
-    </Xdmf>""".format(dim= "" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename, block_size=block_size)
+    </Xdmf>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename,
+                      block_size=block_size)
 
-    textfile = open(path + filename+".xdmf", "w")
+    textfile = open(path + filename + ".xdmf", "w")
     a = textfile.write(xdmf_string)
     textfile.close()
+
+
 if __name__ == '__main__':
-	main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2])

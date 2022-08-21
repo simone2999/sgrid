@@ -58,10 +58,8 @@ int main(int argc, char* argv[]) {
             });
 
 //        x.write("example_3/x.raw");
-        if (rank == 0) {
-            sgrid::IO io(x,"example_3");
-            io.write("x.raw");
-        }
+        sgrid::IO io(x,"example_3");
+        io.write("x.raw");
     }
 
     sgrid::finalize();
