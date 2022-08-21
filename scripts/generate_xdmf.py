@@ -59,7 +59,6 @@ def main(example_name, file_name):
     </Domain>
     </Xdmf>""".format(dim= "" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename, block_size=block_size)
 
-
     textfile = open(path + filename+".xdmf", "w")
     a = textfile.write(xdmf_string)
     textfile.close()

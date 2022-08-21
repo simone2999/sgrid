@@ -57,10 +57,10 @@ int main(int argc, char* argv[]) {
                 b[2] = g_dev.start[2] + k - g_dev.margin[2];
             });
 
-        x.write("example_3/x.raw");
+//        x.write("example_3/x.raw");
         if (rank == 0) {
             sgrid::IO io(x,"example_3");
-            io.write();
+            io.write("x.raw");
         }
     }
 
