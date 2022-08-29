@@ -57,8 +57,11 @@ int main(int argc, char* argv[]) {
                 b[2] = g_dev.start[2] + k - g_dev.margin[2];
             });
 
-//        x.write("example_3/x.raw");
-        sgrid::IO io(x,"example_3");
+
+//        x.write("x.raw");
+        // For now, it creates n IO objects, don't know if this is correct
+        // Writing of metadata checks if rank is 0 though.
+        sgrid::IO io(x, "example_3");
         io.write("x.raw");
     }
 

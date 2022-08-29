@@ -216,11 +216,9 @@ int main(int argc, char *argv[]) {
             printf("Num bugs %ld\n", bugs);
         }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
-        x.write("example_4/x.raw");
-        if (rank == 0) {
-            sgrid::IO io(nx, ny, nz, block_size, "example_4");
-            io.write();
-        }
+//        x.write("example_4/x.raw");
+        sgrid::IO io(x,"example_4");
+        io.write("x.raw");
     }
 
     Kokkos::finalize();

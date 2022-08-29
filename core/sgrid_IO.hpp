@@ -17,7 +17,6 @@ namespace sgrid {
             folder_name_ = folder_name;
             init();
         };
-        ~IO(){destroy();}
         /**
          * Modified constructor. Find out what the dim of the Field is so we know 2D or 3D.
          */
@@ -81,7 +80,7 @@ namespace sgrid {
 
             /**
              * Check if the folder_path_ given when creating a MetadataIO object already exists in the current
-             * directory.
+             * directory. TODO:Could just put this in write().
              */
             void check_folder_exists() {
                 int pos = folder_path_.find('/');
@@ -101,19 +100,6 @@ namespace sgrid {
         Field& field_;
         MetadataIO meta;
         std::string folder_name_;
-
-        MPI_Datatype interior_subarray_type_{MPI_DATATYPE_NULL};
-        MPI_Datatype view_type_{MPI_DATATYPE_NULL};
-
-        void destroy() {
-            if (interior_subarray_type_ != MPI_DATATYPE_NULL) {
-                MPI_Type_free(&interior_subarray_type_);
-            }
-
-            if (view_type_ != MPI_DATATYPE_NULL) {
-                MPI_Type_free(&view_type_);
-            }
-        }
     };
 }  // namespace sgrid
 
