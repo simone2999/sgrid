@@ -11,12 +11,11 @@
 using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
-using LongIntField_t = sgrid::Field<Grid_t, long>;
+using LongIntField_t = sgrid::Field<Grid_t, double>;
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
     sgrid::initialize(argc, argv);
-
     {
         int N_x = 4;
         int N_y = 4;
@@ -29,9 +28,9 @@ int main(int argc, char* argv[]) {
             N_z = atoi(argv[3]);
         }
 
-        if (argc >= 5) {
-            block_size = atoi(argv[4]);
-        }
+        // if (argc >= 5) {
+        //     block_size = atoi(argv[4]);
+        // }
 
         auto g = std::make_shared<Grid_t>();
         g->init(MPI_COMM_WORLD, {N_x, N_y, N_z}, {1, 1, 0});
@@ -57,12 +56,11 @@ int main(int argc, char* argv[]) {
                 b[2] = g_dev.start[2] + k - g_dev.margin[2];
             });
 
-
-//        x.write("x.raw");
+        //        x.write("x.raw");
         // For now, it creates n IO objects, don't know if this is correct
         // Writing of metadata checks if rank is 0 though.
         sgrid::IO io(x, "example_3");
-        io.write("x.raw");
+        io.write();
     }
 
     sgrid::finalize();

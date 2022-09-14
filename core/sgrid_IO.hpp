@@ -24,13 +24,19 @@ namespace sgrid {
             auto g = field_.grid();
             auto g_host = g->view_host();
             if (Field::Grid::Dim != 3) {
-                meta = MetadataIO(g_host.global_dim[0], g_host.global_dim[1], 0, field_.block_size(), folder_name_);
+                meta = MetadataIO(g_host.global_dim[0],
+                                  g_host.global_dim[1],
+                                  0,
+                                  field_.block_size(),
+                                  folder_name_,
+                                  field_.get_value_type());
             } else {
                 meta = MetadataIO(g_host.global_dim[0],
                                   g_host.global_dim[1],
                                   g_host.global_dim[2],
                                   field_.block_size(),
-                                  folder_name_);
+                                  folder_name_,
+                                  field_.get_value_type());
             }
         };
 
@@ -39,11 +45,9 @@ namespace sgrid {
          * Metadata: Static or time dependent.
          * TODO: Time dependent.
          */
-        void write(const std::string& raw_file_name) {
+        void write(const std::string& raw_file_name = "x.raw") {
             auto grid = field_.grid();
-            int rank;
-            MPI_Comm_rank(grid->raw_comm(), &rank);
-            if (rank == 0) {
+            if (grid->comm_rank() == 0) {
                 meta.write();
             }
             field_.write(folder_name_ + '/' + raw_file_name);
@@ -57,6 +61,7 @@ namespace sgrid {
                        const int nz,
                        const int block_size,
                        std::string folder_path,
+                       std::string type,
                        std::string endianess = "Little") {
                 nx_ = nx;
                 ny_ = ny;
@@ -64,6 +69,7 @@ namespace sgrid {
                 block_size_ = block_size;
                 folder_path_ = std::move(folder_path);
                 endianess_ = std::move(endianess);
+                type_ = std::move(type);
             };
             /**
              * Write the metadata.yml file containing: nx, ny, nz, block_size, endianess.
@@ -73,7 +79,7 @@ namespace sgrid {
                 std::ofstream file(folder_path_ + "/" + "metadata.yml");
                 std::ostringstream oss;
                 oss << "nx: " << nx_ << "\nny: " << ny_ << "\nnz: " << nz_ << "\nendianess: " << endianess_
-                    << "\nblock_size: " << block_size_ << std::endl;
+                    << "\nblock_size: " << block_size_ << "\ntype: " << type_ << std::endl;
                 std::string text = oss.str();
                 file << text;
             };
@@ -94,6 +100,7 @@ namespace sgrid {
             int nx_{}, ny_{}, nz_{}, block_size_{};
             std::string endianess_;
             std::string folder_path_;
+            std::string type_;
         };
 
     private:

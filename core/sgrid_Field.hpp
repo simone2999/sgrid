@@ -45,6 +45,19 @@ namespace sgrid {
             field_device_.block_size_ = block_size_;
         }
 
+        std::string get_value_type(){
+            if(std::is_same<ValueType, long>::value){
+                return "long";
+            }else if(std::is_same<ValueType, int>::value){
+                return "int";
+            }
+            else if(std::is_same<ValueType, double>::value){
+                return "double";
+            } else{
+                return "none";
+            }
+        }
+
         void allocate_on_host() {
             assert(!field_device_.empty());
 
