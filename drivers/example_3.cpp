@@ -11,7 +11,7 @@
 using Real = double;
 
 using Grid_t = sgrid::Grid<Real, 3>;
-using LongIntField_t = sgrid::Field<Grid_t, double>;
+using LongIntField_t = sgrid::Field<Grid_t, long>;
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);

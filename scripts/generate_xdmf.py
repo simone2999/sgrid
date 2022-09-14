@@ -101,7 +101,7 @@ def main(example_name, file_name, time_steps):
     <Topology Reference="/Xdmf/Domain/Topology[1]"/>
     <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
     <Attribute Name="U" Center="Node" AttributeType="Vector">
-    <DataItem Format="Binary" Dimensions="{dim}" Endian="{endianess}" Precision="{precision}" NumberType="{number_type}">
+    <DataItem Format="Binary" Dimensions="{dim} {block_size}" Endian="{endianess}" Precision="{precision}" NumberType="{number_type}">
     <!-- data_t0.raw -->
     {filename}.raw
     </DataItem>
