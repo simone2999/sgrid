@@ -68,15 +68,14 @@ def main(example_name, file_name, time_steps):
                             <Attribute Name="{filename}" Center="Node">
                                 <DataItem Format="Binary" 
                                  DataType="Float" Precision="{precision}" Endian="{endianess}"
-                                 Dimensions="{dim}" NumberType="{number_type}">
+                                 Dimensions="{dim} {block_size}" NumberType="{number_type}">
                                     {filename}
                                 </DataItem>
                             </Attribute>
-                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type) + "\n"
+                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type, block_size=block_size) + "\n"
         end_grid = "\n</Grid>"
         time_footer = """\n</Domain>\n</Xdmf>"""
         time_string = time_string_header + time_string_global + time_string_local_final + end_grid + time_footer
-        print(time_string)
 
 
 
