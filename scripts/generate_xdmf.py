@@ -6,6 +6,7 @@ def main(example_name, file_name, time_steps):
     ny = 0
     nz = 0
     endianess = ""
+    attribute_type = "Vector"
     block_size = 0
     tp = ""
     precision = ""
@@ -33,6 +34,10 @@ def main(example_name, file_name, time_steps):
                 elif tp == "double\n":
                     precision = "8"
                     number_type = "Float"
+
+
+
+    ##################################TIME-VARIANT#########################################
 
     if int(time_steps) > 0:
 
@@ -65,20 +70,22 @@ def main(example_name, file_name, time_steps):
             time_string_local_final =  time_string_local_final + """<Grid Name="T1" GridType="Uniform">
                             <Topology Reference="/Xdmf/Domain/Topology[1]"/>
                             <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
-                            <Attribute Name="{filename}" Center="Node">
+                            <Attribute Name="{filename}" Center="Node" AttributeType="{attribute_type}">
                                 <DataItem Format="Binary" 
                                  DataType="Float" Precision="{precision}" Endian="{endianess}"
                                  Dimensions="{dim} {block_size}" NumberType="{number_type}">
                                     {filename}
                                 </DataItem>
                             </Attribute>
-                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type, block_size=block_size) + "\n"
+                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type, block_size=block_size, attribute_type=attribute_type) + "\n"
         end_grid = "\n</Grid>"
         time_footer = """\n</Domain>\n</Xdmf>"""
         time_string = time_string_header + time_string_global + time_string_local_final + end_grid + time_footer
 
 
 
+
+    ##################################NORMAL-VARIANT#########################################
                     
     xdmf_string = """<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
     <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
@@ -99,7 +106,7 @@ def main(example_name, file_name, time_steps):
     <Grid Name="T1" GridType="Uniform">
     <Topology Reference="/Xdmf/Domain/Topology[1]"/>
     <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
-    <Attribute Name="U" Center="Node" AttributeType="Vector">
+    <Attribute Name="U" Center="Node" AttributeType="{attribute_type}">
     <DataItem Format="Binary" Dimensions="{dim} {block_size}" Endian="{endianess}" Precision="{precision}" NumberType="{number_type}">
     <!-- data_t0.raw -->
     {filename}.raw
@@ -108,7 +115,7 @@ def main(example_name, file_name, time_steps):
     </Grid>
     </Domain>
     </Xdmf>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename,
-                      block_size=block_size, precision=precision, number_type=number_type)
+                      block_size=block_size, precision=precision, number_type=number_type, attribute_type=attribute_type)
 
     if int(time_steps) == 0:
         textfile = open(path + filename + ".xdmf", "w")
