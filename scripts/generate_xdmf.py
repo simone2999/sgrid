@@ -60,24 +60,23 @@ def main(example_name, file_name, time_steps):
                                 </Geometry>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "")
         time_string_global = """<Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
                                 <Time TimeType="HyperSlab">
-                                    <DataItem Format="XML" NumberType="Float" Dimensions="3">
+                                    <DataItem Format="XML" NumberType="{number_type}" Dimensions="3">
                                     <!-- start stride count-->
                                     0.0 1.0 {n_grids}
                                     </DataItem>
-                                </Time>""".format(n_grids=n_grids)
+                                </Time>""".format(n_grids=n_grids, number_type=number_type)
         time_string_local_final = ""
         for i in range(0,int(time_steps)):
-            time_string_local_final =  time_string_local_final + """<Grid Name="T1" GridType="Uniform">
+            time_string_local_final =  time_string_local_final + """<Grid Name="{grid_name}" GridType="Uniform">
                             <Topology Reference="/Xdmf/Domain/Topology[1]"/>
                             <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
                             <Attribute Name="{filename}" Center="Node" AttributeType="{attribute_type}">
-                                <DataItem Format="Binary" 
-                                 DataType="Float" Precision="{precision}" Endian="{endianess}"
+                                <DataItem Format="Binary" Precision="{precision}" Endian="{endianess}"
                                  Dimensions="{dim} {block_size}" NumberType="{number_type}">
                                     {filename}
                                 </DataItem>
                             </Attribute>
-                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type, block_size=block_size, attribute_type=attribute_type) + "\n"
+                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type, block_size=block_size, attribute_type=attribute_type, grid_name="T" + str(i)) + "\n"
         end_grid = "\n</Grid>"
         time_footer = """\n</Domain>\n</Xdmf>"""
         time_string = time_string_header + time_string_global + time_string_local_final + end_grid + time_footer

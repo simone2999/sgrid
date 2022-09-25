@@ -134,7 +134,9 @@ list(
   drivers/example_11.cpp
   drivers/example_12.cpp
   drivers/example_13.cpp
-  drivers/example_14.cpp)
+  drivers/example_14.cpp
+  drivers/example_15.cpp
+  drivers/example_16.cpp)
 
 
 foreach(EXECUTABLE ${EXECUTABLES})
