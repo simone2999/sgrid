@@ -14,7 +14,7 @@ using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
 
 int mandel_func(double cx, double cy) {
-    int maxiter{200};
+    int maxiter{500};
     int outofbounds{3};
     std::complex<double> c{cx, cy};
     std::complex<double> z = c;
@@ -31,6 +31,8 @@ int mandel_func(double cx, double cy) {
 
     return i;
 }
+
+int simple_func(double x, double y, double z) { return x * x + y * y + z * z; }
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
@@ -60,10 +62,12 @@ int main(int argc, char* argv[]) {
         auto x_dev = field.view_device();
         auto g_dev = grid->view_device();
 
+        // int rank = grid->comm_rank();
+
         sgrid::parallel_for(
             "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                 auto b = x_dev.block(i, j, k);
-                b[0] = mandel_func(i, j);
+                b[0] = simple_func(i, j, k);
             });
         sgrid::IO io(field, "example_16");
         io.write();
