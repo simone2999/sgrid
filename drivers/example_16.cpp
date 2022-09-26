@@ -83,18 +83,30 @@ int main(int argc, char* argv[]) {
             offset_z += n_z / grid->comm_dim(2) + (i_proc < mod_z);
         }
 
+        double x_min = -2.5;
+        double x_max = 1.5;
+        double y_min = -1.5;
+        double y_max = 1.5;
+        double z_min = 0;
+        double z_max = 0;
+
+        double d_x = (x_max - x_min) / (n_x - 1);
+        double d_y = (y_max - y_min) / (n_y - 1);
+        double d_z = (z_max - z_min) / (n_z - 1);
+
         sgrid::parallel_for(
             "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                 auto b = x_dev.block(i, j, k);
-                if (grid->comm_rank() == 1) {
-                    std::cout << i << "," << j << "," << k << "," << std::endl;
-                }
                 int i_global = offset_x + i;
                 int j_global = offset_y + j;
                 int k_global = offset_z + k;
 
-                b[0] = simple_func(i_global, j_global, k_global);
-                b[1] = mandel_func(i_global, j_global);
+                double x = x_min + i_global * d_x;
+                double y = y_min + j_global * d_y;
+                double z = z_min + k_global * d_z;
+
+                b[0] = simple_func(x, y, z);
+                b[1] = mandel_func(x, y);
             });
 
         sgrid::IO io(field, "example_16");
