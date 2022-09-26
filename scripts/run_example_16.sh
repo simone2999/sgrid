@@ -1,8 +1,8 @@
 #!/bin/bash
 # run_example_2.sh
 
-nx=6000
-ny=4000
+nx=100
+ny=100
 nz=1
 block_size=3
 

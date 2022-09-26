@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
 
     {
         // Define grid size
-        int n_x = 100;
-        int n_y = 100;
+        int n_x = 10;
+        int n_y = 10;
         int n_z = 1;
         int block_size = 3;
 
@@ -64,11 +64,39 @@ int main(int argc, char* argv[]) {
 
         // int rank = grid->comm_rank();
 
+        int mod_x = n_x % grid->comm_dim(0);
+        int offset_x = 0;
+
+        for (int i_proc = 0; i_proc < grid->comm_coord(0); i_proc++) {
+            offset_x += n_x / grid->comm_dim(0) + (i_proc < mod_x);
+        }
+        int mod_y = n_y % grid->comm_dim(1);
+        int offset_y = 0;
+
+        for (int i_proc = 0; i_proc < grid->comm_coord(1); i_proc++) {
+            offset_y += n_y / grid->comm_dim(1) + (i_proc < mod_y);
+        }
+        int mod_z = n_z % grid->comm_dim(2);
+        int offset_z = 0;
+
+        for (int i_proc = 0; i_proc < grid->comm_coord(2); i_proc++) {
+            offset_z += n_z / grid->comm_dim(2) + (i_proc < mod_z);
+        }
+
         sgrid::parallel_for(
             "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                 auto b = x_dev.block(i, j, k);
-                b[0] = simple_func(i, j, k);
+                if (grid->comm_rank() == 1) {
+                    std::cout << i << "," << j << "," << k << "," << std::endl;
+                }
+                int i_global = offset_x + i;
+                int j_global = offset_y + j;
+                int k_global = offset_z + k;
+
+                b[0] = simple_func(i_global, j_global, k_global);
+                b[1] = mandel_func(i_global, j_global);
             });
+
         sgrid::IO io(field, "example_16");
         io.write();
     }
