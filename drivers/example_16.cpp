@@ -14,7 +14,7 @@ using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
 
 int mandel_func(double cx, double cy) {
-    int maxiter{500};
+    int maxiter{200};
     int outofbounds{3};
     std::complex<double> c{cx, cy};
     std::complex<double> z = c;
@@ -83,34 +83,42 @@ int main(int argc, char* argv[]) {
             offset_z += n_z / grid->comm_dim(2) + (i_proc < mod_z);
         }
 
-        double x_min = -2.5;
+        // Decrease -> Zoom in
+        double x_min = -1.5;
         double x_max = 1.5;
         double y_min = -1.5;
         double y_max = 1.5;
-        double z_min = 0;
-        double z_max = 0;
+        // double z_min = 0;
+        // double z_max = 0;
 
         double d_x = (x_max - x_min) / (n_x - 1);
         double d_y = (y_max - y_min) / (n_y - 1);
-        double d_z = (z_max - z_min) / (n_z - 1);
 
-        sgrid::parallel_for(
-            "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
-                auto b = x_dev.block(i, j, k);
-                int i_global = offset_x + i;
-                int j_global = offset_y + j;
-                int k_global = offset_z + k;
-
-                double x = x_min + i_global * d_x;
-                double y = y_min + j_global * d_y;
-                double z = z_min + k_global * d_z;
-
-                b[0] = simple_func(x, y, z);
-                b[1] = mandel_func(x, y);
-            });
-
+        // double d_z = (z_max - z_min) / (n_z - 1);
         sgrid::IO io(field, "example_16");
-        io.write();
+
+        int counter = 0;
+        for (double i = 0; i < 1; i += 0.01) {
+            d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
+            d_y = ((y_max - i) - (y_min + i)) / (n_y - 1);
+            sgrid::parallel_for(
+                "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
+                    auto b = x_dev.block(i, j, k);
+                    int i_global = offset_x + i;
+                    int j_global = offset_y + j;
+                    // int k_global = offset_z + k;
+
+                    double x = x_min + i_global * d_x;
+                    double y = y_min + j_global * d_y;
+                    // double z = z_min + k_global * d_z;
+
+                    // b[0] = simple_func(i_global, j_global, k_global);
+                    b[1] = mandel_func(x, y);
+                });
+
+            io.write("x_t" + std::to_string(counter) + ".raw");
+            counter++;
+        }
     }
 
     sgrid::finalize();

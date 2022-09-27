@@ -70,13 +70,13 @@ def main(example_name, file_name, time_steps):
             time_string_local_final =  time_string_local_final + """<Grid Name="{grid_name}" GridType="Uniform">
                             <Topology Reference="/Xdmf/Domain/Topology[1]"/>
                             <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
-                            <Attribute Name="{filename}" Center="Node" AttributeType="{attribute_type}">
+                            <Attribute Name="Mandel" Center="Node" AttributeType="{attribute_type}">
                                 <DataItem Format="Binary" Precision="{precision}" Endian="{endianess}"
                                  Dimensions="{dim} {block_size}" NumberType="{number_type}">
-                                    {filename}
+                                    {filename}.raw
                                 </DataItem>
                             </Attribute>
-                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) + ".raw",precision=precision, number_type=number_type, block_size=block_size, attribute_type=attribute_type, grid_name="T" + str(i)) + "\n"
+                        </Grid>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "",endianess=endianess, filename=filename + "_t" + str(i) ,precision=precision, number_type=number_type, block_size=block_size, attribute_type=attribute_type, grid_name="T" + str(i)) + "\n"
         end_grid = "\n</Grid>"
         time_footer = """\n</Domain>\n</Xdmf>"""
         time_string = time_string_header + time_string_global + time_string_local_final + end_grid + time_footer
