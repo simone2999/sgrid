@@ -91,6 +91,8 @@ int main(int argc, char* argv[]) {
         // double z_min = 0;
         // double z_max = 0;
 
+        double max_zoom = 2;
+        double time_steps = 0.01;
         double d_x = (x_max - x_min) / (n_x - 1);
         double d_y = (y_max - y_min) / (n_y - 1);
 
@@ -98,7 +100,7 @@ int main(int argc, char* argv[]) {
         sgrid::IO io(field, "example_16");
 
         int counter = 0;
-        for (double i = 0; i < 1; i += 0.01) {
+        for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
             d_y = ((y_max - i) - (y_min + i)) / (n_y - 1);
             sgrid::parallel_for(
@@ -113,7 +115,7 @@ int main(int argc, char* argv[]) {
                     // double z = z_min + k_global * d_z;
 
                     // b[0] = simple_func(i_global, j_global, k_global);
-                    b[1] = mandel_func(x, y);
+                    b[1] = mandel_func(y, x);
                 });
 
             io.write("x_t" + std::to_string(counter) + ".raw");
