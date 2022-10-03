@@ -1,6 +1,8 @@
 import sys
 
-#TODO: modify if it's scalar or vector.
+#TODO: Find a way to figure out if it's a Vector or Scalar value.
+#NOTES: IO class is tied to name of file you want to write, so there is an instance 
+# of IO for each grid. This was it is easier to control which grid is writing what.
 def main(example_name, file_name):
     nx = 0
     ny = 0
@@ -119,7 +121,7 @@ def main(example_name, file_name):
     </Xdmf>""".format(dim="" + str(nx) + " " + str(ny) + " " + str(nz) + "", endianess=endianess, filename=filename,
                       block_size=block_size, precision=precision, number_type=number_type, attribute_type=attribute_type)
 
-    if int(time_steps) == 0:
+    if int(time_steps) == 1:
         textfile = open(path + filename + ".xdmf", "w")
         textfile.write(xdmf_string)
         textfile.close()

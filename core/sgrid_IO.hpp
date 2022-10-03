@@ -93,10 +93,12 @@ namespace sgrid {
             void check_folder_exists() {
                 int pos = folder_path_.find('/');
                 std::string folder = folder_path_.substr(0, pos);
-                if (std::filesystem::exists(folder)) {
+                if (std::filesystem::exists(folder) && image_counter == 1) {
                     std::cout << "Folder exists" << std::endl;
+                    std::cout << "Writing Images:" << std::endl;
                 } else {
                     std::filesystem::create_directory(folder);
+                    std::cout << "Writing Images:" << std::endl;
                 }
             }
             int nx_{}, ny_{}, nz_{}, block_size_{};
