@@ -14,7 +14,7 @@ using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
 
 int mandel_func(double cx, double cy) {
-    int maxiter{200};
+    int maxiter{400};
     int outofbounds{3};
     std::complex<double> c{cx, cy};
     std::complex<double> z = c;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
         // double z_max = 0;
 
         double max_zoom = 2;
-        double time_steps = 0.01;
+        double time_steps = 0.1;
         double d_x = (x_max - x_min) / (n_x - 1);
         double d_y = (y_max - y_min) / (n_y - 1);
 
@@ -100,6 +100,7 @@ int main(int argc, char* argv[]) {
         sgrid::IO io(field, "example_16");
 
         int counter = 0;
+
         for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
             d_y = ((y_max - i) - (y_min + i)) / (n_y - 1);
@@ -121,6 +122,9 @@ int main(int argc, char* argv[]) {
             io.write("x_t" + std::to_string(counter) + ".raw");
             counter++;
         }
+
+        // sgrid::parallel_for(
+        //     "Test2", max_zoom, SGRID_LAMBDA(double i) { std::cout << "Hello world" << i << std::endl; });
     }
 
     sgrid::finalize();

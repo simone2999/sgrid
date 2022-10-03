@@ -1,13 +1,14 @@
 import sys
 
 #TODO: modify if it's scalar or vector.
-def main(example_name, file_name, time_steps):
+def main(example_name, file_name):
     nx = 0
     ny = 0
     nz = 0
     endianess = ""
     attribute_type = "Vector"
     block_size = 0
+    time_steps = 0
     tp = ""
     precision = ""
     number_type = ""
@@ -34,6 +35,8 @@ def main(example_name, file_name, time_steps):
                 elif tp == "double\n":
                     precision = "8"
                     number_type = "Float"
+            elif i[:12] == "time_steps: ":
+                time_steps = int(i[12:])
 
 
 
@@ -127,4 +130,4 @@ def main(example_name, file_name, time_steps):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2],sys.argv[3])
+    main(sys.argv[1], sys.argv[2])

@@ -79,9 +79,11 @@ namespace sgrid {
                 std::ofstream file(folder_path_ + "/" + "metadata.yml");
                 std::ostringstream oss;
                 oss << "nx: " << nx_ << "\nny: " << ny_ << "\nnz: " << nz_ << "\nendianess: " << endianess_
-                    << "\nblock_size: " << block_size_ << "\ntype: " << type_ << std::endl;
+                    << "\nblock_size: " << block_size_ << "\ntype: " << type_ << "\ntime_steps: " << image_counter
+                    << std::endl;
                 std::string text = oss.str();
                 file << text;
+                image_counter++;
             };
 
             /**
@@ -101,6 +103,7 @@ namespace sgrid {
             std::string endianess_;
             std::string folder_path_;
             std::string type_;
+            int image_counter = 1;
         };
 
     private:
