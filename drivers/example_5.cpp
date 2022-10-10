@@ -190,8 +190,8 @@ int main(int argc, char *argv[]) {
         }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
 
-        sgrid::IO io(x,"example_5");
-        io.write("x.raw");
+        sgrid::IO io(x, "example_5");
+        io.write();
 
         sgrid::RawIODebug<Field_t> debug_out(x);
         debug_out.set_output_path("example_5/x_debug.raw");

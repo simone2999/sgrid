@@ -134,11 +134,6 @@ int main(int argc, char *argv[]) {
         sgrid::RawIODebug<Field_t> debug_out(*field);
         debug_out.set_output_path("example_6/x_debug.raw");
         debug_out.write();
-
-        // if (grid->comm_rank() == 0) {
-        //     sgrid::IO io(nx, ny, 0, block_size, folder_name);
-        //     io.write();
-        // }
     }
 
     Kokkos::finalize();

@@ -177,16 +177,11 @@ int main(int argc, char *argv[]) {
         ////////////////////////////////////////////////////////////
         // Create class sgridIO to handle, folder creation and
         if (write_output) {
-            sgrid::IO ioX(x,"example_2");
-            sgrid::IO ioIdx(idx,"example_2");
+            sgrid::IO ioX(x, "example_2");
+            sgrid::IO ioIdx(idx, "example_2");
             sgrid::IO ioC_field(c_field, "example_2");
-            // Check if folder exists, not, then create populate.
             start = MPI_Wtime();
 
-//            x.write(folder_name + "/" + "data.raw");
-//            idx.write(folder_name + "/" + "idx.raw");
-//
-//            c_field.write(folder_name + "/" + "c_field.raw");
             ioX.write("data.raw");
             ioIdx.write("idx.raw");
             ioC_field.write("c_field.raw");

@@ -27,5 +27,5 @@ mpiexec -np $comm_size ./sgrid_example_4 $nx $ny $nz && \
     python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=../build/example_4/x.raw --output=../build/example_4/x_t && \
     ls -lah ../build/example_4/x*.raw
 
-python3 ../scripts/generate_xdmf.py example_4 x 3
+python3 ../scripts/generate_xdmf.py example_4 x 
 
