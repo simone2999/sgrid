@@ -101,6 +101,7 @@ int main(int argc, char* argv[]) {
         double time_steps = 0.1;
         double d_x = (x_max - x_min) / (n_x - 1);
         double d_y = (y_max - y_min) / (n_y - 1);
+        double angle = 0.0;
 
         // double d_z = (z_max - z_min) / (n_z - 1);
         sgrid::IO io(field, "example_15");
@@ -108,6 +109,7 @@ int main(int argc, char* argv[]) {
         for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
             d_y = ((y_max - i) - (y_min + i)) / (n_y - 1);
+            angle += i * 5;
             sgrid::parallel_for(
                 "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                     auto b = x_dev.block(i, j, k);
@@ -117,9 +119,14 @@ int main(int argc, char* argv[]) {
 
                     double x = i_global * d_x;
                     double y = j_global * d_y;
+
+                    // Rotation + zoom
+                    double xp = x * cos(angle) - y * sin(angle);
+                    double yp = x * sin(angle) + y * cos(angle);
                     // double z = z_min + k_global * d_z;
 
-                    b[1] = mandel_func(y, x);
+                    b[0] = mandel_func(x, y);
+                    b[1] = mandel_func(xp, yp);
                 });
 
             // Specify second argument is it is a timeseries or not, blank by default = false.
