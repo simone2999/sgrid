@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
         double d_y = (y_max - y_min) / (n_y - 1);
 
         // double d_z = (z_max - z_min) / (n_z - 1);
-        sgrid::IO io(field, "example_16");
+        sgrid::IO io(field, "example_15");
 
         for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
