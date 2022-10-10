@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <string>
 #include <utility>
 #include "sgrid_Base.hpp"
 #include "sgrid_Grid.hpp"
@@ -43,14 +44,24 @@ namespace sgrid {
         /**
          * Write everything:
          * Metadata: Static or time dependent.
-         * TODO: Time dependent.
          */
-        void write(const std::string& raw_file_name = "x.raw") {
+        void write(const std::string& raw_file_name = "x.raw", bool time_series = false) {
             auto grid = field_.grid();
-            if (grid->comm_rank() == 0) {
-                meta.write();
+            if (time_series) {
+                if (grid->comm_rank() == 0) {
+                    meta.write();
+                }
+                std::string new_raw_file_name = raw_file_name;
+                size_t pos = new_raw_file_name.find(".raw");
+                new_raw_file_name.insert(pos, std::to_string(file_counter));
+                field_.write(folder_name_ + '/' + new_raw_file_name);
+                file_counter++;
+            } else {
+                if (grid->comm_rank() == 0) {
+                    meta.write();
+                }
+                field_.write(folder_name_ + '/' + raw_file_name);
             }
-            field_.write(folder_name_ + '/' + raw_file_name);
         }
 
         class MetadataIO {
@@ -75,7 +86,9 @@ namespace sgrid {
              * Write the metadata.yml file containing: nx, ny, nz, block_size, endianess.
              */
             void write() {
-                check_folder_exists();
+                if (image_counter == 1) {
+                    check_folder_exists();
+                }
                 std::ofstream file(folder_path_ + "/" + "metadata.yml");
                 std::ostringstream oss;
                 oss << "nx: " << nx_ << "\nny: " << ny_ << "\nnz: " << nz_ << "\nendianess: " << endianess_
@@ -88,17 +101,17 @@ namespace sgrid {
 
             /**
              * Check if the folder_path_ given when creating a MetadataIO object already exists in the current
-             * directory. TODO:Could just put this in write().
+             * directory.
              */
             void check_folder_exists() {
                 int pos = folder_path_.find('/');
                 std::string folder = folder_path_.substr(0, pos);
                 if (std::filesystem::exists(folder) && image_counter == 1) {
                     std::cout << "Folder exists" << std::endl;
-                    std::cout << "Writing Images:" << std::endl;
+                    std::cout << "Writing images:" << std::endl;
                 } else {
                     std::filesystem::create_directory(folder);
-                    std::cout << "Writing Images:" << std::endl;
+                    std::cout << "Writing images:" << std::endl;
                 }
             }
             int nx_{}, ny_{}, nz_{}, block_size_{};
@@ -112,6 +125,7 @@ namespace sgrid {
         Field& field_;
         MetadataIO meta;
         std::string folder_name_;
+        int file_counter = 0;
     };
 }  // namespace sgrid
 

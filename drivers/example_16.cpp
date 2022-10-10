@@ -13,6 +13,12 @@ using Real = double;
 using Grid_t = sgrid::Grid<Real, 3>;
 using LongIntField_t = sgrid::Field<Grid_t, long>;
 
+/**
+ * Mandelbrot function
+ * @param cx, x coordinate.
+ * @param cy, y coordinate.
+ * @return i, value that specifies if coordinate is part of the set or not.
+ */
 int mandel_func(double cx, double cy) {
     int maxiter{400};
     int outofbounds{3};
@@ -92,16 +98,14 @@ int main(int argc, char* argv[]) {
         // double z_max = 0;
 
         double max_zoom = 1;
-        double time_steps = 0.01;
+        double time_steps = 0.1;
         double d_x = (x_max - x_min) / (n_x - 1);
         double d_y = (y_max - y_min) / (n_y - 1);
 
         // double d_z = (z_max - z_min) / (n_z - 1);
         sgrid::IO io(field, "example_16");
 
-        int counter = 0;
-
-        for (double i = -1; i < max_zoom; i += time_steps) {
+        for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
             d_y = ((y_max - i) - (y_min + i)) / (n_y - 1);
             sgrid::parallel_for(
@@ -115,16 +119,12 @@ int main(int argc, char* argv[]) {
                     double y = j_global * d_y;
                     // double z = z_min + k_global * d_z;
 
-                    // b[0] = simple_func(i_global, j_global, k_global);
                     b[1] = mandel_func(y, x);
                 });
 
-            io.write("x_t" + std::to_string(counter) + ".raw");
-            counter++;
+            // Specify second argument is it is a timeseries or not, blank by default = false.
+            io.write("x_t.raw", true);
         }
-
-        // sgrid::parallel_for(
-        //     "Test2", max_zoom, SGRID_LAMBDA(double i) { std::cout << "Hello world" << i << std::endl; });
     }
 
     sgrid::finalize();
