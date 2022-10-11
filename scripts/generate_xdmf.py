@@ -3,18 +3,15 @@
 import sys
 
 
-# TODO: Find a way to figure out if it's a Vector or Scalar value.
-# NOTES: IO class is tied to name of file you want to write, so there is an instance
-# of IO for each grid. This way it is easier to control which grid is writing what.
 
 def main(example_name, file_name):
+    # Initial variable declaration and definition.
     nx = ny = nz = 0
     block_size = 0
     time_steps = 0
     endianess = tp = precision = number_type = ''
     attribute_type = 'Vector'
     path = '../build/' + example_name + '/'
-    filename = file_name
     with open('../build/' + example_name + '/' + 'metadata.yml', 'r'
               ) as f:
         Lines = f.readlines()
@@ -40,6 +37,11 @@ def main(example_name, file_name):
                 elif tp == 'double\n':
                     precision = '8'
                     number_type = 'Float'
+
+
+    # Define attribute_type
+    if block_size == 1:
+        attribute_type = 'Scalar'
 
     # #################################TIME-VARIANT#########################################
 
@@ -82,17 +84,17 @@ def main(example_name, file_name):
             <Grid Name="{grid_name}" GridType="Uniform">
                 <Topology Reference="/Xdmf/Domain/Topology[1]"/>
                 <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
-                    <Attribute Name="{filename}" Center="Node" AttributeType="{attribute_type}">
+                    <Attribute Name="{file_name}" Center="Node" AttributeType="{attribute_type}">
                         <DataItem Format="Binary" Precision="{precision}" Endian="{endianess}"
                             Dimensions="{dim} {block_size}" NumberType="{number_type}">
-                                {filename_t}.raw
+                                {file_name_t}.raw
                         </DataItem>
                     </Attribute>
             </Grid>""".format(
                 dim='' + str(nx) + ' ' + str(ny) + ' ' + str(nz) + '',
                 endianess=endianess,
-                filename=filename,
-                filename_t=filename + '_t' + str(i),
+                file_name=file_name,
+                file_name_t=file_name + '_t' + str(i),
                 precision=precision,
                 number_type=number_type,
                 block_size=block_size,
@@ -132,7 +134,7 @@ def main(example_name, file_name):
             <Attribute Name="U" Center="Node" AttributeType="{attribute_type}">
                 <DataItem Format="Binary" Dimensions="{dim} {block_size}" Endian="{endianess}" Precision="{precision}" NumberType="{number_type}">
                     <!-- data_t0.raw -->
-                    {filename}.raw
+                    {file_name}.raw
                 </DataItem>
             </Attribute>
         </Grid>
@@ -140,7 +142,7 @@ def main(example_name, file_name):
 </Xdmf>""".format(
         dim='' + str(nx) + ' ' + str(ny) + ' ' + str(nz) + '',
         endianess=endianess,
-        filename=filename,
+        file_name=file_name,
         block_size=block_size,
         precision=precision,
         number_type=number_type,
@@ -148,11 +150,11 @@ def main(example_name, file_name):
         )
 
     if int(time_steps) == 1:
-        textfile = open(path + filename + '.xdmf', 'w')
+        textfile = open(path + file_name + '.xdmf', 'w')
         textfile.write(xdmf_string)
         textfile.close()
     elif int(time_steps) > 0:
-        textfile = open(path + filename + '.xdmf', 'w')
+        textfile = open(path + file_name + '.xdmf', 'w')
         textfile.write(time_string)
         textfile.close()
 

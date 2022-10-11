@@ -65,13 +65,6 @@ TEST(GRIDTest, testIsPeriodic) {
     ASSERT_TRUE(grid.is_periodic(0) == false);
 }
 
-// Don't think we need to test this.
-// TEST(GRIDTest, testIsProcDims) {
-//     sgrid::Grid<Real, 2> grid;
-//     grid.init(MPI_COMM_WORLD, {100, 100}, {0, 0});
-//     ASSERT_TRUE(grid.is_proc_dims(0) == false);
-// }
-
 TEST(GRIDTest, testShift) {
     sgrid::Grid<Real, 2> grid;
     grid.init(MPI_COMM_WORLD, {10, 10}, {0, 0});

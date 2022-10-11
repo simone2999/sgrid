@@ -45,16 +45,20 @@ namespace sgrid {
             field_device_.block_size_ = block_size_;
         }
 
-        std::string get_value_type(){
-            if(std::is_same<ValueType, long>::value){
+        std::string get_value_type() {
+            if (std::is_same<ValueType, long>::value) {
                 return "long";
-            }else if(std::is_same<ValueType, int>::value){
+            } else if (std::is_same<ValueType, int>::value) {
                 return "int";
-            }
-            else if(std::is_same<ValueType, double>::value){
+            } else if (std::is_same<ValueType, double>::value) {
                 return "double";
-            } else{
-                return "none";
+            } else if (std::is_same<ValueType, char>::value) {
+                return "char";
+            } else if (std::is_same<ValueType, float>::value) {
+                return "float";
+            } else {
+                assert(false);
+                return "";
             }
         }
 
@@ -151,7 +155,7 @@ namespace sgrid {
         // Symplistic synchronization
         void exchange_halos() {
             assert(grid()->has_margins());
-            
+
             synch_device_to_host();
 
             if (halos_.empty()) {
@@ -208,13 +212,12 @@ namespace sgrid {
 
         inline StencilType stencil_type() const { return stencil_type_; }
 
-        inline size_t n_bytes() const 
-        {
+        inline size_t n_bytes() const {
             auto g_host = grid_->view_host();
 
             size_t count = 1;
 
-            for(int d = 0; d < Grid::Dim; ++d) {
+            for (int d = 0; d < Grid::Dim; ++d) {
                 size_t n = g_host.global_dim[d];
                 size_t halos = grid_->comm_dim(d) * g_host.margin[d];
                 count *= n + halos;

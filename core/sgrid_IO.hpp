@@ -14,40 +14,42 @@ namespace sgrid {
     class IO {
     public:
         IO(){};
-        IO(Field& x, const std::string& folder_name) : field_(x) {
-            folder_name_ = folder_name;
+        IO(Field& x, const std::string& folder_name, bool time_series = false)
+            : field_(x), folder_name_(folder_name), time_series_(time_series) {
             init();
-        };
+        }
         /**
          * Modified constructor. Find out what the dim of the Field is so we know 2D or 3D.
          */
         void init() {
             auto g = field_.grid();
             auto g_host = g->view_host();
-            if (Field::Grid::Dim != 3) {
+            if (Field::Grid::Dim == 2) {
                 meta = MetadataIO(g_host.global_dim[0],
                                   g_host.global_dim[1],
                                   0,
                                   field_.block_size(),
                                   folder_name_,
                                   field_.get_value_type());
-            } else {
+            } else if (Field::Grid::Dim == 3) {
                 meta = MetadataIO(g_host.global_dim[0],
                                   g_host.global_dim[1],
                                   g_host.global_dim[2],
                                   field_.block_size(),
                                   folder_name_,
                                   field_.get_value_type());
+            } else {
+                assert(false);
             }
-        };
+        }
 
         /**
          * Write everything:
          * Metadata: Static or time dependent.
          */
-        void write(const std::string& raw_file_name = "x.raw", bool time_series = false) {
+        void write(const std::string& raw_file_name = "x.raw") {
             auto grid = field_.grid();
-            if (time_series) {
+            if (time_series_) {
                 if (grid->comm_rank() == 0) {
                     meta.write();
                 }
@@ -81,7 +83,7 @@ namespace sgrid {
                 folder_path_ = std::move(folder_path);
                 endianess_ = std::move(endianess);
                 type_ = std::move(type);
-            };
+            }
             /**
              * Write the metadata.yml file containing: nx, ny, nz, block_size, endianess.
              */
@@ -97,7 +99,7 @@ namespace sgrid {
                 std::string text = oss.str();
                 file << text;
                 image_counter++;
-            };
+            }
 
             /**
              * Check if the folder_path_ given when creating a MetadataIO object already exists in the current
@@ -106,7 +108,7 @@ namespace sgrid {
             void check_folder_exists() {
                 int pos = folder_path_.find('/');
                 std::string folder = folder_path_.substr(0, pos);
-                if (std::filesystem::exists(folder) && image_counter == 1) {
+                if (std::filesystem::exists(folder)) {
                     std::cout << "Folder exists" << std::endl;
                     std::cout << "Writing images:" << std::endl;
                 } else {
@@ -126,6 +128,7 @@ namespace sgrid {
         MetadataIO meta;
         std::string folder_name_;
         int file_counter = 0;
+        bool time_series_ = false;
     };
 }  // namespace sgrid
 

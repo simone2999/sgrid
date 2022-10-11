@@ -98,18 +98,20 @@ int main(int argc, char* argv[]) {
         // double z_max = 0;
 
         double max_zoom = 1;
-        double time_steps = 0.1;
+        double time_steps = 0.05;
         double d_x = (x_max - x_min) / (n_x - 1);
         double d_y = (y_max - y_min) / (n_y - 1);
+        // double d_z = (z_max - z_min) / (n_z - 1);
+
         double angle = 0.0;
 
-        // double d_z = (z_max - z_min) / (n_z - 1);
-        sgrid::IO io(field, "example_15");
+        // Create an io instance. Optional second bool argument for timeseries.
+        sgrid::IO io(field, "example_15", true);
 
         for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);
             d_y = ((y_max - i) - (y_min + i)) / (n_y - 1);
-            angle += i * 5;
+            angle = i * 2 * 3.14;
             sgrid::parallel_for(
                 "TEST", grid->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                     auto b = x_dev.block(i, j, k);
@@ -128,9 +130,8 @@ int main(int argc, char* argv[]) {
                     b[0] = mandel_func(x, y);
                     b[1] = mandel_func(xp, yp);
                 });
-
-            // Specify second argument is it is a timeseries or not, blank by default = false.
-            io.write("x_t.raw", true);
+            // Every call to write, creates the corresponding .raw file at the right time step.
+            io.write("x_t.raw");
         }
     }
 
