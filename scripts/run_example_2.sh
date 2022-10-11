@@ -18,3 +18,5 @@ mpiexec -np 6 ./sgrid_example_2 $nx $ny $nz $block_size && \
 
 
 python3 ../scripts/generate_xdmf.py example_2 data
+python3 ../scripts/generate_xdmf.py example_2 idx
+python3 ../scripts/generate_xdmf.py example_2 c_field

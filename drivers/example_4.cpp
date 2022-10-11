@@ -7,9 +7,6 @@
 
 using Grid_t = sgrid::Grid<double, 3>;
 using Field_t = sgrid::Field<Grid_t, ptrdiff_t>;
-const std::string file_name = "x.raw";
-const std::string folder_name = "example_4";
-const std::filesystem::path folder_path = folder_name;
 
 int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);

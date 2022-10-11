@@ -12,7 +12,6 @@ using Grid_t = sgrid::Grid<Real, 3>;
 using Field_t = sgrid::Field<Grid_t>;
 using IntField_t = sgrid::Field<Grid_t, int>;
 using ComplexField_t = sgrid::Field<Grid_t, sgrid::complex<Real>>;
-const std::string folder_name = "example_2";
 
 /**
  * @brief Largest run

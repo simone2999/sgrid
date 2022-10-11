@@ -12,7 +12,7 @@ def main(example_name, file_name):
     endianess = tp = precision = number_type = ''
     attribute_type = 'Vector'
     path = '../build/' + example_name + '/'
-    with open('../build/' + example_name + '/' + 'metadata.yml', 'r'
+    with open('../build/' + example_name + '/' + 'metadata_' + file_name + '.yml', 'r'
               ) as f:
         Lines = f.readlines()
         for i in Lines:

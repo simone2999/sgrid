@@ -51,7 +51,7 @@ namespace sgrid {
             auto grid = field_.grid();
             if (time_series_) {
                 if (grid->comm_rank() == 0) {
-                    meta.write();
+                    meta.write(raw_file_name);
                 }
                 std::string new_raw_file_name = raw_file_name;
                 size_t pos = new_raw_file_name.find(".raw");
@@ -60,7 +60,7 @@ namespace sgrid {
                 file_counter++;
             } else {
                 if (grid->comm_rank() == 0) {
-                    meta.write();
+                    meta.write(raw_file_name);
                 }
                 field_.write(folder_name_ + '/' + raw_file_name);
             }
@@ -87,11 +87,14 @@ namespace sgrid {
             /**
              * Write the metadata.yml file containing: nx, ny, nz, block_size, endianess.
              */
-            void write() {
+            void write(std::string raw_file_name) {
                 if (image_counter == 1) {
                     check_folder_exists();
                 }
-                std::ofstream file(folder_path_ + "/" + "metadata.yml");
+
+                size_t pos = raw_file_name.find(".raw");
+                std::string file_name = raw_file_name.erase(pos, raw_file_name.length());
+                std::ofstream file(folder_path_ + "/" + "metadata" + "_" + file_name + ".yml");
                 std::ostringstream oss;
                 oss << "nx: " << nx_ << "\nny: " << ny_ << "\nnz: " << nz_ << "\nendianess: " << endianess_
                     << "\nblock_size: " << block_size_ << "\ntype: " << type_ << "\ntime_steps: " << image_counter

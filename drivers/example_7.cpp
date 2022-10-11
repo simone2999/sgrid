@@ -9,8 +9,6 @@
 
 using Grid_t = sgrid::Grid<double, 3>;
 using Field_t = sgrid::Field<Grid_t, double>;
-const std::string folder_name = "example_7";
-const std::filesystem::path folder_path = folder_name;
 
 // test
 int main(int argc, char *argv[]) {
