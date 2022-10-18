@@ -5,6 +5,10 @@ import sys
 
 
 def main(example_name, file_name):
+
+    if file_name.endswith(".raw"):
+        file_name = file_name.replace(".raw","")
+
     # Initial variable declaration and definition.
     nx = ny = nz = 0
     block_size = 0
@@ -37,6 +41,15 @@ def main(example_name, file_name):
                 elif tp == 'double\n':
                     precision = '8'
                     number_type = 'Float'
+                elif tp == 'float\n':
+                    precision = '4'
+                    number_type = 'Float'
+                elif tp == 'int\n':
+                    precision = '4'
+                    number_type = 'Int'
+                elif tp == 'char\n':
+                    precision = '1'
+                    number_type = 'Int'
 
 
     # Define attribute_type

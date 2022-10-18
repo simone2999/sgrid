@@ -176,14 +176,14 @@ int main(int argc, char *argv[]) {
         ////////////////////////////////////////////////////////////
         // Create class sgridIO to handle, folder creation and
         if (write_output) {
-            sgrid::IO ioX(x, "example_2");
-            sgrid::IO ioIdx(idx, "example_2");
-            sgrid::IO ioC_field(c_field, "example_2");
+            sgrid::IO ioX(x, "example_2", "data.raw");
+            sgrid::IO ioIdx(idx, "example_2", "idx.raw");
+            sgrid::IO ioC_field(c_field, "example_2", "c_field.raw");
             start = MPI_Wtime();
 
-            ioX.write("data.raw");
-            ioIdx.write("idx.raw");
-            ioC_field.write("c_field.raw");
+            ioX.write();
+            ioIdx.write();
+            ioC_field.write();
 
             MPI_Barrier(g->raw_comm());
 

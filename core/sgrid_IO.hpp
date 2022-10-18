@@ -15,7 +15,17 @@ namespace sgrid {
     public:
         IO(){};
         IO(Field& x, const std::string& folder_name, bool time_series = false)
-            : field_(x), folder_name_(folder_name), time_series_(time_series) {
+            : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(time_series) {
+            init();
+        }
+
+        // IO(Field& x, const std::string& folder_name, bool time_series = false)
+        //     : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(time_series) {
+        //     init();
+        // }
+
+        IO(Field& x, const std::string& folder_name, const std::string file_name, bool time_series = false)
+            : field_(x), folder_name_(folder_name), file_name_(file_name), time_series_(time_series) {
             init();
         }
         /**
@@ -47,22 +57,22 @@ namespace sgrid {
          * Write everything:
          * Metadata: Static or time dependent.
          */
-        void write(const std::string& raw_file_name = "x.raw") {
+        void write() {
             auto grid = field_.grid();
             if (time_series_) {
                 if (grid->comm_rank() == 0) {
-                    meta.write(raw_file_name);
+                    meta.write(file_name_);
                 }
-                std::string new_raw_file_name = raw_file_name;
+                std::string new_raw_file_name = file_name_;
                 size_t pos = new_raw_file_name.find(".raw");
-                new_raw_file_name.insert(pos, std::to_string(file_counter));
+                new_raw_file_name.insert(pos, "_t" + std::to_string(file_counter));
                 field_.write(folder_name_ + '/' + new_raw_file_name);
                 file_counter++;
             } else {
                 if (grid->comm_rank() == 0) {
-                    meta.write(raw_file_name);
+                    meta.write(file_name_);
                 }
-                field_.write(folder_name_ + '/' + raw_file_name);
+                field_.write(folder_name_ + '/' + file_name_);
             }
         }
 
@@ -130,6 +140,7 @@ namespace sgrid {
         Field& field_;
         MetadataIO meta;
         std::string folder_name_;
+        std::string file_name_;
         int file_counter = 0;
         bool time_series_ = false;
     };
