@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
 
         // Create an io instance. Two different constructors.
         // Basic: sgrid::IO io(field, "example_15");
-        // Define .raw filename: sgrid::IO io(field, "example_15", "x.raw", true);
+        // Define .raw filename: sgrid::IO io(field, "example_15", "x.raw", true); Default is data.raw
         // Fourth optional argument for time series.
         sgrid::IO io(field, "example_15", "x.raw", true);
 
