@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
                 // Global index of z-coordinate
                 b[2] = g_dev.start[2] + k - g_dev.margin[2];
             });
-        sgrid::IO io(x, "example_3");
+        sgrid::IO io(x, "example_3", "data.raw");
         io.write();
     }
 

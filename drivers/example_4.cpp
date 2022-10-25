@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
         }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
         //        x.write("example_4/x.raw");
-        sgrid::IO io(x, "example_4");
+        sgrid::IO io(x, "example_4", "data.raw");
         io.write();
     }
 

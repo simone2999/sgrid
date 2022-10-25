@@ -14,16 +14,6 @@ namespace sgrid {
     class IO {
     public:
         IO(){};
-        IO(Field& x, const std::string& folder_name, bool time_series = false)
-            : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(time_series) {
-            init();
-        }
-
-        // IO(Field& x, const std::string& folder_name, bool time_series = false)
-        //     : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(time_series) {
-        //     init();
-        // }
-
         IO(Field& x, const std::string& folder_name, const std::string file_name, bool time_series = false)
             : field_(x), folder_name_(folder_name), file_name_(file_name), time_series_(time_series) {
             init();
@@ -107,8 +97,7 @@ namespace sgrid {
                 std::ofstream file(folder_path_ + "/" + "metadata" + "_" + file_name + ".yml");
                 std::ostringstream oss;
                 oss << "nx: " << nx_ << "\nny: " << ny_ << "\nnz: " << nz_ << "\nendianess: " << endianess_
-                    << "\nblock_size: " << block_size_ << "\ntype: " << type_ << "\ntime_steps: " << image_counter
-                    << std::endl;
+                    << "\nblock_size: " << block_size_ << "\ntype: " << type_ << "\ntime_steps: " << image_counter;
                 std::string text = oss.str();
                 file << text;
                 image_counter++;
@@ -142,7 +131,7 @@ namespace sgrid {
         std::string folder_name_;
         std::string file_name_;
         int file_counter = 0;
-        bool time_series_ = false;
+        bool time_series_;
     };
 }  // namespace sgrid
 

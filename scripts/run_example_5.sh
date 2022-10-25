@@ -11,14 +11,14 @@ nx_debug=$(($nx+4))
 ny_debug=$(($ny+4))
 
 
-rm ../build/example_5/x.raw
-rm ../build/example_5/x_debug.raw
+rm ../build/example_5/data.raw
+rm ../build/example_5/data_debug.raw
 
 echo './sgrid_example_5 '$nx' '$ny
 OMP_PROC_BIND=true mpiexec -np $comm_size ./sgrid_example_5 $nx $ny
 
 ls -lah ../build/example_5/*.raw
 
-python3  ../scripts/plot.py --path=../build/example_5/x.raw --nx=$nx --ny=$ny --block_size=$block_size --Lx=$nx --Ly=$ny --output=../build/example_5/out.pdf
-python3  ../scripts/plot.py --path=../build/example_5/x_debug.raw --nx=$nx_debug --ny=$ny_debug --block_size=$block_size --Lx=$nx_debug --Ly=$ny_debug --output=../build/example_5/out_debug.pdf
-python3 ../scripts/generate_xdmf.py example_5 data
+python3  ../scripts/plot.py --path=../build/example_5/data.raw --nx=$nx --ny=$ny --block_size=$block_size --Lx=$nx --Ly=$ny --output=../build/example_5/out.pdf
+python3  ../scripts/plot.py --path=../build/example_5/data_debug.raw --nx=$nx_debug --ny=$ny_debug --block_size=$block_size --Lx=$nx_debug --Ly=$ny_debug --output=../build/example_5/out_debug.pdf
+python3 ../scripts/generate_xdmf.py ../build/example_5/data.raw

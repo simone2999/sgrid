@@ -4,10 +4,16 @@ import sys
 
 
 
-def main(example_name, file_name):
+def main(path):
 
-    if file_name.endswith(".raw"):
-        file_name = file_name.replace(".raw","")
+    if path.endswith(".raw"):
+        path = path.replace(".raw","")
+
+    xdmf_path = path
+
+    folder_name = path.split('/')[-2]
+    file_name = path.split('/')[-1]
+    path = path.replace('/' + file_name, '')
 
     # Initial variable declaration and definition.
     nx = ny = nz = 0
@@ -15,8 +21,8 @@ def main(example_name, file_name):
     time_steps = 0
     endianess = tp = precision = number_type = ''
     attribute_type = 'Vector'
-    path = '../build/' + example_name + '/'
-    with open('../build/' + example_name + '/' + 'metadata_' + file_name + '.yml', 'r'
+    final_path = path + '/' + 'metadata_' + file_name + '.yml'
+    with open(final_path, 'r'
               ) as f:
         Lines = f.readlines()
         for i in Lines:
@@ -51,14 +57,13 @@ def main(example_name, file_name):
                     precision = '1'
                     number_type = 'Int'
 
-
     # Define attribute_type
     if block_size == 1:
         attribute_type = 'Scalar'
 
     # #################################TIME-VARIANT#########################################
-
-    if int(time_steps) > 0:
+    time_string = ''
+    if int(time_steps) > 1:
 
         n_grids = int(time_steps)
         time_string_header = \
@@ -146,7 +151,6 @@ def main(example_name, file_name):
             <Geometry Reference="/Xdmf/Domain/Geometry[1]"/>
             <Attribute Name="U" Center="Node" AttributeType="{attribute_type}">
                 <DataItem Format="Binary" Dimensions="{dim} {block_size}" Endian="{endianess}" Precision="{precision}" NumberType="{number_type}">
-                    <!-- data_t0.raw -->
                     {file_name}.raw
                 </DataItem>
             </Attribute>
@@ -163,14 +167,14 @@ def main(example_name, file_name):
         )
 
     if int(time_steps) == 1:
-        textfile = open(path + file_name + '.xdmf', 'w')
+        textfile = open(xdmf_path + '.xdmf', 'w')
         textfile.write(xdmf_string)
         textfile.close()
-    elif int(time_steps) > 0:
-        textfile = open(path + file_name + '.xdmf', 'w')
+    else:
+        textfile = open(xdmf_path + '.xdmf', 'w')
         textfile.write(time_string)
         textfile.close()
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1])

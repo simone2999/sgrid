@@ -107,9 +107,9 @@ int main(int argc, char* argv[]) {
 
         // Create an io instance. Two different constructors.
         // Basic: sgrid::IO io(field, "example_15");
-        // Define .raw filename: sgrid::IO io(field, "example_15", "x.raw", true); Default is data.raw
+        // Define .raw filename: sgrid::IO io(field, "example_15", "x.raw", true);
         // Fourth optional argument for time series.
-        sgrid::IO io(field, "example_15", "x.raw", true);
+        sgrid::IO io(field, "example_15", "data.raw", true);
 
         for (double i = 0; i < max_zoom; i += time_steps) {
             d_x = ((x_max - i) - (x_min + i)) / (n_x - 1);

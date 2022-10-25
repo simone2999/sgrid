@@ -13,10 +13,10 @@ rm ../build/example_2/data_t*.raw
 #     ls -lah data*.raw
 
 mpiexec -np 6 ./sgrid_example_2 $nx $ny $nz $block_size && \
-    python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=../build/example_2/data.raw&& \
+    # python3 ../scripts/transpose_data.py --nx=$nx --ny=$ny --nz=$nz --block_size=$block_size --path=../build/example_2/data.raw && \
     ls -lah ../build/example_2/data*.raw
 
 
-python3 ../scripts/generate_xdmf.py example_2 data
-python3 ../scripts/generate_xdmf.py example_2 idx
-python3 ../scripts/generate_xdmf.py example_2 c_field
+python3 ../scripts/generate_xdmf.py ../build/example_2/data.raw
+python3 ../scripts/generate_xdmf.py ../build/example_2/idx.raw
+python3 ../scripts/generate_xdmf.py ../build/example_2/c_field.raw
