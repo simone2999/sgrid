@@ -10,8 +10,6 @@ def main(path):
         path = path.replace(".raw","")
 
     xdmf_path = path
-
-    folder_name = path.split('/')[-2]
     file_name = path.split('/')[-1]
     path = path.replace('/' + file_name, '')
 

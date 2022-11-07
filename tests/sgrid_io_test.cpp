@@ -46,28 +46,24 @@ TEST(IOTest, write1) {
 
     sgrid::IO io(field, "testingIO", "data.raw");
     const fs::path p = "testingIO";
+    const fs::path p1 = fs::current_path();
     io.write();
 
     ASSERT_TRUE(fs::exists(fs::absolute(p)));
 }
 
-TEST(IOTest, write2) {
-    int n_x = 10;
-    int n_y = 10;
-    int n_z = 10;
-    int block_size = 3;
+// TEST(IOTest, write2) {
+//     int n_x = 10;
+//     int n_y = 10;
+//     int n_z = 10;
+//     int block_size = 3;
 
-    auto grid = std::make_shared<Grid_t>();
-    grid->init(MPI_COMM_WORLD, {n_x, n_y, n_z}, {1, 1, 0});
+//     auto grid = std::make_shared<Grid_t>();
+//     grid->init(MPI_COMM_WORLD, {n_x, n_y, n_z}, {1, 1, 0});
 
-    // Create field from grid.
-    LongIntField_t field("TestingField", grid, block_size, sgrid::BOX_STENCIL);
-    field.allocate_on_device();
+//     // Create field from grid.
+//     LongIntField_t field("TestingField", grid, block_size, sgrid::BOX_STENCIL);
+//     field.allocate_on_device();
+//     sgrid::IO io(field, "testingIO", "data.raw");
 
-    sgrid::IO::MetadataIO meta();
-
-    // const fs::path p = "metadata_data.raw";
-    // io.write();
-
-    ASSERT_TRUE(fs::exists(fs::absolute(p)));
-}
+// }
