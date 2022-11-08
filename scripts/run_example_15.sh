@@ -12,5 +12,5 @@ rm ../build/example_15/x.raw
 rm ../build/example_15/x_t*.raw
 
 mpiexec -np 6 ./sgrid_example_15 $nx $ny $nz $block_size 
-# Specify path where file was written. Filename preferably without .raw
+# Specify path where file was written.
 python3 ../scripts/generate_xdmf.py ../build/example_15/data.raw

@@ -1,20 +1,17 @@
 cmake_minimum_required(VERSION 3.5...3.19)
 cmake_policy(SET CMP0048 NEW)
 project(
-    main
-    VERSION 0.0.1
-    LANGUAGES "CXX" "C"
-    HOMEPAGE_URL "https://bitbucket.org/zulianp/sgrid/"
-    DESCRIPTION
-        "Structured grid rid manager"
-)
+  main
+  VERSION 0.0.1
+  LANGUAGES "CXX" "C"
+  HOMEPAGE_URL "https://bitbucket.org/zulianp/sgrid/"
+  DESCRIPTION "Structured grid rid manager")
 
 include(CMakePackageConfigHelpers)
 include(cmake/SGridDefaults.cmake)
 include(cmake/SGridFunctions.cmake)
 include(cmake/SGridOptions.cmake)
 include(cmake/SGridDependencies.cmake)
-
 
 # ##############################################################################
 # ##############################################################################
@@ -24,49 +21,33 @@ include(cmake/SGridDependencies.cmake)
 set(SGRID_MODULES core)
 
 foreach(MODULE ${SGRID_MODULES})
-    add_subdirectory("${MODULE}")
+  add_subdirectory("${MODULE}")
 endforeach(MODULE)
 
 add_library(sgrid ${SGRID_SOURCES} ${SGRID_HEADERS})
 
-# message(STATUS "HERE:\n
-#               SGRID_DEP_INCLUDES=${SGRID_DEP_INCLUDES}\n
-#               SGRID_DEP_LIBRARIES=${SGRID_DEP_LIBRARIES}
-#               ")
-
 foreach(include ${SGRID_BUILD_INCLUDES})
-    target_include_directories(sgrid BEFORE
-                               PUBLIC $<BUILD_INTERFACE:${include}>)
+  target_include_directories(sgrid BEFORE PUBLIC $<BUILD_INTERFACE:${include}>)
 endforeach()
 
-# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
-# target_link_libraries(sgrid PUBLIC ${SGRID_DEP_TARGETS})
-
 target_include_directories(
-    sgrid BEFORE
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
-           $<INSTALL_INTERFACE:include>)
-
+  sgrid BEFORE PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+                      $<INSTALL_INTERFACE:include>)
 
 target_include_directories(sgrid PUBLIC ${SGRID_DEP_INCLUDES})
-# message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
-# message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
 message("SGRID_DEP_INCLUDES: ${SGRID_DEP_INCLUDES}")
 message("SGRID_DEP_LIBRARIES: ${SGRID_DEP_LIBRARIES}")
 sgrid_set_compiler_features(sgrid)
-# target_link_libraries(sgrid ${MPI_LIBRARIES})
 
 target_link_libraries(sgrid PUBLIC ${SGRID_DEP_LIBRARIES})
 
 if(SGRID_ENABLE_TESTING)
-    include(tests/tests.cmake)
-    # message ("SGRID_DEP_LIBRARIES : ${SGRID_DEP_LIBRARIES}")
-endif()    
+  include(tests/tests.cmake)
+endif()
 
 if(SGRID_ENABLE_BENCHMARK)
-    include(benchmarks/benchmarks.cmake)
-endif() 
-
+  include(benchmarks/benchmarks.cmake)
+endif()
 
 # ##############################################################################
 # ##############################################################################
@@ -74,38 +55,37 @@ endif()
 # ##############################################################################
 
 install(
-    TARGETS sgrid
-    EXPORT sgridTargets
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
+  TARGETS sgrid
+  EXPORT sgridTargets
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/config/sgrid_config.hpp.in
-    ${CMAKE_BINARY_DIR}/sgrid_config.hpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/sgrid_config.hpp.in
+               ${CMAKE_BINARY_DIR}/sgrid_config.hpp)
 
 install(FILES ${CMAKE_BINARY_DIR}/sgrid_config.hpp DESTINATION include)
 install(FILES ${SGRID_HEADERS} DESTINATION include)
 
 install(
-    EXPORT sgridTargets
-    FILE sgridTargets.cmake
-    NAMESPACE sgrid::
-    DESTINATION lib/cmake)
+  EXPORT sgridTargets
+  FILE sgridTargets.cmake
+  NAMESPACE sgrid::
+  DESTINATION lib/cmake)
 
 # ##############################################################################
 
 # generate the config file that is includes the exports
 configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sgridConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/sgridConfig.cmake"
-    INSTALL_DESTINATION "lib/cmake")
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sgridConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/sgridConfig.cmake"
+  INSTALL_DESTINATION "lib/cmake")
 
 # generate the version file for the config file
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/sgridConfigVersion.cmake"
-    VERSION "${MOONOLITH_VERSION}"
-    COMPATIBILITY AnyNewerVersion)
+  "${CMAKE_CURRENT_BINARY_DIR}/sgridConfigVersion.cmake"
+  VERSION "${MOONOLITH_VERSION}"
+  COMPATIBILITY AnyNewerVersion)
 
 # install the configuration file
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sgridConfig.cmake
@@ -136,7 +116,6 @@ list(
   drivers/example_13.cpp
   drivers/example_14.cpp
   drivers/example_15.cpp)
-
 
 foreach(EXECUTABLE ${EXECUTABLES})
   math(EXPR NUMBER "${NUMBER}+1")

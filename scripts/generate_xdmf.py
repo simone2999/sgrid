@@ -2,18 +2,17 @@
 # -*- coding: utf-8 -*-
 import sys
 
-
-
 def main(path):
 
     if path.endswith(".raw"):
         path = path.replace(".raw","")
 
+    # Initial variable definition.
+
     xdmf_path = path
     file_name = path.split('/')[-1]
     path = path.replace('/' + file_name, '')
 
-    # Initial variable declaration and definition.
     nx = ny = nz = 0
     block_size = 0
     time_steps = 0
