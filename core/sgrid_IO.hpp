@@ -14,8 +14,8 @@ namespace sgrid {
     class IO {
     public:
         IO(){};
-        IO(Field& x, const std::string& folder_name, bool time_series = false)
-            : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(time_series) {
+        IO(Field& x, const std::string& folder_name)
+            : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(false) {
             init();
         }
         IO(Field& x, const std::string& folder_name, const std::string file_name, bool time_series = false)
@@ -116,9 +116,12 @@ namespace sgrid {
                 std::string folder = folder_path_.substr(0, pos);
                 if (std::filesystem::exists(folder)) {
                     std::cout << "Folder exists" << std::endl;
+                    std::cout << "This is the folder:" << folder << std::endl;
                     std::cout << "Writing images:" << std::endl;
                 } else {
                     std::filesystem::create_directory(folder);
+                    std::cout << "Folder does not exist" << std::endl;
+                    std::cout << "This is the folder: " << folder << std::endl;
                     std::cout << "Writing images:" << std::endl;
                 }
             }

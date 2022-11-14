@@ -1,12 +1,15 @@
 #ifndef SGRID_FIELD_HPP
 #define SGRID_FIELD_HPP
 
+#include <filesystem>
 #include <fstream>
 #include <memory>
 #include "sgrid_Grid.hpp"
 #include "sgrid_Halo.hpp"
 #include "sgrid_RawIO.hpp"
 #include "sgrid_SerialPeriodicHalo.hpp"
+
+namespace fs = std::filesystem;
 
 namespace sgrid {
 
@@ -151,7 +154,10 @@ namespace sgrid {
         void write(const std::string &path) {
             IO io(*this);
             io.set_output_path(path);
-            io.write();
+            // We could check here if the folder is created
+            if (fs::exists(path)) {
+                io.write();
+            }
         }
 
         // Symplistic synchronization
