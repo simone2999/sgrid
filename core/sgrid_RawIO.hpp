@@ -26,25 +26,27 @@ namespace sgrid {
         ~RawIO() { destroy(); }
 
         void write() {
-            field_.synch_device_to_host();
+            if (std::filesystem::exists(output_path_)) {
+                field_.synch_device_to_host();
 
-            auto grid = field_.grid();
+                auto grid = field_.grid();
 
-            MPI_Comm comm = grid->raw_comm();
-            // auto g_host = grid->view_host();
+                MPI_Comm comm = grid->raw_comm();
+                // auto g_host = grid->view_host();
 
-            MPI_Datatype real_type = MPIType<ValueType>();
+                MPI_Datatype real_type = MPIType<ValueType>();
 
-            MPI_File fout;
+                MPI_File fout;
 
-            CATCH_MPI_ERROR(
-                MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
+                CATCH_MPI_ERROR(
+                    MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
-            CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
-            CATCH_MPI_ERROR(MPI_File_write_all(
-                fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
+                CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
+                CATCH_MPI_ERROR(MPI_File_write_all(
+                    fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
 
-            CATCH_MPI_ERROR(MPI_File_close(&fout));
+                CATCH_MPI_ERROR(MPI_File_close(&fout));
+            }
 
             // Clean-up
             // MPI_Type_free(&view_type_);
@@ -142,23 +144,25 @@ namespace sgrid {
         ~RawIODebug() { destroy(); }
 
         void write() {
-            field_.synch_device_to_host();
+            if (std::filesystem::exists(output_path_)) {
+                field_.synch_device_to_host();
 
-            auto grid = field_.grid();
+                auto grid = field_.grid();
 
-            MPI_Comm comm = grid->raw_comm();
-            MPI_Datatype real_type = MPIType<ValueType>();
+                MPI_Comm comm = grid->raw_comm();
+                MPI_Datatype real_type = MPIType<ValueType>();
 
-            MPI_File fout;
+                MPI_File fout;
 
-            CATCH_MPI_ERROR(
-                MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
+                CATCH_MPI_ERROR(
+                    MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
-            CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
-            CATCH_MPI_ERROR(MPI_File_write_all(
-                fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
+                CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
+                CATCH_MPI_ERROR(MPI_File_write_all(
+                    fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
 
-            CATCH_MPI_ERROR(MPI_File_close(&fout));
+                CATCH_MPI_ERROR(MPI_File_close(&fout));
+            }
 
             // Clean-up
             // MPI_Type_free(&view_type_);

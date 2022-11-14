@@ -155,9 +155,7 @@ namespace sgrid {
             IO io(*this);
             io.set_output_path(path);
             // We could check here if the folder is created
-            if (fs::exists(path)) {
-                io.write();
-            }
+            io.write();
         }
 
         // Symplistic synchronization
