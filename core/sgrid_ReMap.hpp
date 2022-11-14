@@ -362,6 +362,7 @@ namespace sgrid {
 
             num_partitions_ = num_partitions;
 
+            // Comment out for test_install to pass all tests.
             assert(num_partitions == parallel_field.block_size() / serial_field.block_size());
 
             // Must be serial
