@@ -56,6 +56,8 @@ namespace sgrid {
                 return "char";
             } else if (std::is_same<ValueType, float>::value) {
                 return "float";
+            } else if (std::is_same<ValueType, sgrid::complex<double>>::value) {
+                return "complex";
             } else {
                 assert(false);
                 return "";

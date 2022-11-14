@@ -14,6 +14,10 @@ namespace sgrid {
     class IO {
     public:
         IO(){};
+        IO(Field& x, const std::string& folder_name, bool time_series = false)
+            : field_(x), folder_name_(folder_name), file_name_("data.raw"), time_series_(time_series) {
+            init();
+        }
         IO(Field& x, const std::string& folder_name, const std::string file_name, bool time_series = false)
             : field_(x), folder_name_(folder_name), file_name_(file_name), time_series_(time_series) {
             init();
