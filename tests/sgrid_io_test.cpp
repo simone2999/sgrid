@@ -50,6 +50,9 @@ TEST(IOTest, write1) {
     io.write();
 
     ASSERT_TRUE(fs::exists(fs::absolute(p)));
+    if (fs::exists(fs::absolute(p))) {
+        fs::remove_all(p);
+    }
 }
 
 // TEST(IOTest, write2) {
