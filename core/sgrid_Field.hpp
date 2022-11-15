@@ -154,7 +154,6 @@ namespace sgrid {
         void write(const std::string &path) {
             IO io(*this);
             io.set_output_path(path);
-            // We could check here if the folder is created
             io.write();
         }
 

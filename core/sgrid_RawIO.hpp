@@ -26,31 +26,42 @@ namespace sgrid {
         ~RawIO() { destroy(); }
 
         void write() {
-            if (std::filesystem::exists(output_path_)) {
-                field_.synch_device_to_host();
+            field_.synch_device_to_host();
 
-                auto grid = field_.grid();
+            auto grid = field_.grid();
 
-                MPI_Comm comm = grid->raw_comm();
-                // auto g_host = grid->view_host();
+            MPI_Comm comm = grid->raw_comm();
+            // auto g_host = grid->view_host();
 
-                MPI_Datatype real_type = MPIType<ValueType>();
+            MPI_Datatype real_type = MPIType<ValueType>();
 
-                MPI_File fout;
+            // check_folder();
 
-                CATCH_MPI_ERROR(
-                    MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
+            MPI_File fout;
 
-                CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
-                CATCH_MPI_ERROR(MPI_File_write_all(
-                    fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
+            CATCH_MPI_ERROR(
+                MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
-                CATCH_MPI_ERROR(MPI_File_close(&fout));
-            }
+            CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
+            CATCH_MPI_ERROR(MPI_File_write_all(
+                fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
+
+            CATCH_MPI_ERROR(MPI_File_close(&fout));
 
             // Clean-up
             // MPI_Type_free(&view_type_);
             // MPI_Type_free(&interior_subarray_type_);
+        }
+
+        void check_folder() {
+            int pos = output_path_.find('/');
+            std::string folder = output_path_.substr(0, pos);
+            if (!std::filesystem::exists(folder)) {
+                std::cout << "Folder was not created." << std::endl;
+                std::cout << "Creating folder..." << std::endl;
+                std::filesystem::create_directory(folder);
+            }
+            assert(std::filesystem::exists(folder));
         }
 
     private:
@@ -144,25 +155,23 @@ namespace sgrid {
         ~RawIODebug() { destroy(); }
 
         void write() {
-            if (std::filesystem::exists(output_path_)) {
-                field_.synch_device_to_host();
+            field_.synch_device_to_host();
 
-                auto grid = field_.grid();
+            auto grid = field_.grid();
 
-                MPI_Comm comm = grid->raw_comm();
-                MPI_Datatype real_type = MPIType<ValueType>();
+            MPI_Comm comm = grid->raw_comm();
+            MPI_Datatype real_type = MPIType<ValueType>();
 
-                MPI_File fout;
+            MPI_File fout;
 
-                CATCH_MPI_ERROR(
-                    MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
+            CATCH_MPI_ERROR(
+                MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
-                CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
-                CATCH_MPI_ERROR(MPI_File_write_all(
-                    fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
+            CATCH_MPI_ERROR(MPI_File_set_view(fout, 0, real_type, view_type_, "native", MPI_INFO_NULL));
+            CATCH_MPI_ERROR(MPI_File_write_all(
+                fout, field_.view_host().data().data(), 1, interior_subarray_type_, MPI_STATUS_IGNORE));
 
-                CATCH_MPI_ERROR(MPI_File_close(&fout));
-            }
+            CATCH_MPI_ERROR(MPI_File_close(&fout));
 
             // Clean-up
             // MPI_Type_free(&view_type_);

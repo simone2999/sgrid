@@ -1,6 +1,7 @@
 #ifndef SGRID_IO_HPP
 #define SGRID_IO_HPP
 
+#include <mpi.h>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -53,6 +54,10 @@ namespace sgrid {
          */
         void write() {
             auto grid = field_.grid();
+            if (file_counter == 0) {
+                MPI_Barrier(grid->raw_comm());
+                check_folder_exists();
+            }
             if (time_series_) {
                 if (grid->comm_rank() == 0) {
                     meta.write(file_name_);
@@ -67,6 +72,23 @@ namespace sgrid {
                     meta.write(file_name_);
                 }
                 field_.write(folder_name_ + '/' + file_name_);
+            }
+        }
+
+        void check_folder_exists(sgrid::Grid& grid) {
+            int pos = folder_name_.find('/');
+            std::string folder = folder_name_.substr(0, pos);
+            if (std::filesystem::exists(folder)) {
+                std::cout << "Folder exists" << std::endl;
+                std::cout << "This is the folder: " << folder << std::endl;
+                std::cout << "Writing images:" << std::endl;
+            }
+
+            else {
+                std::cout << "Folder does not exist" << std::endl;
+                std::cout << "Writing images in folder: " << folder << std::endl;
+
+                std::filesystem::create_directory(folder);
             }
         }
 
@@ -92,10 +114,6 @@ namespace sgrid {
              * Write the metadata.yml file containing: nx, ny, nz, block_size, endianess.
              */
             void write(std::string raw_file_name) {
-                if (image_counter == 1) {
-                    check_folder_exists();
-                }
-
                 size_t pos = raw_file_name.find(".raw");
                 std::string file_name = raw_file_name.erase(pos, raw_file_name.length());
                 std::ofstream file(folder_path_ + "/" + "metadata" + "_" + file_name + ".yml");
@@ -107,24 +125,6 @@ namespace sgrid {
                 image_counter++;
             }
 
-            /**
-             * Check if the folder_path_ given when creating a MetadataIO object already exists in the current
-             * directory.
-             */
-            void check_folder_exists() {
-                int pos = folder_path_.find('/');
-                std::string folder = folder_path_.substr(0, pos);
-                if (std::filesystem::exists(folder)) {
-                    std::cout << "Folder exists" << std::endl;
-                    std::cout << "This is the folder:" << folder << std::endl;
-                    std::cout << "Writing images:" << std::endl;
-                } else {
-                    std::filesystem::create_directory(folder);
-                    std::cout << "Folder does not exist" << std::endl;
-                    std::cout << "This is the folder: " << folder << std::endl;
-                    std::cout << "Writing images:" << std::endl;
-                }
-            }
             int nx_{}, ny_{}, nz_{}, block_size_{};
             std::string endianess_;
             std::string folder_path_;
