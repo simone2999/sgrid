@@ -56,7 +56,7 @@ namespace sgrid {
          */
         void write() {
             auto grid = field_.grid();
-            if (grid->comm_rank() == 0) {
+            if (grid->comm_rank() == 0 && file_counter == 0) {
                 check_folder_exists();
             }
             if (time_series_) {
@@ -79,17 +79,19 @@ namespace sgrid {
         void check_folder_exists() {
             int pos = folder_name_.find('/');
             std::string folder = folder_name_.substr(0, pos);
-            if (std::filesystem::exists(folder)) {
-                std::cout << "Folder exists" << std::endl;
+            std::filesystem::path p = folder;
+            std::filesystem::path absolute_path = std::filesystem::absolute(p);
+            if (!std::filesystem::exists(absolute_path)) {
+                std::cout << "Folder does not exist." << std::endl;
+                std::cout << "Writing images in folder: " << folder << std::endl;
+                std::filesystem::create_directory(folder);
+            } else if (std::filesystem::exists(absolute_path) && !std::filesystem::is_directory(absolute_path)) {
+                std::cout << "Folder already exists as a file.";
+                assert(false);
+            } else if (std::filesystem::exists(absolute_path)) {
+                std::cout << "Folder exists." << std::endl;
                 std::cout << "This is the folder: " << folder << std::endl;
                 std::cout << "Writing images:" << std::endl;
-            }
-
-            else {
-                std::cout << "Folder does not exist" << std::endl;
-                std::cout << "Writing images in folder: " << folder << std::endl;
-
-                std::filesystem::create_directory(folder);
             }
         }
 
