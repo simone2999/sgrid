@@ -37,8 +37,6 @@ namespace sgrid {
 
             MPI_File fout;
 
-            check_folder();
-
             CATCH_MPI_ERROR(
                 MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
@@ -51,17 +49,6 @@ namespace sgrid {
             // Clean-up
             // MPI_Type_free(&view_type_);
             // MPI_Type_free(&interior_subarray_type_);
-        }
-
-        void check_folder() {
-            int pos = output_path_.find('/');
-            std::string folder = output_path_.substr(0, pos);
-            // if statement to check if output_path is just a filename.
-            if (pos > 0) {
-                std::filesystem::path p = folder;
-                std::filesystem::path absolute_path = std::filesystem::absolute(p);
-                assert(std::filesystem::is_directory(absolute_path));
-            }
         }
 
     private:
