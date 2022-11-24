@@ -83,15 +83,16 @@ namespace sgrid {
             std::filesystem::path absolute_path = std::filesystem::absolute(p);
             if (!std::filesystem::exists(absolute_path)) {
                 std::cout << "Folder does not exist." << std::endl;
-                std::cout << "Writing images in folder: " << folder << std::endl;
+                std::cout << "Writing images in folder: " << folder << "." << std::endl;
                 std::filesystem::create_directory(folder);
             } else if (std::filesystem::exists(absolute_path) && !std::filesystem::is_directory(absolute_path)) {
                 std::cout << "Folder already exists as a file.";
                 assert(false);
             } else if (std::filesystem::exists(absolute_path)) {
-                std::cout << "Folder exists." << std::endl;
-                std::cout << "This is the folder: " << folder << std::endl;
-                std::cout << "Writing images:" << std::endl;
+                if (file_counter < 1) {
+                    std::cout << "Folder exists." << std::endl;
+                    std::cout << "Writing image: " << file_name_ << " in folder " << folder << "." << std::endl;
+                }
             }
         }
 
