@@ -37,6 +37,8 @@ namespace sgrid {
 
             MPI_File fout;
 
+            check_folder();
+
             CATCH_MPI_ERROR(
                 MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
@@ -54,12 +56,12 @@ namespace sgrid {
         void check_folder() {
             int pos = output_path_.find('/');
             std::string folder = output_path_.substr(0, pos);
-            if (!std::filesystem::exists(folder)) {
-                std::cout << "Folder was not created." << std::endl;
-                std::cout << "Creating folder..." << std::endl;
-                std::filesystem::create_directory(folder);
+            // if statement to check if output_path is just a filename.
+            if (pos > 0) {
+                std::filesystem::path p = folder;
+                std::filesystem::path absolute_path = std::filesystem::absolute(p);
+                assert(std::filesystem::is_directory(absolute_path));
             }
-            assert(std::filesystem::exists(folder));
         }
 
     private:
