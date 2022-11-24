@@ -35,8 +35,6 @@ namespace sgrid {
 
             MPI_Datatype real_type = MPIType<ValueType>();
 
-            // check_folder();
-
             MPI_File fout;
 
             CATCH_MPI_ERROR(

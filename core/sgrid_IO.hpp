@@ -36,6 +36,7 @@ namespace sgrid {
                                   field_.block_size(),
                                   folder_name_,
                                   field_.get_value_type());
+                MPI_Barrier(g->raw_comm());
             } else if (Field::Grid::Dim == 3) {
                 meta = MetadataIO(g_host.global_dim[0],
                                   g_host.global_dim[1],
@@ -43,6 +44,7 @@ namespace sgrid {
                                   field_.block_size(),
                                   folder_name_,
                                   field_.get_value_type());
+                MPI_Barrier(g->raw_comm());
             } else {
                 assert(false);
             }
@@ -54,8 +56,7 @@ namespace sgrid {
          */
         void write() {
             auto grid = field_.grid();
-            if (file_counter == 0) {
-                MPI_Barrier(grid->raw_comm());
+            if (grid->comm_rank() == 0) {
                 check_folder_exists();
             }
             if (time_series_) {
@@ -75,7 +76,7 @@ namespace sgrid {
             }
         }
 
-        void check_folder_exists(sgrid::Grid& grid) {
+        void check_folder_exists() {
             int pos = folder_name_.find('/');
             std::string folder = folder_name_.substr(0, pos);
             if (std::filesystem::exists(folder)) {
@@ -138,7 +139,7 @@ namespace sgrid {
         std::string folder_name_;
         std::string file_name_;
         int file_counter = 0;
-        bool time_series_;
+        bool time_series_ = false;
     };
 }  // namespace sgrid
 
