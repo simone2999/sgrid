@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
         io.write();
 
         sgrid::RawIODebug<Field_t> debug_out(x);
-        debug_out.set_output_path("example_5/x_debug.raw");
+        debug_out.set_output_path("example_5/data_debug.raw");
         debug_out.write();
         MPI_Barrier(MPI_COMM_WORLD);
     }

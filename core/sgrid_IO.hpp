@@ -36,7 +36,6 @@ namespace sgrid {
                                   field_.block_size(),
                                   folder_name_,
                                   field_.get_value_type());
-                MPI_Barrier(g->raw_comm());
             } else if (Field::Grid::Dim == 3) {
                 meta = MetadataIO(g_host.global_dim[0],
                                   g_host.global_dim[1],
@@ -44,7 +43,6 @@ namespace sgrid {
                                   field_.block_size(),
                                   folder_name_,
                                   field_.get_value_type());
-                MPI_Barrier(g->raw_comm());
             } else {
                 assert(false);
             }
