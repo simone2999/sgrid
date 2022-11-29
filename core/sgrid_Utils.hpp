@@ -3,10 +3,10 @@
 
 #include "sgrid_Base.hpp"
 
-#include <cassert>
-#include <utility>
-
 #include <mpi.h>
+#include <cassert>
+#include <string>
+#include <utility>
 
 #define CATCH_MPI_ERROR(err) \
     {                        \
@@ -100,7 +100,7 @@ namespace sgrid {
         // return dims[0] * (k * dims[1] + j) + i;
     }
 
-    void check_path_exists(std::string path);
+    void check_path_exists(const std::string &path);
 
 }  // namespace sgrid
 

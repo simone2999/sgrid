@@ -6,7 +6,7 @@
 #include "sgrid_Base.hpp"
 
 namespace sgrid {
-    void check_path_exists(std::string path) {
+    void check_path_exists(const std::string &path) {
         int pos = path.find('/');
         // Check if given path is just a file or specifies a folder.
         if (pos > 0) {
