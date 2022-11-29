@@ -1,11 +1,11 @@
 #ifndef SGRID_RAW_IO_HPP
 #define SGRID_RAW_IO_HPP
 
+#include <mpi.h>
 #include <filesystem>
 #include <fstream>
 #include <string>
-
-#include <mpi.h>
+#include "sgrid_Utils.hpp"
 
 namespace sgrid {
 
@@ -36,6 +36,11 @@ namespace sgrid {
             MPI_Datatype real_type = MPIType<ValueType>();
 
             MPI_File fout;
+
+            if (grid->comm_rank() == 0) {
+                check_path_exists(output_path_);
+                std::cout << "Writing image with given output_path: " << output_path_ << std::endl;
+            }
 
             CATCH_MPI_ERROR(
                 MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
@@ -150,6 +155,11 @@ namespace sgrid {
             MPI_Datatype real_type = MPIType<ValueType>();
 
             MPI_File fout;
+
+            if (grid->comm_rank() == 0) {
+                check_path_exists(output_path_);
+                std::cout << "Writing image with given output_path: " << output_path_ << std::endl;
+            }
 
             CATCH_MPI_ERROR(
                 MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));

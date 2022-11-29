@@ -100,6 +100,8 @@ namespace sgrid {
         // return dims[0] * (k * dims[1] + j) + i;
     }
 
+    void check_path_exists(std::string path);
+
 }  // namespace sgrid
 
 #endif  // SGRID_UTILS_HPP

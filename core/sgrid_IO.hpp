@@ -8,6 +8,7 @@
 #include <utility>
 #include "sgrid_Base.hpp"
 #include "sgrid_Grid.hpp"
+#include "sgrid_Utils.hpp"
 
 namespace sgrid {
 
@@ -55,7 +56,7 @@ namespace sgrid {
         void write() {
             auto grid = field_.grid();
             if (grid->comm_rank() == 0 && file_counter == 0) {
-                check_folder_exists();
+                check_path_exists(folder_name_ + '/' + file_name_);
             }
             if (time_series_) {
                 if (grid->comm_rank() == 0) {
@@ -71,26 +72,6 @@ namespace sgrid {
                     meta.write(file_name_);
                 }
                 field_.write(folder_name_ + '/' + file_name_);
-            }
-        }
-
-        void check_folder_exists() {
-            int pos = folder_name_.find('/');
-            std::string folder = folder_name_.substr(0, pos);
-            std::filesystem::path p = folder;
-            std::filesystem::path absolute_path = std::filesystem::absolute(p);
-            if (!std::filesystem::exists(absolute_path)) {
-                std::cout << "Folder does not exist." << std::endl;
-                std::cout << "Writing images in folder: " << folder << "." << std::endl;
-                std::filesystem::create_directory(folder);
-            } else if (std::filesystem::exists(absolute_path) && !std::filesystem::is_directory(absolute_path)) {
-                std::cout << "Folder already exists as a file.";
-                assert(false);
-            } else if (std::filesystem::exists(absolute_path)) {
-                if (file_counter < 1) {
-                    std::cout << "Folder exists." << std::endl;
-                    std::cout << "Writing image: " << file_name_ << " in folder " << folder << "." << std::endl;
-                }
             }
         }
 
