@@ -2,14 +2,11 @@
 #define SGRID_FIELD_HPP
 
 #include <filesystem>
-#include <fstream>
 #include <memory>
 #include "sgrid_Grid.hpp"
 #include "sgrid_Halo.hpp"
 #include "sgrid_RawIO.hpp"
 #include "sgrid_SerialPeriodicHalo.hpp"
-
-namespace fs = std::filesystem;
 
 namespace sgrid {
 
