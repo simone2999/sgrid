@@ -10,7 +10,7 @@ using Field_t = sgrid::Field<Grid_t, double>;
 // test
 int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
-    Kokkos::initialize(argc, argv);
+    sgrid::initialize(argc, argv);
 
     {
         auto grid = std::make_shared<Grid_t>();
@@ -31,6 +31,6 @@ int main(int argc, char *argv[]) {
         field->exchange_halos();
     }
 
-    Kokkos::finalize();
+    sgrid::finalize();
     return MPI_Finalize();
 }

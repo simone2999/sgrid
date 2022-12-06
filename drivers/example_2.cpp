@@ -1,7 +1,6 @@
-
-
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
 
 #include <mpi.h>
@@ -175,13 +174,16 @@ int main(int argc, char *argv[]) {
         ////////////////////////////////////////////////////////////
         // Output
         ////////////////////////////////////////////////////////////
+        // Create class sgridIO to handle, folder creation and
         if (write_output) {
+            sgrid::IO ioX(x, "example_2", "data.raw");
+            sgrid::IO ioIdx(idx, "example_2", "idx.raw");
+            sgrid::IO ioC_field(c_field, "example_2", "c_field.raw");
             start = MPI_Wtime();
 
-            x.write("data.raw");
-            idx.write("idx.raw");
-
-            c_field.write("c_field.raw");
+            ioX.write();
+            ioIdx.write();
+            ioC_field.write();
 
             MPI_Barrier(g->raw_comm());
 

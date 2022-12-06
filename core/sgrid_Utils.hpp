@@ -3,7 +3,9 @@
 
 #include "sgrid_Base.hpp"
 
+#include <mpi.h>
 #include <cassert>
+#include <string>
 #include <utility>
 
 #include <mpi.h>
@@ -99,6 +101,13 @@ namespace sgrid {
         return dims[2] * (i * dims[1] + j) + k;
         // return dims[0] * (k * dims[1] + j) + i;
     }
+
+    /**
+     * Checks if given path already exists as a file or folder. It will
+     * make sure to create the folder specified.
+     * @param path, path that we want to check.
+     **/
+    void ensure_path_exists(const std::string &path);
 
 }  // namespace sgrid
 
