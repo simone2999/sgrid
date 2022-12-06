@@ -8,11 +8,11 @@
 
 #include <mpi.h>
 
-#define CATCH_MPI_ERROR(err) \
-    {                        \
-        if (err != 0) {      \
-            assert(false);   \
-        }                    \
+#define CATCH_MPI_ERROR(err)      \
+    {                             \
+        if (err != MPI_SUCCESS) { \
+            assert(false);        \
+        }                         \
     }
 
 namespace sgrid {

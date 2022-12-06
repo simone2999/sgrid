@@ -60,10 +60,10 @@ sbatch ../scripts/run_example_2.sbatch
 
 ```bibtex
 @misc{sgridgit,
-	author = {Patrick Zulian and Dylan Ramelli},
-	title = {{SGRID}: a structured grid manager for supercomputing},
-	url = {https://bitbucket.org/zulianp/sgrid},
-	howpublished = {https://bitbucket.org/zulianp/grid},
-	year = {2020}
+    author = {Zulian, Patrick and Ramelli, Dylan },
+    title = {{SGRID}: a structured grid manager for supercomputing},
+    url = {https://bitbucket.org/zulianp/sgrid},
+    howpublished = {https://bitbucket.org/zulianp/grid},
+    year = {2020}
 }
 ```
