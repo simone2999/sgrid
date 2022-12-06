@@ -1,5 +1,6 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
 
 #include "sgrid_SliceHalo.hpp"
@@ -129,7 +130,7 @@ int main(int argc, char *argv[]) {
             });
 
         sgrid::RawIODebug<Field_t> debug_out(*field);
-        debug_out.set_output_path("x_debug.raw");
+        debug_out.set_output_path("example_7/x_debug.raw");
         debug_out.write();
     }
 

@@ -21,15 +21,20 @@ list(
   ../example_6.cpp
   ../example_7.cpp
   ../example_8.cpp
-  ../example_9.cpp)
+  ../example_9.cpp
+  ../example_10.cpp
+  ../example_11.cpp
+  ../example_12.cpp
+  ../example_13.cpp
+  ../example_14.cpp
+  ../example_15.cpp)
 
 foreach(EXECUTABLE ${EXECUTABLES})
   # we use one of our examples here
   math(EXPR NUMBER "${NUMBER}+1")
-  add_executable(example_${NUMBER} ${CMAKE_SOURCE_DIR}/../example_${NUMBER}.cpp)
+  add_executable(sgrid_example_${NUMBER} ${CMAKE_SOURCE_DIR}/../example_${NUMBER}.cpp)
 
   # import all the dependencies and targets
-  target_link_libraries(example_${NUMBER} sgrid::sgrid)
-  add_test(NAME sgrid.example_${NUMBER} COMMAND example_${NUMBER}
-                                                ${CMAKE_SOURCE_DIR}/../data)
+  target_link_libraries(sgrid_example_${NUMBER} sgrid::sgrid)
+  add_test(NAME sgrid.example_${NUMBER} COMMAND sgrid_example_${NUMBER})
 endforeach(EXECUTABLE)

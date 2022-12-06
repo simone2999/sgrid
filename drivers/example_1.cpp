@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
         Real start = MPI_Wtime();
 
         // Grid parameters
-        int nx = 100;
-        int ny = 100;
+        int nx = 50;
+        int ny = 50;
 
         if (argc == 3) {
             nx = atoi(argv[1]);

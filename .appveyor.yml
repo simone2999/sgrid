@@ -4,8 +4,17 @@ clone_folder: c:\projects\sgrid
 # https://www.appveyor.com/docs/build-environment/#build-worker-images
 image: Visual Studio 2019
 
-platform:
-    - x64
+init:
+  - ps: ($env:APPVEYOR_SAVE_CACHE_ON_ERROR = "true")
+
+cache:
+  - C:\projects\installations\kokkos-kernels -> appveyor.yml
+  - C:\projects\installations\kokkos -> appveyor.yml
+
+
+##########################################################################################
+# DEPENDENCIES: mpi, kokkos, kokkkos-kernels.
+
 
 install:
 # Install MS-MPI
@@ -20,19 +29,29 @@ install:
 
 
 # Install Kokkos
-- cd C:\
-- mkdir kg
-- cd kg
-- ps: Start-FileDownload 'https://github.com/kokkos/kokkos/archive/refs/tags/3.5.00.tar.gz'
-- 7z x 3.5.00.tar.gz -so | 7z x -si -ttar > nul
-- cd kokkos-3.5.00
-- cmake -G "Visual Studio 16 2019" -A x64 -S . -B "build64" -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX="C:\projects\installations\kokkos" -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
-- cmake --build build64 --config Release --target install
+- cd C:\ && mkdir kg && cd kg
+- ps: Start-FileDownload 'https://github.com/kokkos/kokkos/archive/refs/tags/3.6.00.tar.gz'
+- 7z x 3.6.00.tar.gz -so | 7z x -si -ttar > nul
+- cd kokkos-3.6.00
+- IF NOT EXIST C:\projects\installations\kokkos cmake -G "Visual Studio 16 2019" -A x64 -S . -B "build64" -DKokkos_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX="C:\projects\installations\kokkos" -DCMAKE_CXX_FLAGS="/W0 /EHsc" -DKokkos_ENABLE_DEPRECATED_CODE_3=ON -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF && cmake --build build64 --config Release --target install
+
+
+# Install KokkosKernels
+# Specify Kokkos_DIR with front slashes, it will still find kokkos but more importantly
+# it will write in KokkosKernelsConfig.cmake the path with '/'.
+- cd C:\ && mkdir kkg && cd kkg
+- ps: Start-FileDownload 'https://github.com/kokkos/kokkos-kernels/archive/refs/tags/3.6.00.tar.gz'
+- 7z x 3.6.00.tar.gz -so | 7z x -si -ttar > nul
+- cd kokkos-kernels-3.6.00
+- IF NOT EXIST C:\projects\installations\kokkos-kernels cmake -B "build64" -DKokkosKernels_ENABLE_TESTS=OFF -DCMAKE_EXE_LINKER_FLAGS:STRING="/machine:x64" -DCMAKE_INSTALL_PREFIX="C:\projects\installations\kokkos-kernels"  -DCMAKE_CXX_FLAGS:STRING="/DWIN32 /D_WINDOWS /GR /EHsc /bigobj" -DKokkos_DIR="C:/projects/installations/kokkos/lib/cmake/Kokkos" && cmake --build build64 --config Release --target install
+
+
+##########################################################################################
 
 # sgrid
 before_build:
 - cd c:\projects\sgrid
-- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install  -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DKokkos_DIR="C:/projects/installations/kokkos/lib/cmake/Kokkos" -DSGRID_ENABLE_KOKKOS=ON -DSGRID_ENABLE_KOKKOS_KERNELS=OFF  #-DCMAKE_VERBOSE_MAKEFILE=ON
+- cmake -Ball_builds -DCMAKE_INSTALL_PREFIX=install  -DMPI_C_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DMPI_C_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\msmpi.lib" -DMPI_CXX_LIBRARIES="C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\msmpi.lib" -DMPI_CXX_INCLUDE_PATH="C:\Program Files (x86)\Microsoft SDKs\MPI\Include" -DKokkos_DIR="C:/projects/installations/kokkos/lib/cmake/Kokkos" -DSGRID_ENABLE_KOKKOS=ON  -DSGRID_ENABLE_BENCHMARK=OFF -DSGRID_ENABLE_TESTING=OFF #-DCMAKE_VERBOSE_MAKEFILE=ON
 # # -DBUILD_SHARED_LIBS=ON
 
 build_script:
@@ -40,9 +59,12 @@ build_script:
 - ls -lah all_builds
 - ls -lah all_builds/Release
 - cmake --build all_builds --config Release --target install
+# - .\all_builds\Release\sgrid_test.exe
+# - .\all_builds\Release\sgrid_bench.exe
 
 after_build:
 # - .\all_builds\Release\sgrid_example_1.exe
 # - .\all_builds\Release\sgrid_example_2.exe
 # - ctest -C Release --config Release --output-on-failure
 - cmake --build all_builds --config Release --target test_install
+- ls C:\projects\sgrid\all_builds\TestInstall

@@ -24,6 +24,7 @@ if(MPI_FOUND)
   # else() message(FATAL_ERROR "MPI REQUIRED")
 endif()
 
+
 # ##############################################################################
 
 
@@ -142,8 +143,14 @@ endif()
 
 # ##############################################################################
 
-if(SGRID_ENABLE_KOKKOS_KERNELS AND NOT WIN32)
-  find_package(KokkosKernels QUIET)
+if(SGRID_ENABLE_KOKKOS_KERNELS)
+
+  if(WIN32)
+    find_package(Kokkos HINTS C:/projects/installations/kokkos-kernels/lib/cmake/KokkosKernels
+                 ${KokkosKernels_DIR} $ENV{KokkosKernels_DIR} REQUIRED)
+  else()
+  find_package(KokkosKernels REQUIRED)
+  endif()
 
   if(TARGET Kokkos::kokkoskernels)
     set(SGRID_DEP_TARGETS "${SGRID_DEP_TARGETS};Kokkos::kokkoskernels")
@@ -158,7 +165,7 @@ if(SGRID_ENABLE_KOKKOS_KERNELS AND NOT WIN32)
       )
     else()
       set(SGRID_DEP_LIBRARIES
-          "${SGRID_DEP_LIBRARIES};${KokkosKernels_LIBRARIES};${KokkosKernels_TPL_LIBRARIES};-L${KokkosKernels_LIBRARY_DIRS}"
+          "${SGRID_DEP_LIBRARIES};${KokkosKernels_LIBRARIES};${KokkosKernels_TPL_LIBRARIES};${KokkosKernels_LIBRARY_DIRS}"
       )
     endif()
   endif()
@@ -178,3 +185,4 @@ if(CMAKE_BUILD_TYPE MATCHES "[Cc][Oo][Vv][Ee][Rr][Aa][Gg][Ee]")
   include(cmake/CodeCoverage.cmake)
   add_codecov(sgrid_coverage sgrid_test coverage)
 endif()
+# message ("SGRID_DEP_LIBRARIES : ${SGRID_DEP_LIBRARIES}")

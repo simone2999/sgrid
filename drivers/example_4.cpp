@@ -1,5 +1,6 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
 
 #include <mpi.h>
@@ -212,7 +213,9 @@ int main(int argc, char *argv[]) {
             printf("Num bugs %ld\n", bugs);
         }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
-        x.write("x.raw");
+        //        x.write("example_4/x.raw");
+        sgrid::IO io(x, "example_4", "data.raw");
+        io.write();
     }
 
     Kokkos::finalize();

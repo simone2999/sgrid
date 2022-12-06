@@ -1,5 +1,6 @@
 #include "sgrid_Base.hpp"
 #include "sgrid_Field.hpp"
+#include "sgrid_IO.hpp"
 #include "sgrid_View.hpp"
 
 #include <mpi.h>
@@ -185,10 +186,12 @@ int main(int argc, char *argv[]) {
             MPI_Barrier(MPI_COMM_WORLD);
         }
         // printf("Halo nz %d/%ld\n", bug, x_dev.data().size());
-        x.write("x.raw");
+
+        sgrid::IO io(x, "example_5", "data.raw");
+        io.write();
 
         sgrid::RawIODebug<Field_t> debug_out(x);
-        debug_out.set_output_path("x_debug.raw");
+        debug_out.set_output_path("example_5/data_debug.raw");
         debug_out.write();
         MPI_Barrier(MPI_COMM_WORLD);
     }
