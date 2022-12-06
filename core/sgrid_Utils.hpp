@@ -100,7 +100,12 @@ namespace sgrid {
         // return dims[0] * (k * dims[1] + j) + i;
     }
 
-    void check_path_exists(const std::string &path);
+    /**
+     * Checks if given path already exists as a file or folder. It will
+     * make sure to create the folder specified.
+     * @param path, path that we want to check.
+     **/
+    void ensure_path_exists(const std::string &path);
 
 }  // namespace sgrid
 

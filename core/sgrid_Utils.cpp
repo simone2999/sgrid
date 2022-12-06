@@ -5,8 +5,10 @@
 #include <string>
 #include "sgrid_Base.hpp"
 
+#include <mpi.h>
+
 namespace sgrid {
-    void check_path_exists(const std::string &path) {
+    void ensure_path_exists(const std::string &path) {
         int pos = path.find('/');
         // Check if given path is just a file or specifies a folder.
         if (pos > 0) {
@@ -16,15 +18,17 @@ namespace sgrid {
             if (!std::filesystem::exists(absolute_path)) {
                 std::filesystem::create_directory(folder);
             } else if (std::filesystem::exists(absolute_path) && !std::filesystem::is_directory(absolute_path)) {
-                std::cout << "Folder already exists as a file.";
+                std::cerr << "[Error] Folder already exists as a file.";
                 assert(false);
+                MPI_Abort(MPI_COMM_WORLD, 1);
             }
         } else {
             std::filesystem::path p = path;
             std::filesystem::path absolute_path = std::filesystem::absolute(p);
             if (std::filesystem::exists(absolute_path) && std::filesystem::is_directory(absolute_path)) {
-                std::cout << "Cannot write file. It already exists as a directory." << std::endl;
+                std::cerr << "[Error] Cannot write file. It already exists as a directory." << std::endl;
                 assert(false);
+                MPI_Abort(MPI_COMM_WORLD, 1);
             }
         }
     }

@@ -38,10 +38,10 @@ namespace sgrid {
             MPI_File fout;
 
             if (grid->comm_rank() == 0) {
-                check_path_exists(output_path_);
-                std::cout << "Writing image with given output_path: " << output_path_ << std::endl;
+                ensure_path_exists(output_path_);
             }
 
+            std::cout << "Writing image with given output_path: " << output_path_ << std::endl;
             CATCH_MPI_ERROR(
                 MPI_File_open(comm, output_path_.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fout));
 
@@ -157,7 +157,7 @@ namespace sgrid {
             MPI_File fout;
 
             if (grid->comm_rank() == 0) {
-                check_path_exists(output_path_);
+                ensure_path_exists(output_path_);
                 std::cout << "Writing image with given output_path: " << output_path_ << std::endl;
             }
 

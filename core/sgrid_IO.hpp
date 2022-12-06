@@ -56,7 +56,7 @@ namespace sgrid {
         void write() {
             auto grid = field_.grid();
             if (grid->comm_rank() == 0 && file_counter == 0) {
-                check_path_exists(folder_name_ + '/' + file_name_);
+                ensure_path_exists(folder_name_ + '/' + file_name_);
             }
             if (time_series_) {
                 if (grid->comm_rank() == 0) {
