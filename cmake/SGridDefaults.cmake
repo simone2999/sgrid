@@ -32,3 +32,16 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # ##############################################################################
 
 # if(NOT MOONOLITH_LAUNCH_EXE) set(MOONOLITH_LAUNCH_EXE "") endif()
+
+
+# AddressSanitize
+set(CMAKE_C_FLAGS_ASAN
+    "-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g -O0"
+    CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
+          FORCE)
+
+set(CMAKE_CXX_FLAGS_ASAN
+    "-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g -O0"
+    CACHE STRING
+          "Flags used by the C++ compiler during AddressSanitizer builds."
+          FORCE)
