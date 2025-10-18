@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
         int offset = 1;
 
         sgrid::parallel_for(
-            "INIT I", space_grid_->md_range(), KOKKOS_LAMBDA(int i, int j, int k) {
+            "INIT I", space_grid_->md_range(), SGRID_LAMBDA(int i, int j, int k) {
                 ptrdiff_t x = g_dev.global_coord(0, i);  // 0=X
                 ptrdiff_t y = g_dev.global_coord(1, j);  // 1=Y
                 ptrdiff_t z = g_dev.global_coord(2, k);  // 2=Z
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
                 sgrid::parallel_reduce(
                     "Print I",
                     space_grid_->md_range_with_ghosts(),
-                    KOKKOS_LAMBDA(int i, int j, int k, int &acc) {
+                    SGRID_LAMBDA(int i, int j, int k, int &acc) {
                         ptrdiff_t z = g_dev.global_coord(2, k);  // 2=Z
 
                         if (z == -1 || z == N_) return;

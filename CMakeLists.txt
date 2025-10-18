@@ -118,7 +118,7 @@ list(
   drivers/example_15.cpp
 )
 
-set(SKIP_NUMBERS 4 5 7 8 9 10 11 12)
+set(SKIP_NUMBERS 4 5 7 8)
 
 foreach(EXECUTABLE ${EXECUTABLES})
   math(EXPR NUMBER "${NUMBER}+1")
