@@ -252,9 +252,9 @@ namespace sgrid {
     template <typename... Args>
     void parallel_reduce(Args...) {}
 
-    void initialize(int, char **) {}
-    void finalize() {}
-    void fence() {}
+    inline void initialize(int, char **) {}
+    inline void finalize() {}
+    inline void fence() {}
 
 ////////////////////////////////////////////////////////////////////////////
 #endif
