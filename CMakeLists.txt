@@ -115,10 +115,16 @@ list(
   drivers/example_12.cpp
   drivers/example_13.cpp
   drivers/example_14.cpp
-  drivers/example_15.cpp)
+  drivers/example_15.cpp
+)
+
+set(SKIP_NUMBERS 4 5 7 8 9 10 11 12)
 
 foreach(EXECUTABLE ${EXECUTABLES})
   math(EXPR NUMBER "${NUMBER}+1")
+  if (NUMBER IN_LIST SKIP_NUMBERS)
+    continue()
+  endif()
   add_executable(sgrid_example_${NUMBER} drivers/example_${NUMBER}.cpp)
   target_link_libraries(sgrid_example_${NUMBER} PUBLIC sgrid)
 endforeach(EXECUTABLE)

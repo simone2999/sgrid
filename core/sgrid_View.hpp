@@ -1,6 +1,11 @@
 #ifndef SGRID_VIEW_HPP
 #define SGRID_VIEW_HPP
 
+#include <algorithm>
+#include <complex>
+#include <initializer_list>
+#include <string>
+#include <type_traits>
 #include "sgrid_Base.hpp"
 
 #ifdef SGRID_WITH_KOKKOS
@@ -84,6 +89,12 @@ namespace sgrid {
     class HostExecutionSpace {};
     class DeviceExecutionSpace {};
 
+    using complex_double_t = std::complex<double>;
+    using complex_float_t = std::complex<float>;
+
+    template <typename T>
+    using complex = std::complex<T>;
+
 #ifdef SGRID_WITH_KOKKOS
     template <typename T, typename MemorySpace, typename... Args>
     using View = ::Kokkos::View<T, MemorySpace, Args...>;
@@ -94,8 +105,56 @@ namespace sgrid {
     public:
         using HostMirror = View;
 
+        View() : size_(0) {}
+
         template <typename... CArgs>
-        View(CArgs &&...) {}
+        View(const std::string &name, size_t size) : size_(size) {
+            // Allocate memory for the array
+            if constexpr (std::is_pointer_v<T>) {
+                using ElementType = std::remove_pointer_t<T>;
+                ptr_ = new ElementType[size];
+            }
+        }
+
+        template <typename... CArgs>
+        View(CArgs &&...) : size_(0) {}
+
+        ~View() {
+            if constexpr (std::is_pointer_v<T>) {
+                if (ptr_ != nullptr) {
+                    delete[] ptr_;
+                }
+            }
+        }
+
+        // Copy constructor
+        View(const View &other) : size_(other.size_) {
+            if constexpr (std::is_pointer_v<T>) {
+                if (size_ > 0) {
+                    using ElementType = std::remove_pointer_t<T>;
+                    ptr_ = new ElementType[size_];
+                    std::copy(other.ptr_, other.ptr_ + size_, ptr_);
+                }
+            }
+        }
+
+        // Assignment operator
+        View &operator=(const View &other) {
+            if (this != &other) {
+                if constexpr (std::is_pointer_v<T>) {
+                    delete[] ptr_;
+                }
+                size_ = other.size_;
+                if constexpr (std::is_pointer_v<T>) {
+                    if (size_ > 0) {
+                        using ElementType = std::remove_pointer_t<T>;
+                        ptr_ = new ElementType[size_];
+                        std::copy(other.ptr_, other.ptr_ + size_, ptr_);
+                    }
+                }
+            }
+            return *this;
+        }
 
         inline auto &operator[](const int i) { return ptr_[i]; }
         inline auto &operator[](const int i) const { return ptr_[i]; }
@@ -103,8 +162,11 @@ namespace sgrid {
         T &data() { return ptr_; }
         const T &data() const { return ptr_; }
 
+        size_t size() const { return size_; }
+
     private:
         T ptr_;
+        size_t size_;
     };
 
     template <typename... Args>
@@ -112,6 +174,8 @@ namespace sgrid {
     template <typename... Args>
     class MDRangePolicy {
     public:
+        MDRangePolicy(std::initializer_list<int> start, std::initializer_list<int> end) {}
+        
         template <typename... CArgs>
         MDRangePolicy(CArgs &&...) {}
         using point_type = int[3];

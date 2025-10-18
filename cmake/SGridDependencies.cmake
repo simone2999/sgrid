@@ -27,7 +27,6 @@ endif()
 
 # ##############################################################################
 
-
 if(SGRID_ENABLE_KOKKOS)
   message(STATUS "Setup Kokkos")
   list(APPEND CMAKE_MESSAGE_INDENT "${SGRID_CMAKE_INDENT}")
@@ -138,7 +137,7 @@ if(SGRID_ENABLE_KOKKOS)
 
   # done with setting up Kokkos target
   unset(_KK_TARGET)
-  set(SGRID_WITH_KOKKOS TRUE)
+  set(SGRID_WITH_KOKKOS FALSE)
 endif()
 
 # ##############################################################################
